@@ -1,11 +1,5 @@
 #include "WindowManager.hpp"
-#include <functional>
-
-struct gameEvents
-{
-	std::function<void(const sf::Event::Closed&)> onClose;
-	std::function<void(const sf::Event::KeyPressed&)> onKeyPress;
-};
+#include "InputSystem.hpp"
 
 class Application
 {
@@ -22,13 +16,13 @@ private:
     void update(sf::Time deltaTime);
     void render();
 
-    // Move this to InputManager later
-    void initEventHandlers();
-
     // Resources
     WindowManager windowManager;
+    InputSystem inputSystem;
+    sf::Clock mainClock;
+
+    // Game Objects
     sf::CircleShape mPlayer;
-    gameEvents mEvents;
 
     // Constants and Configuration
     // move this too (later)
