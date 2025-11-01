@@ -70,7 +70,8 @@ set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/SFML-CMake-Prac")
 
 add_executable(SFML-CMake-Prac
     "${PROJECT_SOURCE_DIR}/src/Main.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Game.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Application.cpp"
+    "${PROJECT_SOURCE_DIR}/src/WindowManager.cpp"
 )
 
 # The ${entt_SOURCE_DIR} variable is automatically set by FetchContent.
