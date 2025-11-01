@@ -45,3 +45,13 @@ out/
 
 # VS files
 .vs/
+
+# github stuff
+.github/
+
+# VSCode files
+launch.json
+settings.json
+
+# clangd stuff
+.clangd
