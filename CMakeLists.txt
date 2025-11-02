@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# For IDEs and language servers like clangd to understand the project structure
+# (e.g., include paths), we need to generate a compile_commands.json file.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # --------------------------------------------------------------------
 # STAGE 1: Fetch and configure SFML using FetchContent
 # --------------------------------------------------------------------
@@ -59,16 +63,23 @@ FetchContent_MakeAvailable(entt) #tgui)
 # --------------------------------------------------------------------
 # STAGE 3: Configure your application
 # --------------------------------------------------------------------
+
+# Define a variable for our project's source code subdirectory.
+# This makes it easier to reference files within it.
+set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/SFML-CMake-Prac")
+
 add_executable(SFML-CMake-Prac
-    "SFML-CMake-Prac/src/Main.cpp"
-    "SFML-CMake-Prac/src/Game.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Main.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Application.cpp"
+    "${PROJECT_SOURCE_DIR}/src/WindowManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/InputSystem.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Player.cpp"
 )
 
-# Tell our executable where to find the EnTT header files.
 # The ${entt_SOURCE_DIR} variable is automatically set by FetchContent.
 target_include_directories(SFML-CMake-Prac PRIVATE
-    ${entt_SOURCE_DIR}/include
-    SFML-CMake-Prac/include
+    "${entt_SOURCE_DIR}/include"
+    "${PROJECT_SOURCE_DIR}/include"
 )
 
 # Link to all the required libraries that FetchContent made available
