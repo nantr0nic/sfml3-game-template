@@ -3,17 +3,14 @@
 Application::Application()
     : windowManager()
     , inputSystem(windowManager)
-    , mPlayer(50.0f)
 {
     windowManager.createMainWindow(1024, 768, "SFML CMake Practice");
     windowManager.getMainWindow().setFramerateLimit(60);
 
-    mPlayer.setFillColor(sf::Color::Green);
-	mPlayer.setOrigin({ 50.0f, 50.0f }); // Center the origin
+    float mainWinCenterX = (windowManager.getMainWindowSize().x) / 2.0f;
+    float mainWinCenterY = (windowManager.getMainWindowSize().y) / 2.0f;
 
-	float mainWindowCenterX = windowManager.getMainWindow().getSize().x / 2.0f;
-	float mainWindowCenterY = windowManager.getMainWindow().getSize().y / 2.0f;
-	mPlayer.setPosition({ mainWindowCenterX, mainWindowCenterY }); // Center of the window
+    mPlayer = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
 }
 
 Application::~Application()
@@ -45,38 +42,14 @@ void Application::processEvents()
         inputSystem.getEventHandles().onClose,
         inputSystem.getEventHandles().onKeyPress
     );
+
+    // Handle player movement input
+    mPlayer->handleInput();
 }
 
 void Application::update(sf::Time deltaTime)
 {
-	// Move player based on keyboard input
-	sf::Vector2f playerMovement(0.0f, 0.0f);
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::W))
-	{
-		playerMovement.y -= playerSpeed;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::A))
-	{
-		playerMovement.x -= playerSpeed;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::S))
-	{
-		playerMovement.y += playerSpeed;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::D))
-	{
-		playerMovement.x += playerSpeed;
-	}
-
-	// Normalized movement vector if both horizontal/vertical keys are pressed
-	// to prevent faster diagonal movement
-	if (playerMovement.x != 0 || playerMovement.y != 0)
-	{
-		// Optional: Normalize and scale by playerSpeed and deltaTime
-	}
-
-	// Apply movement: velocity * time
-	mPlayer.move(playerMovement * deltaTime.asSeconds());
+	mPlayer->update(deltaTime);
 }
 
 void Application::render()
@@ -88,7 +61,7 @@ void Application::render()
     mainWindow.clear(sf::Color::Black);
 
     // Draw game objects here
-    mainWindow.draw(mPlayer);
+    mPlayer->render(mainWindow);
 
     mainWindow.display();
 }

@@ -1,5 +1,8 @@
 #include "WindowManager.hpp"
 #include "InputSystem.hpp"
+#include "Player.hpp"
+
+#include <memory>
 
 class Application
 {
@@ -22,9 +25,5 @@ private:
     sf::Clock mainClock;
 
     // Game Objects
-    sf::CircleShape mPlayer;
-
-    // Constants and Configuration
-    // move this too (later)
-    const float playerSpeed = 100.0f;
+    std::unique_ptr<Player> mPlayer{ nullptr };
 };
