@@ -21,14 +21,7 @@ struct AppContext
     AppContext(const AppContext&) = delete;
     AppContext& operator=(const AppContext&) = delete;
 
-    ~AppContext() {
-        // explicit cleanup to practice good habits :)
-        // (though unique_ptr will handle this automatically)
-        m_WindowManager = nullptr;
-        m_InputManager = nullptr;
-        m_MainClock = nullptr;
-        m_Player = nullptr;
-    }
+    ~AppContext() = default;
 
     // Resources
     std::unique_ptr<WindowManager> m_WindowManager{ nullptr };
