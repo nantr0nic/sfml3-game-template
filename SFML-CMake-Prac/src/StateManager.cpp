@@ -1,6 +1,7 @@
 #include "StateManager.hpp"
 
-StateManager::StateManager()
+StateManager::StateManager(AppContext* appContext)
+    : m_AppContext(*appContext)
 {
 }
 
@@ -37,4 +38,28 @@ State* StateManager::getCurrentState()
         return nullptr;
     }
     return m_States.top().get();
+}
+
+void StateManager::handleEvent()
+{
+    if (!m_States.empty())
+    {
+        m_States.top()->handleEvent();
+    }
+}
+
+void StateManager::update(sf::Time deltaTime)
+{
+    if (!m_States.empty())
+    {
+        m_States.top()->update(deltaTime);
+    }
+}
+
+void StateManager::render()
+{
+    if (!m_States.empty())
+    {
+        m_States.top()->render();
+    }
 }

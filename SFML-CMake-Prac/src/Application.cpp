@@ -1,16 +1,22 @@
 #include "Application.hpp"
 
 Application::Application()
-    : m_WindowManager()
-    , m_InputSystem(m_WindowManager)
+    : m_AppContext()
+    , m_StateManager(&m_AppContext)
 {
-    m_WindowManager.createMainWindow(1024, 768, "SFML CMake Practice");
-    m_WindowManager.getMainWindow().setFramerateLimit(60);
+    m_AppContext.m_WindowManager->createMainWindow(1024, 768, "SFML CMake Practice");
+    m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
+    m_AppContext.m_StateManager = &m_StateManager;
 
-    float mainWinCenterX = (m_WindowManager.getMainWindowSize().x) / 2.0f;
-    float mainWinCenterY = (m_WindowManager.getMainWindowSize().y) / 2.0f;
+    m_AppContext.m_MainWindow->setFramerateLimit(60);
 
-    m_Player = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
+    float mainWinCenterX = (m_AppContext.m_MainWindow->getSize().x) / 2.0f;
+    float mainWinCenterY = (m_AppContext.m_MainWindow->getSize().y) / 2.0f;
+
+    m_AppContext.m_Player = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
+
+    auto menuState = std::make_unique<MenuState>(&m_AppContext);
+    m_StateManager.pushState(std::move(menuState));
 }
 
 Application::~Application()
@@ -20,48 +26,37 @@ Application::~Application()
 
 void Application::run()
 {
-    while (m_WindowManager.getMainWindow().isOpen())
+    sf::Clock mainClock = *m_AppContext.m_MainClock;
+
+    while (m_AppContext.m_MainWindow->isOpen())
     {
-        // Calculate delta time (time since last frame)
-        sf::Time deltaTime = m_MainClock.restart();
-
-        // 1. Handle input / events
+        sf::Time deltaTime = mainClock.restart();
         processEvents();
-
-        // 2. Update Game logic
         update(deltaTime);
-
-        // 3. Render graphics
         render();
     }
 }
 
 void Application::processEvents()
 {
-    m_WindowManager.getMainWindow().handleEvents(
-        m_InputSystem.getEventHandles().onClose,
-        m_InputSystem.getEventHandles().onKeyPress
+    m_AppContext.m_MainWindow->handleEvents(
+        m_AppContext.m_InputManager->getEventHandles().onClose,
+        m_AppContext.m_InputManager->getEventHandles().onKeyPress
     );
 
-    // Handle player movement input
-    m_Player->handleInput();
+    m_StateManager.handleEvent();
 }
 
 void Application::update(sf::Time deltaTime)
 {
-	m_Player->update(deltaTime);
+	m_StateManager.update(deltaTime);
 }
 
 void Application::render()
 {
-    // can use reference to the pointer to avoid repetition
-    //$ can we do this in header or constructor somehow?
-    sf::RenderWindow& mainWindow = m_WindowManager.getMainWindow();
+    m_AppContext.m_MainWindow->clear(sf::Color::Black);
 
-    mainWindow.clear(sf::Color::Black);
+    m_StateManager.render();
 
-    // Draw game objects here
-    m_Player->render(mainWindow);
-
-    mainWindow.display();
+    m_AppContext.m_MainWindow->display();
 }

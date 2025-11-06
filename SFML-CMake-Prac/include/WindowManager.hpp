@@ -17,11 +17,6 @@ public:
     sf::RenderWindow& getMainWindow();
     const sf::RenderWindow& getMainWindow() const;
 
-    sf::Vector2u getMainWindowSize() const
-    {
-        return getMainWindow().getSize();
-    }
-
     // Space here for making additional windows in the future
     // (e.g. a settings window or something)
 

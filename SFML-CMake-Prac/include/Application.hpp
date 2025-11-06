@@ -1,6 +1,5 @@
-#include "WindowManager.hpp"
-#include "InputSystem.hpp"
-#include "Player.hpp"
+#include "AppContext.hpp"
+#include "StateManager.hpp"
 
 #include <memory>
 
@@ -20,10 +19,6 @@ private:
     void render();
 
     // Resources
-    WindowManager m_WindowManager;
-    InputSystem m_InputSystem;
-    sf::Clock m_MainClock;
-
-    // Game Objects
-    std::unique_ptr<Player> m_Player{ nullptr };
+    AppContext m_AppContext;
+    StateManager m_StateManager;
 };

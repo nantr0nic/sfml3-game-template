@@ -1,6 +1,7 @@
 #pragma once
 
 #include "State.hpp"
+#include "AppContext.hpp"
 
 #include <stack>
 #include <memory>
@@ -8,7 +9,7 @@
 class StateManager
 {
 public:
-    StateManager();
+    StateManager(AppContext* appContext);
     StateManager(const StateManager&) = delete;
     StateManager& operator=(const StateManager&) = delete;
     ~StateManager();
@@ -19,6 +20,11 @@ public:
 
     State* getCurrentState();
 
+    void handleEvent();
+    void update(sf::Time deltaTime);
+    void render();
+
 private:
     std::stack<std::unique_ptr<State>> m_States;
+    AppContext& m_AppContext;
 };
