@@ -17,10 +17,10 @@ public:
     InputSystem& operator=(const InputSystem&) = delete;
     ~InputSystem() = default;
 
-    applicationEvents& getEventHandles() { return mEvents; }
-    const applicationEvents& getEventHandles() const { return mEvents; }
+    applicationEvents& getEventHandles() { return m_Events; }
+    const applicationEvents& getEventHandles() const { return m_Events; }
 
 private:
     void initEventHandlers(WindowManager& windowManager);
-    applicationEvents mEvents;
+    applicationEvents m_Events;
 };

@@ -2,20 +2,20 @@
 #include <memory>
 
 WindowManager::WindowManager()
-    : mainWindow(nullptr)
+    : m_MainWindow(nullptr)
 {
 }
 
 bool WindowManager::createMainWindow(unsigned int width, unsigned int height, const std::string& title)
 {
     // Check if main window already exists, return false if it does
-    if (mainWindow)
+    if (m_MainWindow)
     {
         return false;
     }
     else 
     {
-        mainWindow = std::make_unique<sf::RenderWindow>(
+        m_MainWindow = std::make_unique<sf::RenderWindow>(
             // Use .ini settings later for dimensions, etc.
             sf::VideoMode({ 1024, 768 }),
             "SFML CMake Practice",
@@ -26,34 +26,34 @@ bool WindowManager::createMainWindow(unsigned int width, unsigned int height, co
     }
 
     // will return true if window was created successfully
-    return mainWindow->isOpen();
+    return m_MainWindow->isOpen();
 }
 
 sf::RenderWindow& WindowManager::getMainWindow()
 {
     // Check if mainWindow is valid
-    if (!mainWindow)
+    if (!m_MainWindow)
     {
         throw std::runtime_error("Main window has not been created yet.");
     }
-    return *mainWindow;
+    return *m_MainWindow;
 }
 
 const sf::RenderWindow& WindowManager::getMainWindow() const
 {
     // Check if mainWindow is valid
-    if (!mainWindow)
+    if (!m_MainWindow)
     {
         throw std::runtime_error("Main window has not been created yet.");
     }
-    return *mainWindow;
+    return *m_MainWindow;
 }
 
 WindowManager::~WindowManager()
 {
-    if (mainWindow)
+    if (m_MainWindow)
     {
-        mainWindow->close();
-        mainWindow = nullptr;
+        m_MainWindow->close();
+        m_MainWindow = nullptr;
     }
 }

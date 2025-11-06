@@ -20,10 +20,10 @@ private:
     void render();
 
     // Resources
-    WindowManager windowManager;
-    InputSystem inputSystem;
-    sf::Clock mainClock;
+    WindowManager m_WindowManager;
+    InputSystem m_InputSystem;
+    sf::Clock m_MainClock;
 
     // Game Objects
-    std::unique_ptr<Player> mPlayer{ nullptr };
+    std::unique_ptr<Player> m_Player{ nullptr };
 };

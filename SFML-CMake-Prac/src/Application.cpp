@@ -1,16 +1,16 @@
 #include "Application.hpp"
 
 Application::Application()
-    : windowManager()
-    , inputSystem(windowManager)
+    : m_WindowManager()
+    , m_InputSystem(m_WindowManager)
 {
-    windowManager.createMainWindow(1024, 768, "SFML CMake Practice");
-    windowManager.getMainWindow().setFramerateLimit(60);
+    m_WindowManager.createMainWindow(1024, 768, "SFML CMake Practice");
+    m_WindowManager.getMainWindow().setFramerateLimit(60);
 
-    float mainWinCenterX = (windowManager.getMainWindowSize().x) / 2.0f;
-    float mainWinCenterY = (windowManager.getMainWindowSize().y) / 2.0f;
+    float mainWinCenterX = (m_WindowManager.getMainWindowSize().x) / 2.0f;
+    float mainWinCenterY = (m_WindowManager.getMainWindowSize().y) / 2.0f;
 
-    mPlayer = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
+    m_Player = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
 }
 
 Application::~Application()
@@ -20,10 +20,10 @@ Application::~Application()
 
 void Application::run()
 {
-    while (windowManager.getMainWindow().isOpen())
+    while (m_WindowManager.getMainWindow().isOpen())
     {
         // Calculate delta time (time since last frame)
-        sf::Time deltaTime = mainClock.restart();
+        sf::Time deltaTime = m_MainClock.restart();
 
         // 1. Handle input / events
         processEvents();
@@ -38,30 +38,30 @@ void Application::run()
 
 void Application::processEvents()
 {
-    windowManager.getMainWindow().handleEvents(
-        inputSystem.getEventHandles().onClose,
-        inputSystem.getEventHandles().onKeyPress
+    m_WindowManager.getMainWindow().handleEvents(
+        m_InputSystem.getEventHandles().onClose,
+        m_InputSystem.getEventHandles().onKeyPress
     );
 
     // Handle player movement input
-    mPlayer->handleInput();
+    m_Player->handleInput();
 }
 
 void Application::update(sf::Time deltaTime)
 {
-	mPlayer->update(deltaTime);
+	m_Player->update(deltaTime);
 }
 
 void Application::render()
 {
     // can use reference to the pointer to avoid repetition
     //$ can we do this in header or constructor somehow?
-    sf::RenderWindow& mainWindow = windowManager.getMainWindow();
+    sf::RenderWindow& mainWindow = m_WindowManager.getMainWindow();
 
     mainWindow.clear(sf::Color::Black);
 
     // Draw game objects here
-    mPlayer->render(mainWindow);
+    m_Player->render(mainWindow);
 
     mainWindow.display();
 }

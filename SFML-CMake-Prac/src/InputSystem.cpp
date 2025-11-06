@@ -8,12 +8,12 @@ InputSystem::InputSystem(WindowManager& windowManager)
 
 void InputSystem::initEventHandlers(WindowManager& windowManager)
 {
-    mEvents.onClose = [&windowManager](const sf::Event::Closed&)
+    m_Events.onClose = [&windowManager](const sf::Event::Closed&)
 	{
 		windowManager.getMainWindow().close();
 	};
 
-	mEvents.onKeyPress = [&windowManager](const sf::Event::KeyPressed& keyPressed)
+	m_Events.onKeyPress = [&windowManager](const sf::Event::KeyPressed& keyPressed)
 	{
 		if (keyPressed.scancode == sf::Keyboard::Scancode::Escape)
 		{

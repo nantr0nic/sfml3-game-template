@@ -26,5 +26,5 @@ public:
     // (e.g. a settings window or something)
 
 private:
-    std::unique_ptr<sf::RenderWindow> mainWindow;
+    std::unique_ptr<sf::RenderWindow> m_MainWindow;
 };
