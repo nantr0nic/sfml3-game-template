@@ -4,8 +4,7 @@ but until then, we'll use this generic Player class.
 */
 #pragma once
 
-#include "SFML/Graphics.hpp"
-#include "SFML/System/Vector2.hpp"
+#include <SFML/Graphics.hpp>
 
 class Player 
 {

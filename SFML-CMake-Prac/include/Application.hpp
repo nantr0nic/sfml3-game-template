@@ -1,8 +1,6 @@
 #include "AppContext.hpp"
 #include "StateManager.hpp"
 
-#include <memory>
-
 class Application
 {
 public:
