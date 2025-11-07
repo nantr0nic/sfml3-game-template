@@ -3,21 +3,9 @@
 #include <iostream>
 
 //$ ----- MenuState Implementation -----
-sf::Font MenuState::loadFont()
-{
-    sf::Font font;
-    if (!font.openFromFile("resources/fonts/CaesarDressing-Regular.ttf"))
-    {
-        // In a real app, you might throw an exception here
-        std::cerr << "Could not load font!" << std::endl;
-    }
-    return font;
-}
-
 MenuState::MenuState(AppContext* appContext)
     : State(appContext)
-    , m_Font(loadFont())
-    , m_PlayText(m_Font, "Play", 50)
+    , m_PlayText(m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont"), "Play", 50)
 {
     sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
     sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);

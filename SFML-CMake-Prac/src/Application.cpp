@@ -15,6 +15,10 @@ Application::Application()
 
     m_AppContext.m_Player = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
 
+    m_AppContext.m_ResourceManager->loadResource<sf::Font>(
+        "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
+    );
+
     auto menuState = std::make_unique<MenuState>(&m_AppContext);
     m_StateManager.pushState(std::move(menuState));
 }

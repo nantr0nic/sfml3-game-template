@@ -36,9 +36,6 @@ public:
     void render() override;
 
 private:
-    //! replace m_Font/loadFont() with a ResourceManager function later
-    static sf::Font loadFont();
-    sf::Font m_Font;
     sf::Text m_PlayText;
     sf::RectangleShape m_PlayButton;
 };
