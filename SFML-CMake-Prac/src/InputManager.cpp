@@ -1,12 +1,12 @@
-#include "InputSystem.hpp"
+#include "InputManager.hpp"
 #include "WindowManager.hpp"
 
-InputSystem::InputSystem(WindowManager& windowManager)
+InputManager::InputManager(WindowManager& windowManager)
 {
     initEventHandlers(windowManager);
 }
 
-void InputSystem::initEventHandlers(WindowManager& windowManager)
+void InputManager::initEventHandlers(WindowManager& windowManager)
 {
     m_Events.onClose = [&windowManager](const sf::Event::Closed&)
 	{

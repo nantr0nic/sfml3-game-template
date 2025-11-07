@@ -9,13 +9,13 @@ struct applicationEvents
 	std::function<void(const sf::Event::KeyPressed&)> onKeyPress;
 };
 
-class InputSystem
+class InputManager
 {
 public:
-    InputSystem(WindowManager& windowManager);
-    InputSystem(const InputSystem&) = delete;
-    InputSystem& operator=(const InputSystem&) = delete;
-    ~InputSystem() = default;
+    InputManager(WindowManager& windowManager);
+    InputManager(const InputManager&) = delete;
+    InputManager& operator=(const InputManager&) = delete;
+    ~InputManager() = default;
 
     applicationEvents& getEventHandles() { return m_Events; }
     const applicationEvents& getEventHandles() const { return m_Events; }
