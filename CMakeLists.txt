@@ -72,9 +72,28 @@ add_executable(SFML-CMake-Prac
     "${PROJECT_SOURCE_DIR}/src/Main.cpp"
     "${PROJECT_SOURCE_DIR}/src/Application.cpp"
     "${PROJECT_SOURCE_DIR}/src/WindowManager.cpp"
-    "${PROJECT_SOURCE_DIR}/src/InputSystem.cpp"
+    "${PROJECT_SOURCE_DIR}/src/StateManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/State.cpp"
+    "${PROJECT_SOURCE_DIR}/src/GlobalEventManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/Player.cpp"
 )
+
+# Copy resources during configuration time.
+# Note: Changes to resources will require re-running CMake configuration.
+file(COPY "${PROJECT_SOURCE_DIR}/resources/" DESTINATION "${CMAKE_BINARY_DIR}/resources")
+
+### This is an alternative way to include the resources at build time,
+### it does NOT require re-running CMake when resources change.
+### However, it may slow down build times slightly.
+# This runs every time the SFML-CMake-Prac target is built.
+#add_custom_command(
+#    TARGET SFML-CMake-Prac
+#    POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy_directory
+#            "${PROJECT_SOURCE_DIR}/resources"
+#            "$<TARGET_FILE_DIR:SFML-CMake-Prac>/resources"
+#    COMMENT "Copying resources to build directory"
+#)
 
 # The ${entt_SOURCE_DIR} variable is automatically set by FetchContent.
 target_include_directories(SFML-CMake-Prac PRIVATE

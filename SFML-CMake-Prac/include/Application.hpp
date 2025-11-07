@@ -1,8 +1,5 @@
-#include "WindowManager.hpp"
-#include "InputSystem.hpp"
-#include "Player.hpp"
-
-#include <memory>
+#include "AppContext.hpp"
+#include "StateManager.hpp"
 
 class Application
 {
@@ -20,10 +17,6 @@ private:
     void render();
 
     // Resources
-    WindowManager windowManager;
-    InputSystem inputSystem;
-    sf::Clock mainClock;
-
-    // Game Objects
-    std::unique_ptr<Player> mPlayer{ nullptr };
+    AppContext m_AppContext;
+    StateManager m_StateManager;
 };

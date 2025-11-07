@@ -1,16 +1,31 @@
 #include "Application.hpp"
 
 Application::Application()
-    : windowManager()
-    , inputSystem(windowManager)
+    : m_AppContext()
+    , m_StateManager(&m_AppContext)
 {
-    windowManager.createMainWindow(1024, 768, "SFML CMake Practice");
-    windowManager.getMainWindow().setFramerateLimit(60);
+    m_AppContext.m_WindowManager->createMainWindow(1024, 768, "SFML CMake Practice");
+    m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
+    m_AppContext.m_StateManager = &m_StateManager;
 
-    float mainWinCenterX = (windowManager.getMainWindowSize().x) / 2.0f;
-    float mainWinCenterY = (windowManager.getMainWindowSize().y) / 2.0f;
+    m_AppContext.m_MainWindow->setFramerateLimit(60);
 
-    mPlayer = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
+    float mainWinCenterX = (m_AppContext.m_MainWindow->getSize().x) / 2.0f;
+    float mainWinCenterY = (m_AppContext.m_MainWindow->getSize().y) / 2.0f;
+
+    m_AppContext.m_Player = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
+
+    try {
+    m_AppContext.m_ResourceManager->loadResource<sf::Font>(
+        "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
+    );
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error loading resources: " << e.what() << std::endl;
+    }
+
+    auto menuState = std::make_unique<MenuState>(&m_AppContext);
+    m_StateManager.pushState(std::move(menuState));
 }
 
 Application::~Application()
@@ -20,48 +35,39 @@ Application::~Application()
 
 void Application::run()
 {
-    while (windowManager.getMainWindow().isOpen())
+    sf::Clock mainClock = *m_AppContext.m_MainClock;
+
+    while (m_AppContext.m_MainWindow->isOpen())
     {
-        // Calculate delta time (time since last frame)
         sf::Time deltaTime = mainClock.restart();
-
-        // 1. Handle input / events
         processEvents();
-
-        // 2. Update Game logic
         update(deltaTime);
-
-        // 3. Render graphics
         render();
     }
 }
 
 void Application::processEvents()
 {
-    windowManager.getMainWindow().handleEvents(
-        inputSystem.getEventHandles().onClose,
-        inputSystem.getEventHandles().onKeyPress
-    );
+    auto& globalEvents = m_AppContext.m_GlobalEventManager->getEventHandles();
+    auto& stateEvents = m_StateManager.getCurrentState()->getEventHandlers();
 
-    // Handle player movement input
-    mPlayer->handleInput();
+    m_AppContext.m_MainWindow->handleEvents(
+        globalEvents.onClose,
+        stateEvents.onKeyPress,
+        stateEvents.onMouseButtonPress
+    );
 }
 
 void Application::update(sf::Time deltaTime)
 {
-	mPlayer->update(deltaTime);
+	m_StateManager.update(deltaTime);
 }
 
 void Application::render()
 {
-    // can use reference to the pointer to avoid repetition
-    //$ can we do this in header or constructor somehow?
-    sf::RenderWindow& mainWindow = windowManager.getMainWindow();
+    m_AppContext.m_MainWindow->clear(sf::Color::Black);
 
-    mainWindow.clear(sf::Color::Black);
+    m_StateManager.render();
 
-    // Draw game objects here
-    mPlayer->render(mainWindow);
-
-    mainWindow.display();
+    m_AppContext.m_MainWindow->display();
 }
