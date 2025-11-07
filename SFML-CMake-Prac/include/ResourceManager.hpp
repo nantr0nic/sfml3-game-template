@@ -1,6 +1,3 @@
-//$ I heard on a podcast header-only stuff like this is bad practice but because of the
-//$ templated functions there's nothing else to implement here so I guess this is it for now
-
 #pragma once
 
 #include <SFML/Graphics.hpp>
@@ -46,8 +43,7 @@ void ResourceManager::loadResource(const std::string& id, const std::string& fil
         auto font = std::make_unique<sf::Font>();
         if (!font->openFromFile(filepath)) 
         {
-            std::cerr << "Failed to load font: " << filepath << std::endl;
-            return;
+            throw std::runtime_error("Failed to load font: " + filepath);
         }
         m_Fonts[id] = std::move(font);
     } 
@@ -56,8 +52,7 @@ void ResourceManager::loadResource(const std::string& id, const std::string& fil
         auto texture = std::make_unique<sf::Texture>();
         if (!texture->loadFromFile(filepath)) 
         {
-            std::cerr << "Failed to load texture: " << filepath << std::endl;
-            return;
+            throw std::runtime_error("Failed to load texture: " + filepath);
         }
         m_Textures[id] = std::move(texture);
     } 
@@ -66,8 +61,7 @@ void ResourceManager::loadResource(const std::string& id, const std::string& fil
         auto soundBuffer = std::make_unique<sf::SoundBuffer>();
         if (!soundBuffer->loadFromFile(filepath)) 
         {
-            std::cerr << "Failed to load sound buffer: " << filepath << std::endl;
-            return;
+            throw std::runtime_error("Failed to load sound buffer: " + filepath);
         }
         m_SoundBuffers[id] = std::move(soundBuffer);
     }
@@ -76,8 +70,7 @@ void ResourceManager::loadResource(const std::string& id, const std::string& fil
         auto music = std::make_unique<sf::Music>();
         if (!music->openFromFile(filepath)) 
         {
-            std::cerr << "Failed to load music file: " << filepath << std::endl;
-            return;
+            throw std::runtime_error("Failed to load music: " + filepath);
         }
         m_Musics[id] = std::move(music);
     }
@@ -109,7 +102,7 @@ T& ResourceManager::getResource(const std::string& id)
     }
     else 
     {
-        std::cerr << "Something went wrong retrieving resource.\nWrong ID?" << std::endl;
+        throw std::runtime_error("Something went wrong retrieving resource.\nWrong ID? > " + id);
     }
 }
 
@@ -134,6 +127,6 @@ const T& ResourceManager::getResource(const std::string& id) const
     }
     else 
     {
-        std::cerr << "Something went wrong retrieving resource.\nWrong ID?" << std::endl;
+        throw std::runtime_error("Something went wrong retrieving resource.\nWrong ID? > " + id);
     }
 }

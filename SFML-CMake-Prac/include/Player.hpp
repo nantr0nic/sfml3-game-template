@@ -10,8 +10,8 @@ class Player
 {
 public:
     Player(float posX, float posY);
-    Player(const Player&) { return; }
-    Player& operator=(const Player&) { return *this; }
+    Player(const Player&) = delete;
+    Player& operator=(const Player&) = delete;
     ~Player() = default;
 
     void handleInput();

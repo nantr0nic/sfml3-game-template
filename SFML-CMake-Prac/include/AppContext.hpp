@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "WindowManager.hpp"
-#include "InputManager.hpp"
+#include "GlobalEventManager.hpp"
 #include "Player.hpp"
 #include "ResourceManager.hpp"
 
@@ -16,7 +16,7 @@ struct AppContext
     AppContext() {
         m_WindowManager = std::make_unique<WindowManager>();
         m_ResourceManager = std::make_unique<ResourceManager>();
-        m_InputManager = std::make_unique<InputManager>(*m_WindowManager);
+        m_GlobalEventManager = std::make_unique<GlobalEventManager>(*m_WindowManager);
         m_MainClock = std::make_unique<sf::Clock>();
     }
 
@@ -27,7 +27,7 @@ struct AppContext
 
     // Resources
     std::unique_ptr<WindowManager> m_WindowManager{ nullptr };
-    std::unique_ptr<InputManager> m_InputManager{ nullptr };
+    std::unique_ptr<GlobalEventManager> m_GlobalEventManager{ nullptr };
     std::unique_ptr<ResourceManager> m_ResourceManager{ nullptr };
     std::unique_ptr<sf::Clock> m_MainClock{ nullptr };
 

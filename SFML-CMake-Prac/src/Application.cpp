@@ -15,9 +15,14 @@ Application::Application()
 
     m_AppContext.m_Player = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
 
+    try {
     m_AppContext.m_ResourceManager->loadResource<sf::Font>(
         "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
     );
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error loading resources: " << e.what() << std::endl;
+    }
 
     auto menuState = std::make_unique<MenuState>(&m_AppContext);
     m_StateManager.pushState(std::move(menuState));
@@ -43,12 +48,14 @@ void Application::run()
 
 void Application::processEvents()
 {
-    m_AppContext.m_MainWindow->handleEvents(
-        m_AppContext.m_InputManager->getEventHandles().onClose,
-        m_AppContext.m_InputManager->getEventHandles().onKeyPress
-    );
+    auto& globalEvents = m_AppContext.m_GlobalEventManager->getEventHandles();
+    auto& stateEvents = m_StateManager.getCurrentState()->getEventHandlers();
 
-    m_StateManager.handleEvent();
+    m_AppContext.m_MainWindow->handleEvents(
+        globalEvents.onClose,
+        stateEvents.onKeyPress,
+        stateEvents.onMouseButtonPress
+    );
 }
 
 void Application::update(sf::Time deltaTime)

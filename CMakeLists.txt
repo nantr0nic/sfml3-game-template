@@ -74,7 +74,7 @@ add_executable(SFML-CMake-Prac
     "${PROJECT_SOURCE_DIR}/src/WindowManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/StateManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/State.cpp"
-    "${PROJECT_SOURCE_DIR}/src/InputManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/GlobalEventManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/Player.cpp"
 )
 

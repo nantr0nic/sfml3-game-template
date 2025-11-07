@@ -21,21 +21,33 @@ MenuState::MenuState(AppContext* appContext)
     sf::FloatRect textBounds = m_PlayText.getLocalBounds();
     m_PlayText.setOrigin(textBounds.getCenter());
     m_PlayText.setPosition(center);
+
+    // Lambdas to handle input
+    m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
+    {
+        if (event.button == sf::Mouse::Button::Left)
+        {
+            sf::Vector2f mousePos = static_cast<sf::Vector2f>(event.position);
+            if (m_PlayButton.getGlobalBounds().contains(mousePos))
+            {
+                auto playState = std::make_unique<PlayState>(m_AppContext);
+                m_AppContext->m_StateManager->pushState(std::move(playState));
+            }
+        }
+    };
+
+    m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
+    {
+        if (event.scancode == sf::Keyboard::Scancode::Escape)
+        {
+            m_AppContext->m_MainWindow->close();
+        }
+    };
 }
 
 void MenuState::handleEvent()
 {
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-    {
-        sf::Vector2i mousePos = sf::Mouse::getPosition(*m_AppContext->m_MainWindow);
-        sf::Rect buttonBounds = m_PlayButton.getGlobalBounds();
-        if (buttonBounds.contains(static_cast<sf::Vector2f>(mousePos)))
-        {
-            std::cout << "Play button clicked!" << std::endl;
-            auto playState = std::make_unique<PlayState>(m_AppContext);
-            m_AppContext->m_StateManager->replaceState(std::move(playState));
-        }
-    }
+    // Handle menu-specific events here
 }
 
 void MenuState::update(sf::Time deltaTime)
@@ -55,16 +67,31 @@ void MenuState::render()
 PlayState::PlayState(AppContext* appContext)
     : State(appContext)
 {
-    // set player's position here etc
+    m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
+    {
+        // "Global" Escape key
+        if (event.scancode == sf::Keyboard::Scancode::Escape)
+        {
+            m_AppContext->m_MainWindow->close();
+        }
+        // State-specific Pause key
+        else if (event.scancode == sf::Keyboard::Scancode::P)
+        {
+            //auto playState = std::make_unique<PlayState>(m_AppContext);
+            // we'll make it go back to MenuState for now
+            m_AppContext->m_StateManager->popState();
+        }
+    };
 }
 
 void PlayState::handleEvent()
 {
-    m_AppContext->m_Player->handleInput();
+    // handle playstate events here
 }
 
 void PlayState::update(sf::Time deltaTime)
 {
+    m_AppContext->m_Player->handleInput();
     m_AppContext->m_Player->update(deltaTime);
 }
 

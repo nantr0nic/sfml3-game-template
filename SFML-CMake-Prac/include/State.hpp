@@ -3,6 +3,12 @@
 #include <SFML/Graphics.hpp>
 #include "AppContext.hpp"
 
+struct StateEvents
+{
+	std::function<void(const sf::Event::KeyPressed&)> onKeyPress;
+    std::function<void(const sf::Event::MouseButtonPressed&)> onMouseButtonPress;
+};
+
 class State
 {
 public:
@@ -17,12 +23,16 @@ public:
     //virtual void enter() = 0;
     //virtual void exit() = 0;
 
+    StateEvents& getEventHandlers() { return m_StateEvents; }
+    const StateEvents& getEventHandlers() const { return m_StateEvents; }
+
     virtual void handleEvent() = 0;
     virtual void update(sf::Time deltaTime) = 0;
     virtual void render() = 0;
 
 protected:
     AppContext* m_AppContext;
+    StateEvents m_StateEvents;  // each state will have its own StateEvents instance
 };
 
 class MenuState : public State
