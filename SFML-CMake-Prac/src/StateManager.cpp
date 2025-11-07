@@ -11,14 +11,14 @@ StateManager::~StateManager()
 
 void StateManager::pushState(std::unique_ptr<State> state)
 {
-    m_States.push(std::move(state));
+    m_States.push_back(std::move(state));
 }
 
 void StateManager::popState()
 {
     if (!m_States.empty())
     {
-        m_States.pop();
+        m_States.pop_back();
     }
 }
 
@@ -26,9 +26,9 @@ void StateManager::replaceState(std::unique_ptr<State> state)
 {
     if (!m_States.empty())
     {
-        m_States.pop();
+        m_States.pop_back();
     }
-    m_States.push(std::move(state));
+    m_States.push_back(std::move(state));
 }
 
 State* StateManager::getCurrentState()
@@ -37,22 +37,14 @@ State* StateManager::getCurrentState()
     {
         return nullptr;
     }
-    return m_States.top().get();
-}
-
-void StateManager::handleEvent()
-{
-    if (!m_States.empty())
-    {
-        m_States.top()->handleEvent();
-    }
+    return m_States.back().get();
 }
 
 void StateManager::update(sf::Time deltaTime)
 {
     if (!m_States.empty())
     {
-        m_States.top()->update(deltaTime);
+        m_States.back()->update(deltaTime);
     }
 }
 
@@ -60,6 +52,9 @@ void StateManager::render()
 {
     if (!m_States.empty())
     {
-        m_States.top()->render();
+        for (auto& state : m_States)
+        {
+            state->render();
+        }
     }
 }

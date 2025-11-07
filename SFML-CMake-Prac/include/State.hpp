@@ -26,7 +26,6 @@ public:
     StateEvents& getEventHandlers() { return m_StateEvents; }
     const StateEvents& getEventHandlers() const { return m_StateEvents; }
 
-    virtual void handleEvent() = 0;
     virtual void update(sf::Time deltaTime) = 0;
     virtual void render() = 0;
 
@@ -41,7 +40,6 @@ public:
     MenuState(AppContext* appContext);
     ~MenuState() override = default;
 
-    void handleEvent() override;
     void update(sf::Time deltaTime) override;
     void render() override;
 
@@ -56,7 +54,6 @@ public:
     PlayState(AppContext* appContext);
     ~PlayState() override = default;
 
-    void handleEvent() override;
     void update(sf::Time deltaTime) override;
     void render() override;
 
@@ -70,10 +67,9 @@ public:
     PauseState(AppContext* appContext);
     ~PauseState() override = default;
 
-    void handleEvent() override;
     void update(sf::Time deltaTime) override;
     void render() override;
 
 private:
-    // nothing yet
+    sf::Text m_PauseText;
 };

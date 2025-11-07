@@ -3,7 +3,7 @@
 #include "State.hpp"
 #include "AppContext.hpp"
 
-#include <stack>
+#include <vector>
 #include <memory>
 
 class StateManager
@@ -20,11 +20,10 @@ public:
 
     State* getCurrentState();
 
-    void handleEvent();
     void update(sf::Time deltaTime);
     void render();
 
 private:
-    std::stack<std::unique_ptr<State>> m_States;
+    std::vector<std::unique_ptr<State>> m_States;
     AppContext& m_AppContext;
 };
