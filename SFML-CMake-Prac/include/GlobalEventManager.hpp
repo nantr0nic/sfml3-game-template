@@ -23,6 +23,5 @@ public:
     const ApplicationEvents& getEventHandles() const { return m_Events; }
 
 private:
-    void initEventHandlers(WindowManager& windowManager);
     ApplicationEvents m_Events;
 };
