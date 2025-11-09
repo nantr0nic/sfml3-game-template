@@ -140,6 +140,11 @@ PauseState::PauseState(AppContext* appContext)
             m_AppContext->m_StateManager->popState();
         }
     };
+
+    m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
+    {
+        // empty on purpose
+    };
 }
 
 
