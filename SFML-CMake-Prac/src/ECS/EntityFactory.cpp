@@ -1,5 +1,6 @@
 #include "ECS/EntityFactory.hpp"
 #include "ECS/Components.hpp"
+#include "Utils.hpp"
 
 // functions for the ECS system
 namespace EntityFactory
@@ -13,7 +14,7 @@ namespace EntityFactory
         registry.emplace<PlayerTag>(playerEntity);  // way to ID the player
         registry.emplace<MovementSpeed>(playerEntity, 200.0f);
         registry.emplace<Velocity>(playerEntity);
-        registry.emplace<PlayerCircle>(playerEntity, 50.f, sf::Color::Green, position);
+        registry.emplace<RenderableCircle>(playerEntity, 50.f, sf::Color::Green, position);
         
         return playerEntity;
     }
@@ -32,7 +33,7 @@ namespace EntityFactory
         auto& buttonShape = registry.emplace<UIShape>(buttonEntity);
         buttonShape.shape.setSize({200.f, 100.f});
         buttonShape.shape.setFillColor(sf::Color::Blue);
-        centerOrigin(buttonShape.shape);
+        Utils::centerOrigin(buttonShape.shape);
         buttonShape.shape.setPosition(position);
 
         // Text component
@@ -40,7 +41,7 @@ namespace EntityFactory
             buttonEntity,
             sf::Text(font, text, 50)
         );
-        centerOrigin(buttonText.text);
+        Utils::centerOrigin(buttonText.text);
         buttonText.text.setPosition(position);
         buttonText.text.setFillColor(sf::Color(200, 200, 200));
 

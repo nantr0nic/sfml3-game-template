@@ -36,11 +36,11 @@ namespace CoreSystems
     void movementSystem(entt::registry& registry, sf::Time deltaTime)
     {
         // only moves the player for now
-        auto view = registry.view<PlayerCircle, Velocity>();
+        auto view = registry.view<RenderableCircle, Velocity>();
         for (auto entity : view)
         {
             const auto& velocity = view.get<Velocity>(entity);
-            auto& renderable = view.get<PlayerCircle>(entity);
+            auto& renderable = view.get<RenderableCircle>(entity);
             renderable.shape.move(velocity.value * deltaTime.asSeconds());
         }
     }
@@ -48,10 +48,10 @@ namespace CoreSystems
     void renderSystem(entt::registry& registry, sf::RenderWindow& window)
     {
         // only renders the player for now
-        auto view = registry.view<PlayerCircle>();
+        auto view = registry.view<RenderableCircle>();
         for (auto entity : view)
         {
-            const auto& renderable = view.get<PlayerCircle>(entity);
+            const auto& renderable = view.get<RenderableCircle>(entity);
             window.draw(renderable.shape);
         }
     }

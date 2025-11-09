@@ -7,13 +7,6 @@
 
 namespace EntityFactory
 {
-    template <typename T>
-    void centerOrigin(T& item)
-    {
-        sf::FloatRect bounds = item.getLocalBounds();
-        item.setOrigin(bounds.getCenter());
-    }
-
     entt::entity createPlayer(entt::registry& registry, sf::Vector2f position);
 
     entt::entity createButton(entt::registry& registry,

@@ -13,9 +13,9 @@ struct Velocity { sf::Vector2f value{0.0f, 0.0f}; };
 struct MovementSpeed { float value; };
 
 // replace this with a sprite component later
-struct PlayerCircle 
+struct RenderableCircle 
 {
-    PlayerCircle(float radius, const sf::Color& color, sf::Vector2f position)
+    RenderableCircle(float radius, const sf::Color& color, sf::Vector2f position)
         : shape()
     {
         shape.setRadius(radius);
@@ -23,7 +23,7 @@ struct PlayerCircle
         shape.setOrigin({ radius, radius });
         shape.setPosition(position);
     }
-    ~PlayerCircle() = default;
+    ~RenderableCircle() = default;
 
     sf::CircleShape shape; 
 };

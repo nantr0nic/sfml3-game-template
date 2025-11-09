@@ -3,6 +3,7 @@
 #include "ECS/Components.hpp"
 #include "ECS/EntityFactory.hpp"
 #include "ECS/Systems.hpp"
+#include "Utils.hpp"
 
 //$ ----- MenuState Implementation ----- //
 MenuState::MenuState(AppContext* appContext)
@@ -129,7 +130,7 @@ PauseState::PauseState(AppContext* appContext)
 
     // Setup Pause Text
     m_PauseText.setFillColor(sf::Color::Red);
-    EntityFactory::centerOrigin(m_PauseText);
+    Utils::centerOrigin(m_PauseText);
     m_PauseText.setPosition(center);
 
     // Lambda to handle pause
