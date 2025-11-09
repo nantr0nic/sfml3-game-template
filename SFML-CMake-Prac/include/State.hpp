@@ -1,7 +1,10 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "AppContext.hpp"
+
+#include <functional>
+
+class AppContext;
 
 struct StateEvents
 {

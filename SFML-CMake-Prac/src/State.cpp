@@ -1,9 +1,11 @@
+#include "AppContext.hpp"
 #include "State.hpp"
 #include "StateManager.hpp"
 #include "ECS/Components.hpp"
 #include "ECS/EntityFactory.hpp"
 #include "ECS/Systems.hpp"
 #include "Utils.hpp"
+
 
 //$ ----- MenuState Implementation ----- //
 MenuState::MenuState(AppContext* appContext)
@@ -14,7 +16,7 @@ MenuState::MenuState(AppContext* appContext)
 
     // Play button entity
     EntityFactory::createButton(
-        *m_AppContext->m_Registry,
+        *m_AppContext,
         m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont"),
         "Play",
         center,
@@ -69,12 +71,27 @@ void MenuState::render()
 PlayState::PlayState(AppContext* appContext)
     : State(appContext)
 {
+    try 
+    {
+        m_AppContext->m_ResourceManager->loadResource<sf::Texture>(
+            "PlayerSpriteSheet",
+            "resources/sprites/knight.png"
+        );
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Failed to load player spritesheet: " << e.what() << std::endl;
+    }
+
     // We create the player entity here
     float mainWinCenterX = (m_AppContext->m_MainWindow->getSize().x) / 2.0f;
     float mainWinCenterY = (m_AppContext->m_MainWindow->getSize().y) / 2.0f;
 
-    EntityFactory::createPlayer(*m_AppContext->m_Registry, { mainWinCenterX, mainWinCenterY });
+    EntityFactory::createPlayer(*m_AppContext, { mainWinCenterX, mainWinCenterY });
 
+    // Start music
+    m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong").play();
+    
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
     {
         // "Global" Escape key
@@ -85,6 +102,7 @@ PlayState::PlayState(AppContext* appContext)
         // State-specific Pause key
         else if (event.scancode == sf::Keyboard::Scancode::P)
         {
+            m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong").pause();
             auto pauseState = std::make_unique<PauseState>(m_AppContext);
             m_AppContext->m_StateManager->pushState(std::move(pauseState));
         }
@@ -111,6 +129,7 @@ void PlayState::update(sf::Time deltaTime)
 {
     // Call game logic systems
     CoreSystems::handlePlayerInput(*m_AppContext->m_Registry);
+    CoreSystems::animationSystem(*m_AppContext->m_Registry, deltaTime);
     CoreSystems::movementSystem(*m_AppContext->m_Registry, deltaTime);
 }
 
@@ -138,6 +157,7 @@ PauseState::PauseState(AppContext* appContext)
     {
         if (event.scancode == sf::Keyboard::Scancode::P)
         {
+            m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong").play();
             m_AppContext->m_StateManager->popState();
         }
     };

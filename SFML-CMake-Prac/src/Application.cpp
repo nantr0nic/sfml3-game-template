@@ -11,9 +11,12 @@ Application::Application()
     m_AppContext.m_MainWindow->setFramerateLimit(60);
 
     try {
-    m_AppContext.m_ResourceManager->loadResource<sf::Font>(
-        "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
-    );
+        m_AppContext.m_ResourceManager->loadResource<sf::Font>(
+            "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
+        );
+        m_AppContext.m_ResourceManager->loadResource<sf::Music>(
+            "MainSong", "resources/music/VideoGameAm.ogg"
+        );
     }
     catch (const std::exception& e) {
         std::cerr << "Error loading resources: " << e.what() << std::endl;

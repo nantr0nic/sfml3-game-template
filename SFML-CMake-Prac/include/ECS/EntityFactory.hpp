@@ -5,16 +5,18 @@
 
 #include <functional>
 
+struct AppContext; // forward declaration
+
 namespace EntityFactory
 {
-    entt::entity createPlayer(entt::registry& registry, sf::Vector2f position);
+    entt::entity createPlayer(AppContext& context, sf::Vector2f position);
 
-    entt::entity createRectangle(entt::registry& registry,
+    entt::entity createRectangle(AppContext& context,
                                 sf::Vector2f size,
                                 sf::Color& color,
                                 sf::Vector2f position);
 
-    entt::entity createButton(entt::registry& registry,
+    entt::entity createButton(AppContext& context,
                             sf::Font& font,
                             const std::string& text,
                             sf::Vector2f position,
