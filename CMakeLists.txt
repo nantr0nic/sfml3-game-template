@@ -77,6 +77,8 @@ add_executable(SFML-CMake-Prac
     "${PROJECT_SOURCE_DIR}/src/GlobalEventManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/ECS/EntityFactory.cpp"
     "${PROJECT_SOURCE_DIR}/src/ECS/Systems.cpp"
+    "${PROJECT_SOURCE_DIR}/src/RandomMachine.cpp"
+
 )
 
 # Copy resources during configuration time.
