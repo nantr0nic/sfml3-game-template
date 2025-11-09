@@ -88,6 +88,11 @@ PlayState::PlayState(AppContext* appContext)
             m_AppContext->m_StateManager->pushState(std::move(pauseState));
         }
     };
+
+    m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
+    {
+        // empty on purpose
+    };
 }
 
 PlayState::~PlayState()
