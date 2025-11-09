@@ -19,6 +19,18 @@ namespace EntityFactory
         return playerEntity;
     }
 
+    entt::entity createRectangle(entt::registry& registry, 
+                                sf::Vector2f size,
+                                sf::Color& color,
+                                sf::Vector2f position)
+    {
+        auto rectEntity = registry.create();
+
+        registry.emplace<RenderableRect>(rectEntity, size, color, position);
+
+        return rectEntity;
+    }
+
     //$ --- UI ---
     entt::entity createButton(entt::registry& registry,
                             sf::Font& font,

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+
+#include "Utils.hpp"
+
 #include <functional>
 
 //$ ----- Game Components ----- //
@@ -26,6 +29,22 @@ struct RenderableCircle
     ~RenderableCircle() = default;
 
     sf::CircleShape shape; 
+};
+
+struct RenderableRect
+{
+    RenderableRect(sf::Vector2f size, sf::Color& color, sf::Vector2f position)
+        : shape()
+    {
+        shape.setSize(size);
+        shape.setFillColor(color);
+        Utils::centerOrigin(shape);
+        shape.setPosition(position);
+    }
+
+    ~RenderableRect() = default;
+
+    sf::RectangleShape shape;
 };
 
 

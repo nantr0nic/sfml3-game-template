@@ -9,6 +9,11 @@ namespace EntityFactory
 {
     entt::entity createPlayer(entt::registry& registry, sf::Vector2f position);
 
+    entt::entity createRectangle(entt::registry& registry,
+                                sf::Vector2f size,
+                                sf::Color& color,
+                                sf::Vector2f position);
+
     entt::entity createButton(entt::registry& registry,
                             sf::Font& font,
                             const std::string& text,
