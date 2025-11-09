@@ -38,27 +38,26 @@ class MenuState : public State
 {
 public:
     MenuState(AppContext* appContext);
-    ~MenuState() override = default;
+    ~MenuState() override;
 
     void update(sf::Time deltaTime) override;
     void render() override;
 
 private:
-    sf::Text m_PlayText;
-    sf::RectangleShape m_PlayButton;
+    // Empty -- replaced previous data members with ECS components
 };
 
 class PlayState : public State
 {
 public:
     PlayState(AppContext* appContext);
-    ~PlayState() override = default;
+    ~PlayState() override;
 
     void update(sf::Time deltaTime) override;
     void render() override;
 
 private:
-    // nothing yet
+    // Empty
 };
 
 class PauseState : public State

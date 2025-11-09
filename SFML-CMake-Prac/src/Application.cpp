@@ -10,11 +10,6 @@ Application::Application()
 
     m_AppContext.m_MainWindow->setFramerateLimit(60);
 
-    float mainWinCenterX = (m_AppContext.m_MainWindow->getSize().x) / 2.0f;
-    float mainWinCenterY = (m_AppContext.m_MainWindow->getSize().y) / 2.0f;
-
-    m_AppContext.m_Player = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
-
     try {
     m_AppContext.m_ResourceManager->loadResource<sf::Font>(
         "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"

@@ -1,38 +1,37 @@
 #include "State.hpp"
 #include "StateManager.hpp"
+#include "ECS/Components.hpp"
+#include "ECS/EntityFactory.hpp"
+#include "ECS/Systems.hpp"
 
-//$ ----- MenuState Implementation -----
+//$ ----- MenuState Implementation ----- //
 MenuState::MenuState(AppContext* appContext)
     : State(appContext)
-    , m_PlayText(m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont"), "Play", 50)
 {
     sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
     sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
 
-    // Setup Play Button
-    m_PlayButton.setSize({200.f, 100.f});
-    m_PlayButton.setFillColor(sf::Color::Blue);
-    m_PlayButton.setOrigin(m_PlayButton.getSize() / 2.0f);
-    m_PlayButton.setPosition(center);
+    // Play button entity
+    EntityFactory::createButton(
+        *m_AppContext->m_Registry,
+        m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont"),
+        "Play",
+        center,
+        // lambda for when button is clicked
+        [this]() {
+            auto playState = std::make_unique<PlayState>(m_AppContext);
+            m_AppContext->m_StateManager->replaceState(std::move(playState));
+        }
+    );
 
-    // Setup Play Text
-    m_PlayText.setFillColor(sf::Color::White);
-    sf::FloatRect textBounds = m_PlayText.getLocalBounds();
-    m_PlayText.setOrigin(textBounds.getCenter());
-    m_PlayText.setPosition(center);
 
     // Lambdas to handle input
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
     {
-        if (event.button == sf::Mouse::Button::Left)
-        {
-            sf::Vector2f mousePos = static_cast<sf::Vector2f>(event.position);
-            if (m_PlayButton.getGlobalBounds().contains(mousePos))
-            {
-                auto playState = std::make_unique<PlayState>(m_AppContext);
-                m_AppContext->m_StateManager->replaceState(std::move(playState));
-            }
-        }
+        // using ECS system here instead of previous SFML event response
+
+        UISystems::uiClickSystem(*m_AppContext->m_Registry, event);
+
     };
 
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
@@ -44,23 +43,37 @@ MenuState::MenuState(AppContext* appContext)
     };
 }
 
+MenuState::~MenuState()
+{
+    // clean up EnTT entities on leaving MenuState
+    auto& registry = *m_AppContext->m_Registry;
+    auto view = registry.view<MenuUITag>();
+    registry.destroy(view.begin(), view.end());
+}
+
 void MenuState::update(sf::Time deltaTime)
 {
-    // Update menu logic here
+    // Call the UI hover system here
+    UISystems::uiHoverSystem(*m_AppContext->m_Registry, *m_AppContext->m_MainWindow);
 }
 
 void MenuState::render()
 {
     // Render menu here
-    m_AppContext->m_MainWindow->draw(m_PlayButton);
-    m_AppContext->m_MainWindow->draw(m_PlayText);
+    UISystems::uiRenderSystem(*m_AppContext->m_Registry, *m_AppContext->m_MainWindow);
 }
 
 
-//$ ----- PlayState Implementation -----
+//$ ----- PlayState Implementation ----- //
 PlayState::PlayState(AppContext* appContext)
     : State(appContext)
 {
+    // We create the player entity here
+    float mainWinCenterX = (m_AppContext->m_MainWindow->getSize().x) / 2.0f;
+    float mainWinCenterY = (m_AppContext->m_MainWindow->getSize().y) / 2.0f;
+
+    EntityFactory::createPlayer(*m_AppContext->m_Registry, { mainWinCenterX, mainWinCenterY });
+
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
     {
         // "Global" Escape key
@@ -72,21 +85,32 @@ PlayState::PlayState(AppContext* appContext)
         else if (event.scancode == sf::Keyboard::Scancode::P)
         {
             auto pauseState = std::make_unique<PauseState>(m_AppContext);
-            // we'll make it go back to MenuState for now
             m_AppContext->m_StateManager->pushState(std::move(pauseState));
         }
     };
 }
 
+PlayState::~PlayState()
+{
+    // Clean up all player entities
+    auto& registry = *m_AppContext->m_Registry;
+    auto view = registry.view<PlayerTag>();
+    registry.destroy(view.begin(), view.end());
+    
+    // Here you would also clean up enemies, bullets, etc.
+    // (e.g., registry.clear<EnemyTag, BulletTag>();)
+}
+
 void PlayState::update(sf::Time deltaTime)
 {
-    m_AppContext->m_Player->handleInput();
-    m_AppContext->m_Player->update(deltaTime);
+    // Call game logic systems
+    CoreSystems::handlePlayerInput(*m_AppContext->m_Registry);
+    CoreSystems::movementSystem(*m_AppContext->m_Registry, deltaTime);
 }
 
 void PlayState::render()
 {
-    m_AppContext->m_Player->render(*m_AppContext->m_MainWindow);
+    CoreSystems::renderSystem(*m_AppContext->m_Registry, *m_AppContext->m_MainWindow);
 }
 
 
@@ -100,8 +124,7 @@ PauseState::PauseState(AppContext* appContext)
 
     // Setup Pause Text
     m_PauseText.setFillColor(sf::Color::Red);
-    sf::FloatRect textBounds = m_PauseText.getLocalBounds();
-    m_PauseText.setOrigin(textBounds.getCenter());
+    EntityFactory::centerOrigin(m_PauseText);
     m_PauseText.setPosition(center);
 
     // Lambda to handle pause

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <entt/entt.hpp>
 
 #include "WindowManager.hpp"
 #include "GlobalEventManager.hpp"
-#include "Player.hpp"
 #include "ResourceManager.hpp"
 
 #include <memory>
@@ -18,6 +18,7 @@ struct AppContext
         m_ResourceManager = std::make_unique<ResourceManager>();
         m_GlobalEventManager = std::make_unique<GlobalEventManager>(*m_WindowManager);
         m_MainClock = std::make_unique<sf::Clock>();
+        m_Registry = std::make_unique<entt::registry>();
     }
 
     AppContext(const AppContext&) = delete;
@@ -30,8 +31,7 @@ struct AppContext
     std::unique_ptr<GlobalEventManager> m_GlobalEventManager{ nullptr };
     std::unique_ptr<ResourceManager> m_ResourceManager{ nullptr };
     std::unique_ptr<sf::Clock> m_MainClock{ nullptr };
-
-    std::unique_ptr<Player> m_Player{ nullptr };
+    std::unique_ptr<entt::registry> m_Registry{ nullptr };
 
     // Pointers to Application-level objects
     sf::RenderWindow* m_MainWindow{ nullptr };

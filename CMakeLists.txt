@@ -75,7 +75,8 @@ add_executable(SFML-CMake-Prac
     "${PROJECT_SOURCE_DIR}/src/StateManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/State.cpp"
     "${PROJECT_SOURCE_DIR}/src/GlobalEventManager.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Player.cpp"
+    "${PROJECT_SOURCE_DIR}/src/ECS/EntityFactory.cpp"
+    "${PROJECT_SOURCE_DIR}/src/ECS/Systems.cpp"
 )
 
 # Copy resources during configuration time.
@@ -106,6 +107,7 @@ target_link_libraries(SFML-CMake-Prac PRIVATE
     SFML::Graphics
     SFML::Window
     SFML::Audio
+    EnTT::EnTT
     #TGUI::TGUI
 )
 
