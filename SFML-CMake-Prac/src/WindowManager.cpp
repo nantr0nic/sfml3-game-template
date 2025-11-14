@@ -18,11 +18,11 @@ bool WindowManager::createMainWindow()
     }
     else 
     {
-        unsigned int width = m_WindowConfig->getConfigValueAt<unsigned int>(
+        unsigned int width = m_WindowConfig->getConfigValue<unsigned int>(
             "mainWindow", "X").value_or(800u);
-        unsigned int height = m_WindowConfig->getConfigValueAt<unsigned int>(
+        unsigned int height = m_WindowConfig->getConfigValue<unsigned int>(
             "mainWindow", "Y").value_or(600u);
-        std::string title = m_WindowConfig->getConfigValueAt<std::string>(
+        std::string title = m_WindowConfig->getConfigValue<std::string>(
             "mainWindow", "Title").value_or("Error parsing title");
         
         m_MainWindow = std::make_unique<sf::RenderWindow>(

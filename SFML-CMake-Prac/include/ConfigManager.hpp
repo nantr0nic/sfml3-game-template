@@ -13,12 +13,13 @@ public:
 
     void loadConfig(const std::string& filepath);
 
+    // getConfigValue can accept either a bare key in a .toml file,
+    // or it can handle bracket headings with keys.
     template<typename T>
     std::optional<T> getConfigValue(const std::string& key);
 
     template<typename T>
-    std::optional<T> getConfigValueAt(const std::string& at, const std::string& key);
-
+    std::optional<T> getConfigValue(const std::string& at, const std::string& key);
 
 private:
     toml::value m_ConfigFile;
@@ -53,7 +54,7 @@ std::optional<T> ConfigManager::getConfigValue(const std::string& key)
 }
 
 template<typename T>
-std::optional<T> ConfigManager::getConfigValueAt(const std::string& at, const std::string& key)
+std::optional<T> ConfigManager::getConfigValue(const std::string& at, const std::string& key)
 {
     try
     {
