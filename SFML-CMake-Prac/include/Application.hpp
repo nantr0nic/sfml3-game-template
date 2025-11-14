@@ -9,6 +9,9 @@ public:
     Application& operator=(const Application&) = delete;
     ~Application();
 
+    void initMainWindow();
+    void initResources();
+
     void run();
 
 private:

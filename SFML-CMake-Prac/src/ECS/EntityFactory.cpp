@@ -18,7 +18,7 @@ namespace EntityFactory
 
         // Add all components that make a "player"
         registry.emplace<PlayerTag>(playerEntity);  // way to ID the player
-        registry.emplace<MovementSpeed>(playerEntity, 200.0f);
+        registry.emplace<MovementSpeed>(playerEntity, 350.0f);
         registry.emplace<Velocity>(playerEntity);
         
         // Sprite stuff

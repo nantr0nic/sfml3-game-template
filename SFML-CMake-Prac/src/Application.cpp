@@ -4,12 +4,32 @@ Application::Application()
     : m_AppContext()
     , m_StateManager(&m_AppContext)
 {
-    m_AppContext.m_WindowManager->createMainWindow();
-    m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
+    // Initialize Application Window and data
+    initMainWindow();
+    initResources();
+
+    // Set the StateManager in AppContext to Application's StateManager
     m_AppContext.m_StateManager = &m_StateManager;
 
-    m_AppContext.m_MainWindow->setFramerateLimit(60);
+    // Push the initial application state
+    auto menuState = std::make_unique<MenuState>(&m_AppContext);
+    m_StateManager.pushState(std::move(menuState));
+}
 
+Application::~Application()
+{
+    // WindowManager destructor will handle window cleanup
+}
+
+void Application::initMainWindow()
+{
+    m_AppContext.m_WindowManager->createMainWindow();
+    m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
+    m_AppContext.m_MainWindow->setFramerateLimit(60);
+}
+
+void Application::initResources()
+{
     try {
         m_AppContext.m_ResourceManager->loadResource<sf::Font>(
             "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
@@ -21,14 +41,6 @@ Application::Application()
     catch (const std::exception& e) {
         std::cerr << "Error loading resources: " << e.what() << std::endl;
     }
-
-    auto menuState = std::make_unique<MenuState>(&m_AppContext);
-    m_StateManager.pushState(std::move(menuState));
-}
-
-Application::~Application()
-{
-    // WindowManager destructor will handle window cleanup
 }
 
 void Application::run()

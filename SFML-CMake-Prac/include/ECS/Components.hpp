@@ -15,6 +15,15 @@ struct Velocity { sf::Vector2f value{0.0f, 0.0f}; };
 
 struct MovementSpeed { float value; };
 
+struct BoundaryHits
+{
+    bool north = false;
+    bool south = false;
+    bool west = false;
+    bool east = false;
+};
+
+// ----- Sprite / Animation Components ----- //
 struct SpriteComponent 
 {
     SpriteComponent(const sf::Texture& texture)

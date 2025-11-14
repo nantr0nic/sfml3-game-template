@@ -1,16 +1,24 @@
 #include "ECS/Systems.hpp"
 #include "ECS/Components.hpp"
+#include "AppContext.hpp"
 
 namespace CoreSystems
 {
     //$ "Core" / game systems (maybe rename...)
-    void handlePlayerInput(entt::registry& registry)
+    void handlePlayerInput(AppContext* m_AppContext)
     {
+        auto &registry = *m_AppContext->m_Registry;
+        auto &window = *m_AppContext->m_MainWindow;
+
+        // Get boundary hits
+        BoundaryHits hits = getPlayerBoundaryHits(registry, window);
+
         auto view = registry.view<PlayerTag, 
                                 Velocity, 
-                                MovementSpeed, 
+                                MovementSpeed,
                                 AnimatorComponent, 
                                 SpriteComponent>();
+
         for (auto entity : view)
         {
             auto& velocity = view.get<Velocity>(entity);
@@ -19,24 +27,35 @@ namespace CoreSystems
             auto& spriteComp = view.get<SpriteComponent>(entity);
 
             // Reset velocity
-
             velocity.value = { 0.0f, 0.0f };
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::W))
             {
-                velocity.value.y -= speed.value;
+                if (!hits.north)
+                {
+                    velocity.value.y -= speed.value;
+                }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::S))
             {
-                velocity.value.y += speed.value;
+                if (!hits.south)
+                {
+                    velocity.value.y += speed.value;
+                }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::A))
             {
-                velocity.value.x -= speed.value;
+                if (!hits.west)
+                {
+                    velocity.value.x -= speed.value;
+                }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::D))
             {
-                velocity.value.x += speed.value;
+                if (!hits.east)
+                {
+                    velocity.value.x += speed.value;
+                }
             }
 
             //$ --- Animating the player sprite ---
@@ -73,9 +92,44 @@ namespace CoreSystems
         }
     }
 
+    // For now this will just prevent the player from going off-screen
+    // but we will use this for moving the view of the map later
+    BoundaryHits getPlayerBoundaryHits(entt::registry& registry, sf::RenderWindow& window)
+    {
+        BoundaryHits hits;
+
+        // Find the player entity
+        auto view = registry.view<PlayerTag, SpriteComponent>();
+
+        auto player = view.front();
+        auto& spriteComp = view.get<SpriteComponent>(player);
+        auto bounds = spriteComp.sprite.getGlobalBounds();
+
+        // Check boundaries
+
+        if (bounds.position.x < 0.0f)
+        {
+            hits.west = true;
+        }
+        if (bounds.position.y < 0.0f)
+        {
+            hits.north = true;
+        }
+        if (bounds.position.x + bounds.size.x > window.getSize().x)
+        {
+            hits.east = true;
+        }
+        if (bounds.position.y + bounds.size.y > window.getSize().y)
+        {
+            hits.south = true;
+        }
+
+        return hits;
+    }
+
     void movementSystem(entt::registry& registry, sf::Time deltaTime)
     {
-        // now moves anything witha sprite
+        // now moves anything with a sprite
         auto view = registry.view<SpriteComponent, Velocity>();
         for (auto entity : view)
         {

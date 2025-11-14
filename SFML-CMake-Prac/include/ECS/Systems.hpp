@@ -3,10 +3,16 @@
 #include <SFML/Graphics.hpp>
 #include <entt/entt.hpp>
 
+// forward declarations
+class AppContext;
+struct BoundaryHits;
+
 namespace CoreSystems
 {
     //$ ----- Game Systems ----- //
-    void handlePlayerInput(entt::registry& registry);
+    void handlePlayerInput(AppContext* m_AppContext);
+
+    BoundaryHits getPlayerBoundaryHits(entt::registry& registry, sf::RenderWindow& window);
 
     void movementSystem(entt::registry& registry, sf::Time deltaTime);
 
