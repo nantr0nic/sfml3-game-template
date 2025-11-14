@@ -4,7 +4,7 @@ Application::Application()
     : m_AppContext()
     , m_StateManager(&m_AppContext)
 {
-    m_AppContext.m_WindowManager->createMainWindow(1024, 768, "SFML CMake Practice");
+    m_AppContext.m_WindowManager->createMainWindow();
     m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
     m_AppContext.m_StateManager = &m_StateManager;
 

@@ -1,9 +1,41 @@
 #include "WindowManager.hpp"
+
 #include <memory>
 
 WindowManager::WindowManager()
     : m_MainWindow(nullptr)
+    , m_WindowConfig(nullptr)
 {
+    m_WindowConfig = std::make_unique<ConfigManager>();
+    m_WindowConfig->loadConfig("config/WindowConfig.toml");
+}
+
+bool WindowManager::createMainWindow()
+{
+    if (m_MainWindow)
+    {
+        return false;
+    }
+    else 
+    {
+        unsigned int width = m_WindowConfig->getConfigValueAt<unsigned int>(
+            "mainWindow", "X").value_or(800u);
+        unsigned int height = m_WindowConfig->getConfigValueAt<unsigned int>(
+            "mainWindow", "Y").value_or(600u);
+        std::string title = m_WindowConfig->getConfigValueAt<std::string>(
+            "mainWindow", "Title").value_or("Error parsing title");
+        
+        m_MainWindow = std::make_unique<sf::RenderWindow>(
+            // Use .ini settings later for dimensions, etc.
+            sf::VideoMode({ width, height }),
+            title,
+            // Always use default style + windowed for now
+            sf::Style::Default,
+            sf::State::Windowed
+        );
+    }
+
+    return m_MainWindow->isOpen();
 }
 
 bool WindowManager::createMainWindow(unsigned int width, unsigned int height, const std::string& title)
@@ -17,8 +49,8 @@ bool WindowManager::createMainWindow(unsigned int width, unsigned int height, co
     {
         m_MainWindow = std::make_unique<sf::RenderWindow>(
             // Use .ini settings later for dimensions, etc.
-            sf::VideoMode({ 1024, 768 }),
-            "SFML CMake Practice",
+            sf::VideoMode({ width, height }),
+            title,
             // Always use default style + windowed for now
             sf::Style::Default,
             sf::State::Windowed

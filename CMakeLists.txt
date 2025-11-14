@@ -34,7 +34,7 @@ set(SFML_BUILD_NETWORK OFF CACHE BOOL "Do not build the Network module")
 FetchContent_MakeAvailable(sfml_dependency)
 
 # --------------------------------------------------------------------
-# STAGE 2: Fetch and configure EnTT and TGUI
+# STAGE 2: Fetch and configure EnTT and toml11
 # --------------------------------------------------------------------
 
 # Declare the EnTT dependency (header-only)
@@ -44,21 +44,15 @@ FetchContent_Declare(
     GIT_TAG        v3.15.0
 )
 
-### Declare the TGUI dependency
-#FetchContent_Declare(
-#    tgui
-#    GIT_REPOSITORY https://github.com/texus/TGUI.git
-#    GIT_TAG        v1.11.0
-#)
+# Declare the toml11 dependency (header-only)
+FetchContent_Declare(
+  toml11
+  GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
+  GIT_TAG        v4.4.0
+  SYSTEM        # Setting as SYSTEM to suppress deprecated literal operator warning
+)
 
-### Configure TGUI: Must be done BEFORE MakeAvailable
-### Set the backend to SFML so TGUI knows which renderer to build for.
-#set(TGUI_BACKEND "SFML_GRAPHICS" CACHE STRING "TGUI backend")
-#set(TGUI_BUILD_STATIC_LIBS ON CACHE BOOL "Build TGUI as static libraries")
-#set(TGUI_CXX_STANDARD 20)
-
-# Make both libraries available to the project
-FetchContent_MakeAvailable(entt) #tgui)
+FetchContent_MakeAvailable(entt toml11) 
 
 # --------------------------------------------------------------------
 # STAGE 3: Configure your application
@@ -84,6 +78,7 @@ add_executable(SFML-CMake-Prac
 # Copy resources during configuration time.
 # Note: Changes to resources will require re-running CMake configuration.
 file(COPY "${PROJECT_SOURCE_DIR}/resources/" DESTINATION "${CMAKE_BINARY_DIR}/resources")
+file(COPY "${PROJECT_SOURCE_DIR}/config/" DESTINATION "${CMAKE_BINARY_DIR}/config")
 
 ### This is an alternative way to include the resources at build time,
 ### it does NOT require re-running CMake when resources change.
@@ -110,7 +105,7 @@ target_link_libraries(SFML-CMake-Prac PRIVATE
     SFML::Window
     SFML::Audio
     EnTT::EnTT
-    #TGUI::TGUI
+    toml11::toml11
 )
 
 ### MSVC-specific settings ###

@@ -2,6 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "ConfigManager.hpp"
+
 #include <memory>
 #include <string>
 
@@ -13,6 +15,7 @@ public:
     WindowManager& operator=(const WindowManager&) = delete;
     ~WindowManager();
 
+    bool createMainWindow();
     bool createMainWindow(unsigned int width, unsigned int height, const std::string& title);
     sf::RenderWindow& getMainWindow();
     const sf::RenderWindow& getMainWindow() const;
@@ -22,4 +25,5 @@ public:
 
 private:
     std::unique_ptr<sf::RenderWindow> m_MainWindow;
+    std::unique_ptr<ConfigManager> m_WindowConfig;
 };
