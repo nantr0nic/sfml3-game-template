@@ -1,29 +1,20 @@
 #include "Application.hpp"
 
+#include <print>
+#include <iostream>
+
 Application::Application()
     : m_AppContext()
     , m_StateManager(&m_AppContext)
 {
-    m_AppContext.m_WindowManager->createMainWindow(1024, 768, "SFML CMake Practice");
-    m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
+    // Initialize Application Window and data
+    initMainWindow();
+    initResources();
+
+    // Set the StateManager in AppContext to Application's StateManager
     m_AppContext.m_StateManager = &m_StateManager;
 
-    m_AppContext.m_MainWindow->setFramerateLimit(60);
-
-    float mainWinCenterX = (m_AppContext.m_MainWindow->getSize().x) / 2.0f;
-    float mainWinCenterY = (m_AppContext.m_MainWindow->getSize().y) / 2.0f;
-
-    m_AppContext.m_Player = std::make_unique<Player>(mainWinCenterX, mainWinCenterY);
-
-    try {
-    m_AppContext.m_ResourceManager->loadResource<sf::Font>(
-        "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
-    );
-    }
-    catch (const std::exception& e) {
-        std::cerr << "Error loading resources: " << e.what() << std::endl;
-    }
-
+    // Push the initial application state
     auto menuState = std::make_unique<MenuState>(&m_AppContext);
     m_StateManager.pushState(std::move(menuState));
 }
@@ -31,6 +22,28 @@ Application::Application()
 Application::~Application()
 {
     // WindowManager destructor will handle window cleanup
+}
+
+void Application::initMainWindow()
+{
+    m_AppContext.m_WindowManager->createMainWindow();
+    m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
+    m_AppContext.m_MainWindow->setFramerateLimit(60);
+}
+
+void Application::initResources()
+{
+    try {
+        m_AppContext.m_ResourceManager->loadResource<sf::Font>(
+            "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
+        );
+        m_AppContext.m_ResourceManager->loadResource<sf::Music>(
+            "MainSong", "resources/music/VideoGameAm.ogg"
+        );
+    }
+    catch (const std::exception& e) {
+        std::println(std::cerr, "Error loading resources: {}", e.what());
+    }
 }
 
 void Application::run()

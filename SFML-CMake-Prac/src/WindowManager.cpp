@@ -1,9 +1,48 @@
 #include "WindowManager.hpp"
+#include "ConfigManager.hpp"
+
 #include <memory>
 
-WindowManager::WindowManager()
+WindowManager::WindowManager(ConfigManager& configManager)
     : m_MainWindow(nullptr)
+    , m_ConfigManager(configManager)
 {
+}
+
+WindowManager::~WindowManager()
+{
+    if (m_MainWindow)
+    {
+        m_MainWindow->close();
+        m_MainWindow = nullptr;
+    }
+}
+
+bool WindowManager::createMainWindow()
+{
+    if (m_MainWindow)
+    {
+        return false;
+    }
+    else 
+    {
+        unsigned int width = m_ConfigManager.getConfigValue<unsigned int>(
+            "window", "mainWindow", "X").value_or(800u);
+        unsigned int height = m_ConfigManager.getConfigValue<unsigned int>(
+            "window", "mainWindow", "Y").value_or(600u);
+        std::string title = m_ConfigManager.getConfigValue<std::string>(
+            "window", "mainWindow", "Title").value_or("Error parsing title");
+        
+        m_MainWindow = std::make_unique<sf::RenderWindow>(
+            sf::VideoMode({ width, height }),
+            title,
+            // Always use default style + windowed for now
+            sf::Style::Default,
+            sf::State::Windowed
+        );
+    }
+
+    return m_MainWindow->isOpen();
 }
 
 bool WindowManager::createMainWindow(unsigned int width, unsigned int height, const std::string& title)
@@ -17,8 +56,8 @@ bool WindowManager::createMainWindow(unsigned int width, unsigned int height, co
     {
         m_MainWindow = std::make_unique<sf::RenderWindow>(
             // Use .ini settings later for dimensions, etc.
-            sf::VideoMode({ 1024, 768 }),
-            "SFML CMake Practice",
+            sf::VideoMode({ width, height }),
+            title,
             // Always use default style + windowed for now
             sf::Style::Default,
             sf::State::Windowed
@@ -47,13 +86,4 @@ const sf::RenderWindow& WindowManager::getMainWindow() const
         throw std::runtime_error("Main window has not been created yet.");
     }
     return *m_MainWindow;
-}
-
-WindowManager::~WindowManager()
-{
-    if (m_MainWindow)
-    {
-        m_MainWindow->close();
-        m_MainWindow = nullptr;
-    }
 }

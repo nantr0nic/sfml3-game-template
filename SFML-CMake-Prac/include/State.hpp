@@ -1,7 +1,11 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "AppContext.hpp"
+
+#include <functional>
+#include <optional>
+
+class AppContext;
 
 struct StateEvents
 {
@@ -23,8 +27,8 @@ public:
     //virtual void enter() = 0;
     //virtual void exit() = 0;
 
-    StateEvents& getEventHandlers() { return m_StateEvents; }
-    const StateEvents& getEventHandlers() const { return m_StateEvents; }
+    StateEvents& getEventHandlers() noexcept { return m_StateEvents; }
+    const StateEvents& getEventHandlers() const noexcept { return m_StateEvents; }
 
     virtual void update(sf::Time deltaTime) = 0;
     virtual void render() = 0;
@@ -38,38 +42,37 @@ class MenuState : public State
 {
 public:
     MenuState(AppContext* appContext);
-    ~MenuState() override = default;
+    virtual ~MenuState() override;
 
-    void update(sf::Time deltaTime) override;
-    void render() override;
+    virtual void update(sf::Time deltaTime) override;
+    virtual void render() override;
 
 private:
-    sf::Text m_PlayText;
-    sf::RectangleShape m_PlayButton;
+    // Empty -- replaced previous data members with ECS components
 };
 
 class PlayState : public State
 {
 public:
     PlayState(AppContext* appContext);
-    ~PlayState() override = default;
+    virtual ~PlayState() override;
 
-    void update(sf::Time deltaTime) override;
-    void render() override;
+    virtual void update(sf::Time deltaTime) override;
+    virtual void render() override;
 
 private:
-    // nothing yet
+    // Empty
 };
 
 class PauseState : public State
 {
 public:
     PauseState(AppContext* appContext);
-    ~PauseState() override = default;
+    virtual ~PauseState() override = default;
 
-    void update(sf::Time deltaTime) override;
-    void render() override;
+    virtual void update(sf::Time deltaTime) override;
+    virtual void render() override;
 
 private:
-    sf::Text m_PauseText;
+    std::optional<sf::Text> m_PauseText;
 };

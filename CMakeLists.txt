@@ -34,7 +34,7 @@ set(SFML_BUILD_NETWORK OFF CACHE BOOL "Do not build the Network module")
 FetchContent_MakeAvailable(sfml_dependency)
 
 # --------------------------------------------------------------------
-# STAGE 2: Fetch and configure EnTT and TGUI
+# STAGE 2: Fetch and configure EnTT and toml11
 # --------------------------------------------------------------------
 
 # Declare the EnTT dependency (header-only)
@@ -44,21 +44,15 @@ FetchContent_Declare(
     GIT_TAG        v3.15.0
 )
 
-### Declare the TGUI dependency
-#FetchContent_Declare(
-#    tgui
-#    GIT_REPOSITORY https://github.com/texus/TGUI.git
-#    GIT_TAG        v1.11.0
-#)
+# Declare the toml11 dependency (header-only)
+FetchContent_Declare(
+  toml11
+  GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
+  GIT_TAG        v4.4.0
+  SYSTEM        # Setting as SYSTEM to suppress deprecated literal operator warning
+)
 
-### Configure TGUI: Must be done BEFORE MakeAvailable
-### Set the backend to SFML so TGUI knows which renderer to build for.
-#set(TGUI_BACKEND "SFML_GRAPHICS" CACHE STRING "TGUI backend")
-#set(TGUI_BUILD_STATIC_LIBS ON CACHE BOOL "Build TGUI as static libraries")
-#set(TGUI_CXX_STANDARD 20)
-
-# Make both libraries available to the project
-FetchContent_MakeAvailable(entt) #tgui)
+FetchContent_MakeAvailable(entt toml11) 
 
 # --------------------------------------------------------------------
 # STAGE 3: Configure your application
@@ -75,25 +69,32 @@ add_executable(SFML-CMake-Prac
     "${PROJECT_SOURCE_DIR}/src/StateManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/State.cpp"
     "${PROJECT_SOURCE_DIR}/src/GlobalEventManager.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Player.cpp"
+    "${PROJECT_SOURCE_DIR}/src/ECS/EntityFactory.cpp"
+    "${PROJECT_SOURCE_DIR}/src/ECS/Systems.cpp"
+    "${PROJECT_SOURCE_DIR}/src/RandomMachine.cpp"
+    "${PROJECT_SOURCE_DIR}/src/ConfigManager.cpp"
 )
 
 # Copy resources during configuration time.
 # Note: Changes to resources will require re-running CMake configuration.
-file(COPY "${PROJECT_SOURCE_DIR}/resources/" DESTINATION "${CMAKE_BINARY_DIR}/resources")
+#file(COPY "${PROJECT_SOURCE_DIR}/resources/" DESTINATION "${CMAKE_BINARY_DIR}/resources")
+#file(COPY "${PROJECT_SOURCE_DIR}/config/" DESTINATION "${CMAKE_BINARY_DIR}/config")
 
 ### This is an alternative way to include the resources at build time,
 ### it does NOT require re-running CMake when resources change.
 ### However, it may slow down build times slightly.
 # This runs every time the SFML-CMake-Prac target is built.
-#add_custom_command(
-#    TARGET SFML-CMake-Prac
-#    POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy_directory
-#            "${PROJECT_SOURCE_DIR}/resources"
-#            "$<TARGET_FILE_DIR:SFML-CMake-Prac>/resources"
-#    COMMENT "Copying resources to build directory"
-#)
+add_custom_command(
+    TARGET SFML-CMake-Prac
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${PROJECT_SOURCE_DIR}/resources"
+            "$<TARGET_FILE_DIR:SFML-CMake-Prac>/resources"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${PROJECT_SOURCE_DIR}/config"
+            "$<TARGET_FILE_DIR:SFML-CMake-Prac>/config"
+    COMMENT "Copying resources and config to build directory"
+)
 
 # The ${entt_SOURCE_DIR} variable is automatically set by FetchContent.
 target_include_directories(SFML-CMake-Prac PRIVATE
@@ -106,7 +107,8 @@ target_link_libraries(SFML-CMake-Prac PRIVATE
     SFML::Graphics
     SFML::Window
     SFML::Audio
-    #TGUI::TGUI
+    EnTT::EnTT
+    toml11::toml11
 )
 
 ### MSVC-specific settings ###

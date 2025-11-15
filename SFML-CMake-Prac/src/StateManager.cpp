@@ -1,11 +1,11 @@
 #include "StateManager.hpp"
 
-StateManager::StateManager(AppContext* appContext)
+StateManager::StateManager(AppContext* appContext) noexcept
     : m_AppContext(*appContext)
 {
 }
 
-StateManager::~StateManager()
+StateManager::~StateManager() noexcept
 {
 }
 
@@ -31,7 +31,16 @@ void StateManager::replaceState(std::unique_ptr<State> state)
     m_States.push_back(std::move(state));
 }
 
-State* StateManager::getCurrentState()
+State* StateManager::getCurrentState() noexcept
+{
+    if (m_States.empty())
+    {
+        return nullptr;
+    }
+    return m_States.back().get();
+}
+
+const State* StateManager::getCurrentState() const noexcept
 {
     if (m_States.empty())
     {

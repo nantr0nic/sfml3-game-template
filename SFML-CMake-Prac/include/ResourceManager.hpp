@@ -5,7 +5,9 @@
 
 #include <map>
 #include <memory>
-#include <string>
+#include <string_view>
+#include <format>
+#include <print>
 #include <iostream>
 
 class ResourceManager 
@@ -17,116 +19,128 @@ public:
     ~ResourceManager() = default;
 
     template<typename T>
-    void loadResource(const std::string& id, const std::string& filepath);
+    void loadResource(std::string_view id, std::string_view filepath);
 
     template<typename T>
-    T& getResource(const std::string& id);
+    T* getResource(std::string_view id);
 
     template<typename T>
-    const T& getResource(const std::string& id) const;
+    const T* getResource(std::string_view id) const;
 
 private:
-    std::map<std::string, std::unique_ptr<sf::Font>> m_Fonts;
-    std::map<std::string, std::unique_ptr<sf::Texture>> m_Textures;
-    std::map<std::string, std::unique_ptr<sf::SoundBuffer>> m_SoundBuffers;
-    std::map<std::string, std::unique_ptr<sf::Music>> m_Musics;
+    std::map<std::string, std::unique_ptr<sf::Font>, std::less<>> m_Fonts;
+    std::map<std::string, std::unique_ptr<sf::Texture>, std::less<>> m_Textures;
+    std::map<std::string, std::unique_ptr<sf::SoundBuffer>, std::less<>> m_SoundBuffers;
+    std::map<std::string, std::unique_ptr<sf::Music>, std::less<>> m_Musics;
 
 };
 
 //! VVV This is not good error handling, rework this later VVV
 
 template<typename T>
-void ResourceManager::loadResource(const std::string& id, const std::string& filepath)
+void ResourceManager::loadResource(std::string_view id, std::string_view filepath)
 {
     if constexpr (std::is_same_v<T, sf::Font>) 
     {
         auto font = std::make_unique<sf::Font>();
         if (!font->openFromFile(filepath)) 
         {
-            throw std::runtime_error("Failed to load font: " + filepath);
+            throw std::runtime_error(std::format("Failed to load font: {}", filepath));
         }
-        m_Fonts[id] = std::move(font);
+        m_Fonts.insert_or_assign(std::string(id), std::move(font));
     } 
     else if constexpr (std::is_same_v<T, sf::Texture>) 
     {
         auto texture = std::make_unique<sf::Texture>();
         if (!texture->loadFromFile(filepath)) 
         {
-            throw std::runtime_error("Failed to load texture: " + filepath);
+            throw std::runtime_error(std::format("Failed to load texture: {}",  filepath));
         }
-        m_Textures[id] = std::move(texture);
+        m_Textures.insert_or_assign(std::string(id), std::move(texture));
     } 
     else if constexpr (std::is_same_v<T, sf::SoundBuffer>) 
     {
         auto soundBuffer = std::make_unique<sf::SoundBuffer>();
         if (!soundBuffer->loadFromFile(filepath)) 
         {
-            throw std::runtime_error("Failed to load sound buffer: " + filepath);
+            throw std::runtime_error(std::format("Failed to load sound buffer: {}", filepath));
         }
-        m_SoundBuffers[id] = std::move(soundBuffer);
+        m_SoundBuffers.insert_or_assign(std::string(id), std::move(soundBuffer));
     }
     else if constexpr (std::is_same_v<T, sf::Music>) 
     {
         auto music = std::make_unique<sf::Music>();
         if (!music->openFromFile(filepath)) 
         {
-            throw std::runtime_error("Failed to load music: " + filepath);
+            throw std::runtime_error(std::format("Failed to load music: {}", filepath));
         }
-        m_Musics[id] = std::move(music);
+        m_Musics.insert_or_assign(std::string(id), std::move(music));
     }
     else 
     {
-        std::cerr << "Unsupported resource type." << std::endl;
+        std::println(std::cerr, "Couldn't load resource. Possibly: Unsupported type or wrong ID.");
         return;
     }
 }
 
 template<typename T>
-T& ResourceManager::getResource(const std::string& id)
+T* ResourceManager::getResource(std::string_view id)
 {
     if constexpr (std::is_same_v<T, sf::Font>) 
     {
-        return *m_Fonts.at(id);
+        auto it = m_Fonts.find(id);
+        return (it != m_Fonts.end()) ? it->second.get() : nullptr;
     } 
     else if constexpr (std::is_same_v<T, sf::Texture>) 
     {
-        return *m_Textures.at(id);
+        auto it = m_Textures.find(id);
+        return (it != m_Textures.end()) ? it->second.get() : nullptr;
     } 
     else if constexpr (std::is_same_v<T, sf::SoundBuffer>) 
     {
-        return *m_SoundBuffers.at(id);
+        auto it = m_SoundBuffers.find(id);
+        return (it != m_SoundBuffers.end()) ? it->second.get() : nullptr;
     }
     else if constexpr (std::is_same_v<T, sf::Music>) 
     {
-        return *m_Musics.at(id);
+        auto it = m_Musics.find(id);
+        return (it != m_Musics.end()) ? it->second.get() : nullptr;
     }
     else 
     {
-        throw std::runtime_error("Something went wrong retrieving resource.\nWrong ID? > " + id);
+        std::println(std::cerr, 
+            "Couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", id
+        );
+        return nullptr;
     }
 }
 
 template<typename T>
-const T& ResourceManager::getResource(const std::string& id) const
+const T* ResourceManager::getResource(std::string_view id) const
 {
     if constexpr (std::is_same_v<T, sf::Font>) 
     {
-        return *m_Fonts.at(id);
+        auto it = m_Fonts.find(id);
+        return (it != m_Fonts.end()) ? it->second.get() : nullptr;
     } 
     else if constexpr (std::is_same_v<T, sf::Texture>) 
     {
-        return *m_Textures.at(id);
+        auto it = m_Textures.find(id);
+        return (it != m_Textures.end()) ? it->second.get() : nullptr;
     } 
     else if constexpr (std::is_same_v<T, sf::SoundBuffer>) 
     {
-        return *m_SoundBuffers.at(id);
+        auto it = m_SoundBuffers.find(id);
+        return (it != m_SoundBuffers.end()) ? it->second.get() : nullptr;
     }
     else if constexpr (std::is_same_v<T, sf::Music>) 
     {
-        return *m_Musics.at(id);
+        auto it = m_Musics.find(id);
+        return (it != m_Musics.end()) ? it->second.get() : nullptr;
     }
     else 
     {
-        throw std::runtime_error("Something went wrong retrieving resource.\nWrong ID? > " + id);
+        static_assert(false, "Couldn't get resource. Possibly: Unsupported type or wrong ID.");
+        return nullptr;
     }
 }

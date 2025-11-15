@@ -9,16 +9,17 @@
 class StateManager
 {
 public:
-    StateManager(AppContext* appContext);
+    StateManager(AppContext* appContext) noexcept;
     StateManager(const StateManager&) = delete;
     StateManager& operator=(const StateManager&) = delete;
-    ~StateManager();
+    ~StateManager() noexcept;
 
     void pushState(std::unique_ptr<State> state);
     void popState();
     void replaceState(std::unique_ptr<State> state);
 
-    State* getCurrentState();
+    State* getCurrentState() noexcept;
+    const State* getCurrentState() const noexcept;
 
     void update(sf::Time deltaTime);
     void render();
