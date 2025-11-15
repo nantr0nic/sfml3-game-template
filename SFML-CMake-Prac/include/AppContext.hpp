@@ -13,7 +13,7 @@ class StateManager;
 
 struct AppContext
 {
-    AppContext() {
+    AppContext() noexcept {
         m_WindowManager = std::make_unique<WindowManager>();
         m_ResourceManager = std::make_unique<ResourceManager>();
         m_GlobalEventManager = std::make_unique<GlobalEventManager>(*m_WindowManager);
@@ -24,7 +24,7 @@ struct AppContext
     AppContext(const AppContext&) = delete;
     AppContext& operator=(const AppContext&) = delete;
 
-    ~AppContext() = default;
+    ~AppContext() noexcept = default;
 
     // Resources
     std::unique_ptr<WindowManager> m_WindowManager{ nullptr };

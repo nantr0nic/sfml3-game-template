@@ -1,36 +1,40 @@
+#pragma once
+
 #include <toml.hpp>
 
 #include <print>
 #include <optional>
+#include <string_view>
+#include <string>
 
 class ConfigManager
 {
 public:
-    ConfigManager() = default;
+    ConfigManager() noexcept = default;
     ConfigManager(const ConfigManager&) = delete;
     ConfigManager& operator=(const ConfigManager&) = delete;
-    ~ConfigManager() = default;
+    ~ConfigManager() noexcept = default;
 
-    void loadConfig(const std::string& filepath);
+    void loadConfig(std::string_view filepath);
 
     // getConfigValue can accept either a bare key in a .toml file,
     // or it can handle bracket headings with keys.
     template<typename T>
-    std::optional<T> getConfigValue(const std::string& key);
+    std::optional<T> getConfigValue(std::string_view key);
 
     template<typename T>
-    std::optional<T> getConfigValue(const std::string& at, const std::string& key);
+    std::optional<T> getConfigValue(std::string_view at, std::string_view key);
 
 private:
     toml::value m_ConfigFile;
 
 };
 
-inline void ConfigManager::loadConfig(const std::string& filepath)
+inline void ConfigManager::loadConfig(std::string_view filepath)
 {
     try
     {
-        m_ConfigFile = toml::parse(filepath);
+        m_ConfigFile = toml::parse(std::string(filepath));
         std::println("Config file loaded successfully: {}", filepath);
     }
     catch (const std::exception& e)
@@ -40,7 +44,7 @@ inline void ConfigManager::loadConfig(const std::string& filepath)
 }
 
 template<typename T>
-std::optional<T> ConfigManager::getConfigValue(const std::string& key)
+std::optional<T> ConfigManager::getConfigValue(std::string_view key)
 {
     try
     {
@@ -54,7 +58,7 @@ std::optional<T> ConfigManager::getConfigValue(const std::string& key)
 }
 
 template<typename T>
-std::optional<T> ConfigManager::getConfigValue(const std::string& at, const std::string& key)
+std::optional<T> ConfigManager::getConfigValue(std::string_view at, std::string_view key)
 {
     try
     {

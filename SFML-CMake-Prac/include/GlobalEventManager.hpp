@@ -14,13 +14,13 @@ struct ApplicationEvents
 class GlobalEventManager
 {
 public:
-    GlobalEventManager(WindowManager& windowManager);
+    GlobalEventManager(WindowManager& windowManager) noexcept;
     GlobalEventManager(const GlobalEventManager&) = delete;
     GlobalEventManager& operator=(const GlobalEventManager&) = delete;
-    ~GlobalEventManager() = default;
+    ~GlobalEventManager() noexcept = default;
 
-    ApplicationEvents& getEventHandles() { return m_Events; }
-    const ApplicationEvents& getEventHandles() const { return m_Events; }
+    ApplicationEvents& getEventHandles() noexcept { return m_Events; }
+    const ApplicationEvents& getEventHandles() const noexcept { return m_Events; }
 
 private:
     ApplicationEvents m_Events;

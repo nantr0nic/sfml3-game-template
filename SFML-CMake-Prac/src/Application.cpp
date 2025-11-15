@@ -1,5 +1,8 @@
 #include "Application.hpp"
 
+#include <print>
+#include <iostream>
+
 Application::Application()
     : m_AppContext()
     , m_StateManager(&m_AppContext)
@@ -39,7 +42,7 @@ void Application::initResources()
         );
     }
     catch (const std::exception& e) {
-        std::cerr << "Error loading resources: " << e.what() << std::endl;
+        std::println(std::cerr, "Error loading resources: {}", e.what());
     }
 }
 

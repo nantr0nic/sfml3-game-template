@@ -6,6 +6,9 @@
 #include "ECS/Systems.hpp"
 #include "Utils.hpp"
 
+#include <print>
+#include <iostream>
+
 
 //$ ----- MenuState Implementation ----- //
 MenuState::MenuState(AppContext* appContext)
@@ -15,9 +18,10 @@ MenuState::MenuState(AppContext* appContext)
     sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
 
     // Play button entity
+    sf::Font* font = m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont");
     EntityFactory::createButton(
         *m_AppContext,
-        m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont"),
+        *font,
         "Play",
         center,
         // lambda for when button is clicked
@@ -80,17 +84,18 @@ PlayState::PlayState(AppContext* appContext)
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Failed to load player spritesheet: " << e.what() << std::endl;
+        std::println(std::cerr, "Failed to load player spritesheet: {}", e.what());
     }
 
     // We create the player entity here
-    float mainWinCenterX = (m_AppContext->m_MainWindow->getSize().x) / 2.0f;
-    float mainWinCenterY = (m_AppContext->m_MainWindow->getSize().y) / 2.0f;
-
-    EntityFactory::createPlayer(*m_AppContext, { mainWinCenterX, mainWinCenterY });
+    sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
+    sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
+    EntityFactory::createPlayer(*m_AppContext, { center.x, center.y });
 
     // Start music
-    m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong").play();
+    auto* mainSong = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong");
+    mainSong->setLooping(true);
+    mainSong->play();
     
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
     {
@@ -102,7 +107,7 @@ PlayState::PlayState(AppContext* appContext)
         // State-specific Pause key
         else if (event.scancode == sf::Keyboard::Scancode::P)
         {
-            m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong").pause();
+            m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong")->pause();
             auto pauseState = std::make_unique<PauseState>(m_AppContext);
             m_AppContext->m_StateManager->pushState(std::move(pauseState));
         }
@@ -142,22 +147,30 @@ void PlayState::render()
 //$ ----- PauseState Implementation -----
 PauseState::PauseState(AppContext* appContext)
     : State(appContext)
-    , m_PauseText(m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont"), "Paused", 100)
 {
+    sf::Font* font = m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont");
+
+    if (!font)
+    {
+        std::println(std::cerr, "Error: MainFont not found! Can't make pause text.");
+        return;
+    }
+
+    m_PauseText.emplace(*font, "Paused", 100);
+    m_PauseText->setFillColor(sf::Color::Red);
+
+    Utils::centerOrigin(*m_PauseText);
+
     sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
     sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
-
-    // Setup Pause Text
-    m_PauseText.setFillColor(sf::Color::Red);
-    Utils::centerOrigin(m_PauseText);
-    m_PauseText.setPosition(center);
+    m_PauseText->setPosition(center);
 
     // Lambda to handle pause
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
     {
         if (event.scancode == sf::Keyboard::Scancode::P)
         {
-            m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong").play();
+            m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong")->play();
             m_AppContext->m_StateManager->popState();
         }
     };
@@ -176,5 +189,8 @@ void PauseState::update(sf::Time deltaTime)
 
 void PauseState::render()
 {
-    m_AppContext->m_MainWindow->draw(m_PauseText);
+    if (m_PauseText)
+    {
+        m_AppContext->m_MainWindow->draw(*m_PauseText);
+    }
 }

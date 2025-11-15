@@ -10,9 +10,8 @@ namespace EntityFactory
     entt::entity createPlayer(AppContext& context, sf::Vector2f position)
     {
         auto& registry = *context.m_Registry;
-        auto& texture = context.m_ResourceManager->getResource<sf::Texture>("PlayerSpriteSheet");
-
-
+        auto* texture_file = context.m_ResourceManager->getResource<sf::Texture>("PlayerSpriteSheet");
+        auto& texture = *texture_file;
 
         auto playerEntity = registry.create();
 
