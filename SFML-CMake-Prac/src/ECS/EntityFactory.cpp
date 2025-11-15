@@ -19,13 +19,14 @@ namespace EntityFactory
         registry.emplace<PlayerTag>(playerEntity);  // way to ID the player
         registry.emplace<MovementSpeed>(playerEntity, 350.0f);
         registry.emplace<Velocity>(playerEntity);
+        registry.emplace<Facing>(playerEntity);
+        registry.emplace<BaseScale>(playerEntity, sf::Vector2f(3.0f, 3.0f));
         
         // Sprite stuff
         SpriteComponent spriteComp(texture);
         spriteComp.sprite.setTextureRect({ {0, 0}, {32, 32} }); // assumes 32x32 sprite size
         spriteComp.sprite.setPosition(position);
         Utils::centerOrigin(spriteComp.sprite);
-        spriteComp.sprite.setScale(sf::Vector2f(3.0f, 3.0f));
 
         registry.emplace<SpriteComponent>(playerEntity, std::move(spriteComp));
 

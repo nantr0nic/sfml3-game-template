@@ -17,14 +17,15 @@ namespace CoreSystems
                                 Velocity, 
                                 MovementSpeed,
                                 AnimatorComponent, 
-                                SpriteComponent>();
+                                SpriteComponent,
+                                Facing>();
 
         for (auto entity : view)
         {
             auto& velocity = view.get<Velocity>(entity);
             const auto& speed = view.get<MovementSpeed>(entity);
             auto& animator = view.get<AnimatorComponent>(entity);
-            auto& spriteComp = view.get<SpriteComponent>(entity);
+            auto& facing = view.get<Facing>(entity);
 
             // Reset velocity
             velocity.value = { 0.0f, 0.0f };
@@ -48,6 +49,7 @@ namespace CoreSystems
                 if (!hits.west)
                 {
                     velocity.value.x -= speed.value;
+                    facing.dir = FacingDirection::Left;
                 }
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::D))
@@ -55,6 +57,7 @@ namespace CoreSystems
                 if (!hits.east)
                 {
                     velocity.value.x += speed.value;
+                    facing.dir = FacingDirection::Right;
                 }
             }
 
@@ -68,15 +71,6 @@ namespace CoreSystems
                     animator.currentAnimationName = "walk";
                     animator.currentFrame = 0;
                     animator.elapsedTime = sf::Time::Zero;
-                }
-                //! face left / right -- will replace this with a "facingSystem"
-                if (velocity.value.x < 0.0f)
-                {
-                    spriteComp.sprite.setScale({-3, 3});
-                }
-                else if (velocity.value.x > 0.0f)
-                {
-                    spriteComp.sprite.setScale({3, 3});
                 }
             }
             else
@@ -137,6 +131,28 @@ namespace CoreSystems
             const auto& velocity = view.get<Velocity>(entity);
 
             spriteComp.sprite.move(velocity.value * deltaTime.asSeconds());
+        }
+    }
+
+    void facingSystem(entt::registry& registry)
+    {
+        auto view = registry.view<SpriteComponent, Facing, BaseScale>();
+
+        for (auto entity : view)
+        {
+            const auto& facing = view.get<Facing>(entity);
+            auto& spriteComp = view.get<SpriteComponent>(entity);
+            const auto& baseScale = view.get<BaseScale>(entity);
+
+            if (facing.dir == FacingDirection::Left)
+            {
+                spriteComp.sprite.setScale({ -baseScale.value.x, baseScale.value.y });
+            }
+            // this will need else if blocks for up / down or isometric 8 direction facing
+            else // facing right
+            {
+                spriteComp.sprite.setScale(baseScale.value);
+            }
         }
     }
 

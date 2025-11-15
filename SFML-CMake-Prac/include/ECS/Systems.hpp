@@ -16,6 +16,8 @@ namespace CoreSystems
 
     void movementSystem(entt::registry& registry, sf::Time deltaTime);
 
+    void facingSystem(entt::registry& registry);
+
     void renderSystem(entt::registry& registry, sf::RenderWindow& window);
 
     void animationSystem(entt::registry& registry, sf::Time deltaTime);

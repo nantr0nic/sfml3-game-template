@@ -66,6 +66,12 @@ struct AnimatorComponent
     sf::Vector2i frameSize;           // e.g., {32, 32}
 };
 
+enum class FacingDirection { Left, Right };
+
+struct Facing { FacingDirection dir = FacingDirection::Right; };
+
+struct BaseScale { sf::Vector2f value{1.0f, 1.0f}; };
+
 struct RenderableCircle 
 {
     RenderableCircle(float radius, const sf::Color& color, sf::Vector2f position)
