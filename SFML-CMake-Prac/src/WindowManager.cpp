@@ -1,13 +1,21 @@
 #include "WindowManager.hpp"
+#include "ConfigManager.hpp"
 
 #include <memory>
 
-WindowManager::WindowManager()
+WindowManager::WindowManager(ConfigManager& configManager)
     : m_MainWindow(nullptr)
-    , m_WindowConfig(nullptr)
+    , m_ConfigManager(configManager)
 {
-    m_WindowConfig = std::make_unique<ConfigManager>();
-    m_WindowConfig->loadConfig("config/WindowConfig.toml");
+}
+
+WindowManager::~WindowManager()
+{
+    if (m_MainWindow)
+    {
+        m_MainWindow->close();
+        m_MainWindow = nullptr;
+    }
 }
 
 bool WindowManager::createMainWindow()
@@ -18,15 +26,14 @@ bool WindowManager::createMainWindow()
     }
     else 
     {
-        unsigned int width = m_WindowConfig->getConfigValue<unsigned int>(
-            "mainWindow", "X").value_or(800u);
-        unsigned int height = m_WindowConfig->getConfigValue<unsigned int>(
-            "mainWindow", "Y").value_or(600u);
-        std::string title = m_WindowConfig->getConfigValue<std::string>(
-            "mainWindow", "Title").value_or("Error parsing title");
+        unsigned int width = m_ConfigManager.getConfigValue<unsigned int>(
+            "window", "mainWindow", "X").value_or(800u);
+        unsigned int height = m_ConfigManager.getConfigValue<unsigned int>(
+            "window", "mainWindow", "Y").value_or(600u);
+        std::string title = m_ConfigManager.getConfigValue<std::string>(
+            "window", "mainWindow", "Title").value_or("Error parsing title");
         
         m_MainWindow = std::make_unique<sf::RenderWindow>(
-            // Use .ini settings later for dimensions, etc.
             sf::VideoMode({ width, height }),
             title,
             // Always use default style + windowed for now
@@ -79,13 +86,4 @@ const sf::RenderWindow& WindowManager::getMainWindow() const
         throw std::runtime_error("Main window has not been created yet.");
     }
     return *m_MainWindow;
-}
-
-WindowManager::~WindowManager()
-{
-    if (m_MainWindow)
-    {
-        m_MainWindow->close();
-        m_MainWindow = nullptr;
-    }
 }
