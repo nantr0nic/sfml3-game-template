@@ -20,11 +20,11 @@ public:
 
     void loadConfig(std::string_view configID, std::string_view filepath);
 
-    // getConfigValue can accept either a bare key in a .toml file,
-    // or it can handle bracket headings with keys.
+    // getConfigValue requires (configID, key) or (configID, at, key)
     template<typename T>
     std::optional<T> getConfigValue(std::string_view configID, std::string_view key);
 
+    // getConfigValue requires (configID, key) or (configID, at, key)
     template<typename T>
     std::optional<T> getConfigValue(std::string_view configID, std::string_view at, std::string_view key);
 
