@@ -86,11 +86,13 @@ PlayState::PlayState(AppContext* appContext)
     sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
     EntityFactory::createPlayer(*m_AppContext, { center.x, center.y });
 
+    m_MainMusic = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong");
+
     // Start music
-    if (auto* mainSong = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong"))
+    if (m_MainMusic)
     {
-        mainSong->setLooping(true);
-        mainSong->play();
+        m_MainMusic->setLooping(true);
+        m_MainMusic->play();
     }
     else 
     {
@@ -107,7 +109,10 @@ PlayState::PlayState(AppContext* appContext)
         // State-specific Pause key
         else if (event.scancode == sf::Keyboard::Scancode::P)
         {
-            m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong")->pause();
+            if (m_MainMusic)
+            {
+                m_MainMusic->pause();
+            }
             auto pauseState = std::make_unique<PauseState>(m_AppContext);
             m_AppContext->m_StateManager->pushState(std::move(pauseState));
         }
@@ -154,24 +159,28 @@ PauseState::PauseState(AppContext* appContext)
     if (!font)
     {
         std::println(std::cerr, "Error: MainFont not found! Can't make pause text.");
-        return;
     }
+    else 
+    {
+        m_PauseText.emplace(*font, "Paused", 100);
+        m_PauseText->setFillColor(sf::Color::Red);
 
-    m_PauseText.emplace(*font, "Paused", 100);
-    m_PauseText->setFillColor(sf::Color::Red);
+        Utils::centerOrigin(*m_PauseText);
 
-    Utils::centerOrigin(*m_PauseText);
-
-    sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
-    sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
-    m_PauseText->setPosition(center);
+        sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
+        sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
+        m_PauseText->setPosition(center);
+    }
 
     // Lambda to handle pause
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
     {
         if (event.scancode == sf::Keyboard::Scancode::P)
         {
-            m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong")->play();
+            if (auto* music = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong"))
+            {
+                music->play();
+            }
             m_AppContext->m_StateManager->popState();
         }
     };

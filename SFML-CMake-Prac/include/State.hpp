@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include <functional>
 #include <optional>
@@ -61,7 +62,7 @@ public:
     virtual void render() override;
 
 private:
-    // Empty
+    sf::Music* m_MainMusic{ nullptr };
 };
 
 class PauseState : public State
