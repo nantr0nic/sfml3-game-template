@@ -19,18 +19,24 @@ MenuState::MenuState(AppContext* appContext)
 
     // Play button entity
     sf::Font* font = m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont");
-    EntityFactory::createButton(
-        *m_AppContext,
-        *font,
-        "Play",
-        center,
-        // lambda for when button is clicked
-        [this]() {
-            auto playState = std::make_unique<PlayState>(m_AppContext);
-            m_AppContext->m_StateManager->replaceState(std::move(playState));
-        }
-    );
-
+    if (font)
+    {
+        EntityFactory::createButton(
+            *m_AppContext,
+            *font,
+            "Play",
+            center,
+            // lambda for when button is clicked
+            [this]() {
+                auto playState = std::make_unique<PlayState>(m_AppContext);
+                m_AppContext->m_StateManager->replaceState(std::move(playState));
+            }
+        );
+    }
+    else 
+    {
+        std::println(std::cerr, "MenuState couldn't load font.");
+    }
 
     // Lambdas to handle input
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
@@ -75,27 +81,21 @@ void MenuState::render()
 PlayState::PlayState(AppContext* appContext)
     : State(appContext)
 {
-    try 
-    {
-        m_AppContext->m_ResourceManager->loadResource<sf::Texture>(
-            "PlayerSpriteSheet",
-            "resources/sprites/knight.png"
-        );
-    }
-    catch (const std::exception& e)
-    {
-        std::println(std::cerr, "Failed to load player spritesheet: {}", e.what());
-    }
-
     // We create the player entity here
     sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
     sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
     EntityFactory::createPlayer(*m_AppContext, { center.x, center.y });
 
     // Start music
-    auto* mainSong = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong");
-    mainSong->setLooping(true);
-    mainSong->play();
+    if (auto* mainSong = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong"))
+    {
+        mainSong->setLooping(true);
+        mainSong->play();
+    }
+    else 
+    {
+        std::println(std::cerr, "Error: MainSong not found, not playing music.");
+    }
     
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
     {

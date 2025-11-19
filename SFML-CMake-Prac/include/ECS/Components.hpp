@@ -25,10 +25,13 @@ struct BoundaryHits
 
 // ----- Sprite / Animation Components ----- //
 struct SpriteComponent 
-{
-    SpriteComponent(const sf::Texture& texture)
+{ 
+    // I tried to write this without a constructor but because sprite must
+    // be initialized with a texture I don't know how to handle this without
+    // a constructor...
+    SpriteComponent(sf::Texture& texture)
         : sprite(texture)
-    { }
+        { }
 
     ~SpriteComponent() = default;
 

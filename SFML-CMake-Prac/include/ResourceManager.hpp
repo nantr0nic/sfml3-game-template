@@ -35,7 +35,7 @@ private:
 
 };
 
-//! VVV This is not good error handling, rework this later VVV
+//! VVV Try std::expected here instead of throw/catch? VVV
 
 template<typename T>
 void ResourceManager::loadResource(std::string_view id, std::string_view filepath)
@@ -78,7 +78,7 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
     }
     else 
     {
-        std::println(std::cerr, "Couldn't load resource. Possibly: Unsupported type or wrong ID.");
+        std::println(std::cerr, "ResourceManager couldn't load resource. Possibly: Unsupported type or wrong ID.");
         return;
     }
 }
@@ -109,7 +109,7 @@ T* ResourceManager::getResource(std::string_view id)
     else 
     {
         std::println(std::cerr, 
-            "Couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", id
+            "ResourceManager couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", id
         );
         return nullptr;
     }
@@ -140,7 +140,9 @@ const T* ResourceManager::getResource(std::string_view id) const
     }
     else 
     {
-        static_assert(false, "Couldn't get resource. Possibly: Unsupported type or wrong ID.");
+        std::println(std::cerr, 
+            "ResourceManager couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", id
+        );
         return nullptr;
     }
 }
