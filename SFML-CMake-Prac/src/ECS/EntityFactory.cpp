@@ -8,6 +8,7 @@
 
 #include <print>
 #include <iostream>
+#include <string>
 
 // functions for the ECS system
 namespace EntityFactory
@@ -20,7 +21,7 @@ namespace EntityFactory
 
         if (texture == nullptr)
         {
-            std::println(std::cerr, "EntityFactory couldn't create Player because missing texture.");
+            std::println(std::cerr, "<EntityFactory> Couldn't create Player because missing texture.");
             return entt::null;
         }
 
@@ -34,11 +35,11 @@ namespace EntityFactory
         registry.emplace<BaseScale>(playerEntity, sf::Vector2f(3.0f, 3.0f));
 
         // Sprite stuff
-        SpriteComponent spriteComp(*texture);
+        sf::Sprite playerSprite(*texture);
+        auto& spriteComp = registry.emplace<SpriteComponent>(playerEntity, std::move(playerSprite));
         spriteComp.sprite.setTextureRect({ {0, 0}, {32, 32} }); // assumes 32x32 sprite size
         spriteComp.sprite.setPosition(position);
         Utils::centerOrigin(spriteComp.sprite);
-        registry.emplace<SpriteComponent>(playerEntity, std::move(spriteComp));
 
         // Animator stuff
         auto& animator = registry.emplace<AnimatorComponent>(playerEntity);

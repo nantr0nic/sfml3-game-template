@@ -11,32 +11,20 @@
 
 struct PlayerTag {}; // Tag to identify the player entity
 
-struct Velocity { sf::Vector2f value{0.0f, 0.0f}; };
+struct Velocity { sf::Vector2f value{ 0.0f, 0.0f }; };
 
-struct MovementSpeed { float value; };
+struct MovementSpeed { float value{ 0.0f }; };
 
 struct BoundaryHits
 {
-    bool north = false;
-    bool south = false;
-    bool west = false;
-    bool east = false;
+    bool north{ false };
+    bool south{ false };
+    bool west{ false };
+    bool east{ false };
 };
 
 // ----- Sprite / Animation Components ----- //
-struct SpriteComponent 
-{ 
-    // I tried to write this without a constructor but because sprite must
-    // be initialized with a texture I don't know how to handle this without
-    // a constructor...
-    SpriteComponent(sf::Texture& texture)
-        : sprite(texture)
-        { }
-
-    ~SpriteComponent() = default;
-
-    sf::Sprite sprite; 
-};
+struct SpriteComponent { sf::Sprite sprite; };
 
 struct Animation
 {
@@ -47,15 +35,15 @@ struct Animation
         , duration(duration)
     { }
 
-    ~Animation() = default;
-
-
-    int row;           // The row on the sprite sheet (0 for idle, 1 for walk, etc.)
-    int frames;        // Total number of frames in this animation
-    sf::Time duration; // Total duration this animation should take
+    int row{ 0 };                        // The row on the sprite sheet (0 for idle, 1 for walk, etc.)
+    int frames{ 0 };                     // Total number of frames in this animation
+    sf::Time duration{ sf::Time::Zero }; // Total duration this animation should take
     
     // Calculates time per frame. sf::Time / float is a valid operation.
-    sf::Time getTimePerFrame() const { return duration / (float)frames; }
+    sf::Time getTimePerFrame() const
+    { 
+        return (frames > 0) ? duration / static_cast<float>(frames) : sf::Time::Zero;
+    }
 };
 
 struct AnimatorComponent
@@ -63,17 +51,17 @@ struct AnimatorComponent
     // Stores all available animations by name 
     std::map<std::string, Animation> animations;
 
-    std::string currentAnimationName; // "idle", "walk", etc.
-    int currentFrame;                 // The current frame index (0-9 for idle, etc.)
-    sf::Time elapsedTime;             // Time accumulated since the last frame change
-    sf::Vector2i frameSize;           // e.g., {32, 32}
+    std::string currentAnimationName{ "" }; // "idle", "walk", etc.
+    int currentFrame{ 0 };                      // The current frame index (0-9 for idle, etc.)
+    sf::Time elapsedTime{ sf::Time::Zero };     // Time accumulated since the last frame change
+    sf::Vector2i frameSize{ 0, 0 };             // e.g., {32, 32}
 };
 
 enum class FacingDirection { Left, Right };
 
 struct Facing { FacingDirection dir = FacingDirection::Right; };
 
-struct BaseScale { sf::Vector2f value{1.0f, 1.0f}; };
+struct BaseScale { sf::Vector2f value{ 1.0f, 1.0f }; };
 
 struct RenderableCircle 
 {
@@ -85,8 +73,6 @@ struct RenderableCircle
         shape.setOrigin({ radius, radius });
         shape.setPosition(position);
     }
-
-    ~RenderableCircle() = default;
 
     sf::CircleShape shape; 
 };
@@ -101,8 +87,6 @@ struct RenderableRect
         Utils::centerOrigin(shape);
         shape.setPosition(position);
     }
-
-    ~RenderableRect() = default;
 
     sf::RectangleShape shape;
 };

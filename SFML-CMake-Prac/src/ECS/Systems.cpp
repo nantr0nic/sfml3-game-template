@@ -75,7 +75,6 @@ namespace CoreSystems
             }
             else
             {
-                animator.currentAnimationName = "idle";
                 if (animator.currentAnimationName != "idle")
                 {
                     animator.currentAnimationName = "idle";
@@ -88,36 +87,41 @@ namespace CoreSystems
 
     // For now this will just prevent the player from going off-screen
     // but we will use this for moving the view of the map later
+    // Assumes one player entity -- only one PlayerTag
     BoundaryHits getPlayerBoundaryHits(entt::registry& registry, sf::RenderWindow& window)
     {
-        BoundaryHits hits;
+        BoundaryHits hits{};
 
         // Find the player entity
         auto view = registry.view<PlayerTag, SpriteComponent>();
 
-        auto player = view.front();
-        auto& spriteComp = view.get<SpriteComponent>(player);
-        auto bounds = spriteComp.sprite.getGlobalBounds();
+        for (auto entity : view)
+        {
+            auto& spriteComp = view.get<SpriteComponent>(entity);
+            auto bounds = spriteComp.sprite.getGlobalBounds();
+            auto windowSize = window.getSize();
 
-        // Check boundaries
+            // Check boundaries
+            if (bounds.position.x < 0.0f)
+            {
+                hits.west = true;
+            }
+            if (bounds.position.y < 0.0f)
+            {
+                hits.north = true;
+            }
+            if (bounds.position.x + bounds.size.x > windowSize.x)
+            {
+                hits.east = true;
+            }
+            if (bounds.position.y + bounds.size.y > windowSize.y)
+            {
+                hits.south = true;
+            }
 
-        if (bounds.position.x < 0.0f)
-        {
-            hits.west = true;
+            return hits;
         }
-        if (bounds.position.y < 0.0f)
-        {
-            hits.north = true;
-        }
-        if (bounds.position.x + bounds.size.x > window.getSize().x)
-        {
-            hits.east = true;
-        }
-        if (bounds.position.y + bounds.size.y > window.getSize().y)
-        {
-            hits.south = true;
-        }
-
+        // If no player entity exists this will return default false hits values
         return hits;
     }
 
@@ -221,7 +225,7 @@ namespace UISystems
             {
                 registry.emplace_or_replace<Hovered>(entity);
             }
-            else
+            else if (registry.all_of<Hovered>(entity))
             {
                 registry.remove<Hovered>(entity);
             }

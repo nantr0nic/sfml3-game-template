@@ -26,13 +26,22 @@ Application::~Application()
 
 void Application::initMainWindow()
 {
-    m_AppContext.m_WindowManager->createMainWindow();
-    m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
-    m_AppContext.m_MainWindow->setFramerateLimit(60);
+    if (auto mainWindow = m_AppContext.m_WindowManager->createMainWindow())
+    {
+        m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
+        m_AppContext.m_MainWindow->setFramerateLimit(60);
+    }
+    else 
+    {
+        std::println(std::cerr, "Application: Error creating main window.");
+    }
 }
 
 void Application::initResources()
 {
+    // We can decide here what to do if resources fail to load
+    // Completely necessary ones fail -> terminate
+    // Other ones -> log and do something else?
     try 
     {
         m_AppContext.m_ResourceManager->loadResource<sf::Font>(

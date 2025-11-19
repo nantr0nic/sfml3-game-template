@@ -9,12 +9,12 @@ public:
     Application& operator=(const Application&) = delete;
     ~Application();
 
-    void initMainWindow();
-    void initResources();
-
     void run();
 
 private:
+    void initMainWindow();
+    void initResources();
+
     void processEvents();
     void update(sf::Time deltaTime);
     void render();

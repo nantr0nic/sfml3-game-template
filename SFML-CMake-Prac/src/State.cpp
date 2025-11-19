@@ -175,7 +175,11 @@ PauseState::PauseState(AppContext* appContext)
     // Lambda to handle pause
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
     {
-        if (event.scancode == sf::Keyboard::Scancode::P)
+        if (event.scancode == sf::Keyboard::Scancode::Escape)
+        {
+            m_AppContext->m_MainWindow->close();
+        }
+        else if (event.scancode == sf::Keyboard::Scancode::P)
         {
             if (auto* music = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong"))
             {
