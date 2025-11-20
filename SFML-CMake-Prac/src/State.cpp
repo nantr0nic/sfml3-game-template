@@ -8,6 +8,7 @@
 
 #include <print>
 #include <iostream>
+#include <memory>
 
 
 //$ ----- MenuState Implementation ----- //
@@ -35,7 +36,7 @@ MenuState::MenuState(AppContext* appContext)
     }
     else 
     {
-        std::println(std::cerr, "MenuState couldn't load font.");
+        std::println(std::cerr, "<MenuState> Error: Couldn't load font.");
     }
 
     // Lambdas to handle input
@@ -96,7 +97,7 @@ PlayState::PlayState(AppContext* appContext)
     }
     else 
     {
-        std::println(std::cerr, "Error: MainSong not found, not playing music.");
+        std::println(std::cerr, "<PlayState> Error: MainSong not found, not playing music.");
     }
     
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
@@ -158,7 +159,7 @@ PauseState::PauseState(AppContext* appContext)
 
     if (!font)
     {
-        std::println(std::cerr, "Error: MainFont not found! Can't make pause text.");
+        std::println(std::cerr, "<PauseState> Error: MainFont not found! Can't make pause text.");
     }
     else 
     {

@@ -13,7 +13,7 @@ std::expected<int, RandomError> RandomMachine::getInt(int min, int max)
 {
     if (min > max)
     {
-        return std::unexpected(RandomError{"RandomMachine error: min > max in random!"});
+        return std::unexpected(RandomError{"<RandomMachine> Error: min > max in random!"});
     }
     
     std::uniform_int_distribution<int> distribution(min, max);
@@ -24,7 +24,7 @@ std::expected<float, RandomError> RandomMachine::getFloat(float min, float max)
 {
     if (min > max)
     {
-        return std::unexpected(RandomError{"RandomMachine error: min > max in random!"});
+        return std::unexpected(RandomError{"<RandomMachine> Error: min > max in random!"});
     }
 
     // This will expand the range of returns to include the provided max

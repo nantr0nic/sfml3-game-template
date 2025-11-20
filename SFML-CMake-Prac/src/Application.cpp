@@ -2,6 +2,7 @@
 
 #include <print>
 #include <iostream>
+#include <memory>
 
 Application::Application()
     : m_AppContext()
@@ -33,7 +34,7 @@ void Application::initMainWindow()
     }
     else 
     {
-        std::println(std::cerr, "Application: Error creating main window.");
+        std::println(std::cerr, "<Application> Error creating main window.");
     }
 }
 
@@ -57,7 +58,7 @@ void Application::initResources()
     }
     catch (const std::exception& e) 
     {
-        std::println(std::cerr, "Error loading resources: {}", e.what());
+        std::println(std::cerr, "<Application> Error loading resources: {}", e.what());
     }
 }
 

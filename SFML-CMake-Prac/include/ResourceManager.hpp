@@ -82,7 +82,9 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
     }
     else 
     {
-        std::println(std::cerr, "ResourceManager couldn't load resource. Possibly: Unsupported type or wrong ID.");
+        std::println(std::cerr, 
+            "<ResourceManager> Couldn't load resource. Possibly: Unsupported type or wrong ID? (ID: {})", 
+            id);
         return;
     }
 }
@@ -113,8 +115,8 @@ T* ResourceManager::getResource(std::string_view id)
     else 
     {
         std::println(std::cerr, 
-            "ResourceManager couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", id
-        );
+            "<ResourceManager> Couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", 
+            id);
         return nullptr;
     }
 }

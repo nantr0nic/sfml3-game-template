@@ -1,11 +1,13 @@
 #include "StateManager.hpp"
 
-StateManager::StateManager(AppContext* appContext) noexcept
+#include <utility>
+
+StateManager::StateManager(AppContext* appContext)
     : m_AppContext(*appContext)
 {
 }
 
-StateManager::~StateManager() noexcept
+StateManager::~StateManager()
 {
 }
 
