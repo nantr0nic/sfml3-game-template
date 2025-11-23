@@ -1,7 +1,9 @@
-#include "WindowManager.hpp"
-#include "ConfigManager.hpp"
+#include "Managers/WindowManager.hpp"
+#include "Managers/ConfigManager.hpp"
 
 #include <memory>
+#include <print>
+#include <iostream>
 
 WindowManager::WindowManager(ConfigManager& configManager)
     : m_MainWindow(nullptr)
@@ -11,17 +13,17 @@ WindowManager::WindowManager(ConfigManager& configManager)
 
 WindowManager::~WindowManager()
 {
-    if (m_MainWindow)
-    {
-        m_MainWindow->close();
-        m_MainWindow = nullptr;
-    }
+    // unique_ptr and sf::RenderWindow handle what's needed here
+    // space reserved for future stuff
 }
 
 bool WindowManager::createMainWindow()
 {
     if (m_MainWindow)
     {
+        std::println(std::cerr,
+            "<WindowManager> createMainWindow Failed: Main window already exists."
+        );
         return false;
     }
     else 
@@ -50,6 +52,9 @@ bool WindowManager::createMainWindow(unsigned int width, unsigned int height, co
     // Check if main window already exists, return false if it does
     if (m_MainWindow)
     {
+        std::println(std::cerr,
+            "<WindowManager> createMainWindow Failed: Main window already exists."
+        );
         return false;
     }
     else 
@@ -73,7 +78,9 @@ sf::RenderWindow& WindowManager::getMainWindow()
     // Check if mainWindow is valid
     if (!m_MainWindow)
     {
-        throw std::runtime_error("Main window has not been created yet.");
+        throw std::runtime_error(
+            "<WindowManager> getMainWindow() failed: Main window has not been created yet."
+        );
     }
     return *m_MainWindow;
 }
@@ -83,7 +90,9 @@ const sf::RenderWindow& WindowManager::getMainWindow() const
     // Check if mainWindow is valid
     if (!m_MainWindow)
     {
-        throw std::runtime_error("Main window has not been created yet.");
+        throw std::runtime_error(
+            "<WindowManager> getMainWindow() failed: Main window has not been created yet."
+        );
     }
     return *m_MainWindow;
 }

@@ -5,7 +5,11 @@
 
 #include <map>
 #include <memory>
+#include <string>
 #include <string_view>
+#include <type_traits>
+#include <stdexcept>
+#include <functional>
 #include <format>
 #include <print>
 #include <iostream>
@@ -22,10 +26,10 @@ public:
     void loadResource(std::string_view id, std::string_view filepath);
 
     template<typename T>
-    T* getResource(std::string_view id);
+    [[nodiscard]] T* getResource(std::string_view id);
 
     template<typename T>
-    const T* getResource(std::string_view id) const;
+    [[nodiscard]] const T* getResource(std::string_view id) const;
 
 private:
     std::map<std::string, std::unique_ptr<sf::Font>, std::less<>> m_Fonts;
@@ -35,7 +39,7 @@ private:
 
 };
 
-//! VVV This is not good error handling, rework this later VVV
+//! VVV Try error handling that doesn't use throw/catch?
 
 template<typename T>
 void ResourceManager::loadResource(std::string_view id, std::string_view filepath)
@@ -78,7 +82,9 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
     }
     else 
     {
-        std::println(std::cerr, "Couldn't load resource. Possibly: Unsupported type or wrong ID.");
+        std::println(std::cerr, 
+            "<ResourceManager> Couldn't load resource. Possibly: Unsupported type or wrong ID? (ID: {})", 
+            id);
         return;
     }
 }
@@ -109,8 +115,8 @@ T* ResourceManager::getResource(std::string_view id)
     else 
     {
         std::println(std::cerr, 
-            "Couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", id
-        );
+            "<ResourceManager> Couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", 
+            id);
         return nullptr;
     }
 }
@@ -140,7 +146,9 @@ const T* ResourceManager::getResource(std::string_view id) const
     }
     else 
     {
-        static_assert(false, "Couldn't get resource. Possibly: Unsupported type or wrong ID.");
+        std::println(std::cerr, 
+            "ResourceManager couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", id
+        );
         return nullptr;
     }
 }

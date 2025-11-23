@@ -1,13 +1,14 @@
 #include "AppContext.hpp"
 #include "State.hpp"
-#include "StateManager.hpp"
+#include "Managers/StateManager.hpp"
 #include "ECS/Components.hpp"
 #include "ECS/EntityFactory.hpp"
 #include "ECS/Systems.hpp"
-#include "Utils.hpp"
+#include "Utilities/Utils.hpp"
 
 #include <print>
 #include <iostream>
+#include <memory>
 
 
 //$ ----- MenuState Implementation ----- //
@@ -19,18 +20,24 @@ MenuState::MenuState(AppContext* appContext)
 
     // Play button entity
     sf::Font* font = m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont");
-    EntityFactory::createButton(
-        *m_AppContext,
-        *font,
-        "Play",
-        center,
-        // lambda for when button is clicked
-        [this]() {
-            auto playState = std::make_unique<PlayState>(m_AppContext);
-            m_AppContext->m_StateManager->replaceState(std::move(playState));
-        }
-    );
-
+    if (font)
+    {
+        EntityFactory::createButton(
+            *m_AppContext,
+            *font,
+            "Play",
+            center,
+            // lambda for when button is clicked
+            [this]() {
+                auto playState = std::make_unique<PlayState>(m_AppContext);
+                m_AppContext->m_StateManager->replaceState(std::move(playState));
+            }
+        );
+    }
+    else 
+    {
+        std::println(std::cerr, "<MenuState> Error: Couldn't load font.");
+    }
 
     // Lambdas to handle input
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
@@ -75,27 +82,23 @@ void MenuState::render()
 PlayState::PlayState(AppContext* appContext)
     : State(appContext)
 {
-    try 
-    {
-        m_AppContext->m_ResourceManager->loadResource<sf::Texture>(
-            "PlayerSpriteSheet",
-            "resources/sprites/knight.png"
-        );
-    }
-    catch (const std::exception& e)
-    {
-        std::println(std::cerr, "Failed to load player spritesheet: {}", e.what());
-    }
-
     // We create the player entity here
     sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
     sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
     EntityFactory::createPlayer(*m_AppContext, { center.x, center.y });
 
+    m_MainMusic = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong");
+
     // Start music
-    auto* mainSong = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong");
-    mainSong->setLooping(true);
-    mainSong->play();
+    if (m_MainMusic)
+    {
+        m_MainMusic->setLooping(true);
+        m_MainMusic->play();
+    }
+    else 
+    {
+        std::println(std::cerr, "<PlayState> Error: MainSong not found, not playing music.");
+    }
     
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
     {
@@ -107,15 +110,18 @@ PlayState::PlayState(AppContext* appContext)
         // State-specific Pause key
         else if (event.scancode == sf::Keyboard::Scancode::P)
         {
-            m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong")->pause();
             auto pauseState = std::make_unique<PauseState>(m_AppContext);
             m_AppContext->m_StateManager->pushState(std::move(pauseState));
+        }
+        else if (event.scancode == sf::Keyboard::Scancode::F12)
+        {
+            m_ShowDebug = !m_ShowDebug;
         }
     };
 
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
     {
-        // empty on purpose
+        // empty on purpose, it was crashing otherwise
     };
 }
 
@@ -136,12 +142,16 @@ void PlayState::update(sf::Time deltaTime)
     CoreSystems::handlePlayerInput(m_AppContext);
     CoreSystems::facingSystem(*m_AppContext->m_Registry);
     CoreSystems::animationSystem(*m_AppContext->m_Registry, deltaTime);
-    CoreSystems::movementSystem(*m_AppContext->m_Registry, deltaTime);
+    CoreSystems::movementSystem(*m_AppContext->m_Registry, deltaTime, *m_AppContext->m_MainWindow);
 }
 
 void PlayState::render()
 {
-    CoreSystems::renderSystem(*m_AppContext->m_Registry, *m_AppContext->m_MainWindow);
+    CoreSystems::renderSystem(
+        *m_AppContext->m_Registry, 
+        *m_AppContext->m_MainWindow,
+        m_ShowDebug
+    );
 }
 
 
@@ -153,25 +163,42 @@ PauseState::PauseState(AppContext* appContext)
 
     if (!font)
     {
-        std::println(std::cerr, "Error: MainFont not found! Can't make pause text.");
-        return;
+        std::println(std::cerr, "<PauseState> Error: MainFont not found! Can't make pause text.");
+    }
+    else 
+    {
+        m_PauseText.emplace(*font, "Paused", 100);
+        m_PauseText->setFillColor(sf::Color::Red);
+
+        Utils::centerOrigin(*m_PauseText);
+
+        sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
+        sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
+        m_PauseText->setPosition(center);
     }
 
-    m_PauseText.emplace(*font, "Paused", 100);
-    m_PauseText->setFillColor(sf::Color::Red);
+    // Handle music stuff
+    auto* music = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong");
+    bool wasMusicPlaying = (music && music->getStatus() == sf::Music::Status::Playing);
 
-    Utils::centerOrigin(*m_PauseText);
-
-    sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
-    sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
-    m_PauseText->setPosition(center);
+    if (wasMusicPlaying)
+    {
+        music->pause();
+    }
 
     // Lambda to handle pause
-    m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
+    m_StateEvents.onKeyPress = [this, music, wasMusicPlaying](const sf::Event::KeyPressed& event)
     {
-        if (event.scancode == sf::Keyboard::Scancode::P)
+        if (event.scancode == sf::Keyboard::Scancode::Escape)
         {
-            m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong")->play();
+            m_AppContext->m_MainWindow->close();
+        }
+        else if (event.scancode == sf::Keyboard::Scancode::P)
+        {
+            if (wasMusicPlaying && music)
+            {
+                music->play();
+            }
             m_AppContext->m_StateManager->popState();
         }
     };

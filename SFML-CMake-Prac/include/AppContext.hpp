@@ -3,10 +3,10 @@
 #include <SFML/Graphics.hpp>
 #include <entt/entt.hpp>
 
-#include "ConfigManager.hpp"
-#include "WindowManager.hpp"
-#include "GlobalEventManager.hpp"
-#include "ResourceManager.hpp"
+#include "Managers/ConfigManager.hpp"
+#include "Managers/WindowManager.hpp"
+#include "Managers/GlobalEventManager.hpp"
+#include "Managers/ResourceManager.hpp"
 
 #include <memory>
 
@@ -22,7 +22,7 @@ struct AppContext
         // then initialize the stuff that uses those configs
         m_WindowManager = std::make_unique<WindowManager>(*m_ConfigManager);
         m_ResourceManager = std::make_unique<ResourceManager>();
-        m_GlobalEventManager = std::make_unique<GlobalEventManager>(*m_WindowManager);
+        m_GlobalEventManager = std::make_unique<GlobalEventManager>(this);
         m_MainClock = std::make_unique<sf::Clock>();
         m_Registry = std::make_unique<entt::registry>();
     }

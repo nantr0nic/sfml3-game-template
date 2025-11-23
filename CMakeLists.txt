@@ -34,7 +34,7 @@ set(SFML_BUILD_NETWORK OFF CACHE BOOL "Do not build the Network module")
 FetchContent_MakeAvailable(sfml_dependency)
 
 # --------------------------------------------------------------------
-# STAGE 2: Fetch and configure EnTT and toml11
+# STAGE 2: Fetch and configure EnTT, toml11, and magic_enum
 # --------------------------------------------------------------------
 
 # Declare the EnTT dependency (header-only)
@@ -46,13 +46,20 @@ FetchContent_Declare(
 
 # Declare the toml11 dependency (header-only)
 FetchContent_Declare(
-  toml11
-  GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
-  GIT_TAG        v4.4.0
-  SYSTEM        # Setting as SYSTEM to suppress deprecated literal operator warning
+    toml11
+    GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
+    GIT_TAG        v4.4.0
+    SYSTEM        # Setting as SYSTEM to suppress deprecated literal operator warning
 )
 
-FetchContent_MakeAvailable(entt toml11) 
+# Declare the magic_enum dependency (header-only)
+FetchContent_Declare(
+    magic_enum
+    GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
+    GIT_TAG        v0.9.7
+)
+
+FetchContent_MakeAvailable(entt toml11 magic_enum) 
 
 # --------------------------------------------------------------------
 # STAGE 3: Configure your application
@@ -65,14 +72,16 @@ set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/SFML-CMake-Prac")
 add_executable(SFML-CMake-Prac
     "${PROJECT_SOURCE_DIR}/src/Main.cpp"
     "${PROJECT_SOURCE_DIR}/src/Application.cpp"
-    "${PROJECT_SOURCE_DIR}/src/WindowManager.cpp"
-    "${PROJECT_SOURCE_DIR}/src/StateManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/State.cpp"
-    "${PROJECT_SOURCE_DIR}/src/GlobalEventManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Managers/WindowManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Managers/StateManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Managers/GlobalEventManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Managers/ConfigManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/ECS/EntityFactory.cpp"
     "${PROJECT_SOURCE_DIR}/src/ECS/Systems.cpp"
-    "${PROJECT_SOURCE_DIR}/src/RandomMachine.cpp"
-    "${PROJECT_SOURCE_DIR}/src/ConfigManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Utilities/RandomMachine.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Utilities/Utils.cpp"
+
 )
 
 # Copy resources during configuration time.
@@ -109,6 +118,7 @@ target_link_libraries(SFML-CMake-Prac PRIVATE
     SFML::Audio
     EnTT::EnTT
     toml11::toml11
+    magic_enum::magic_enum
 )
 
 ### MSVC-specific settings ###

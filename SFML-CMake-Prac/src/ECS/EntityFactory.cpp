@@ -1,7 +1,15 @@
+#include <SFML/Graphics.hpp>
+#include <entt/entt.hpp>
+
 #include "ECS/EntityFactory.hpp"
 #include "ECS/Components.hpp"
-#include "Utils.hpp"
+#include "Utilities/Utils.hpp"
 #include "AppContext.hpp"
+
+#include <print>
+#include <iostream>
+#include <string>
+#include <utility>
 
 // functions for the ECS system
 namespace EntityFactory
@@ -10,8 +18,13 @@ namespace EntityFactory
     entt::entity createPlayer(AppContext& context, sf::Vector2f position)
     {
         auto& registry = *context.m_Registry;
-        auto* texture_file = context.m_ResourceManager->getResource<sf::Texture>("PlayerSpriteSheet");
-        auto& texture = *texture_file;
+        auto* texture = context.m_ResourceManager->getResource<sf::Texture>("PlayerSpriteSheet");
+
+        if (texture == nullptr)
+        {
+            std::println(std::cerr, "<EntityFactory> Couldn't create Player because missing texture.");
+            return entt::null;
+        }
 
         auto playerEntity = registry.create();
 
@@ -20,18 +33,35 @@ namespace EntityFactory
         registry.emplace<MovementSpeed>(playerEntity, 350.0f);
         registry.emplace<Velocity>(playerEntity);
         registry.emplace<Facing>(playerEntity);
-        registry.emplace<BaseScale>(playerEntity, sf::Vector2f(3.0f, 3.0f));
-        
+
         // Sprite stuff
-        SpriteComponent spriteComp(texture);
+        sf::Sprite playerSprite(*texture);
+        auto& spriteComp = registry.emplace<SpriteComponent>(playerEntity, std::move(playerSprite));
         spriteComp.sprite.setTextureRect({ {0, 0}, {32, 32} }); // assumes 32x32 sprite size
         spriteComp.sprite.setPosition(position);
         Utils::centerOrigin(spriteComp.sprite);
 
-        registry.emplace<SpriteComponent>(playerEntity, std::move(spriteComp));
+        // Sprite scaling and padding stuff
+        //$ we can read a TOML file for scaleFactor later
+        float scaleFactor = 3.0f;
+        sf::Vector2f scaleVector = { scaleFactor, scaleFactor };
+
+        registry.emplace<BaseScale>(playerEntity, scaleVector);
+        // Apply scaling BEFORE getSpritePadding()
+        spriteComp.sprite.setScale(scaleVector);
+        SpritePadding padding = Utils::getSpritePadding(playerSprite);
+
+        registry.emplace<ConfineToWindow>(
+            playerEntity,
+            padding.left * scaleFactor,
+            padding.right * scaleFactor,
+            padding.top * scaleFactor,
+            padding.bottom * scaleFactor
+        );
 
         // Animator stuff
-        AnimatorComponent animator;
+        auto& animator = registry.emplace<AnimatorComponent>(playerEntity);
+        
         animator.currentAnimationName = "idle";
         animator.currentFrame = 0;
         animator.elapsedTime = sf::Time::Zero;
@@ -43,8 +73,7 @@ namespace EntityFactory
         animator.animations["idle"] = { 0, 4, sf::milliseconds(400) };
         animator.animations["walk"] = { 3, 8, sf::milliseconds(800) };
 
-        registry.emplace<AnimatorComponent>(playerEntity, std::move(animator));
-
+        //registry.emplace<AnimatorComponent>(playerEntity, std::move(animator));
         return playerEntity;
     }
 

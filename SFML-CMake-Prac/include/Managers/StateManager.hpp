@@ -9,10 +9,10 @@
 class StateManager
 {
 public:
-    StateManager(AppContext* appContext) noexcept;
+    StateManager(AppContext* appContext);
     StateManager(const StateManager&) = delete;
     StateManager& operator=(const StateManager&) = delete;
-    ~StateManager() noexcept;
+    ~StateManager();
 
     void pushState(std::unique_ptr<State> state);
     void popState();

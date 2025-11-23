@@ -1,6 +1,13 @@
 #pragma once
 
 #include <random>
+#include <expected>
+#include <string_view>
+
+struct RandomError
+{
+    std::string_view message;
+};
 
 class RandomMachine
 {
@@ -10,8 +17,8 @@ public:
     RandomMachine& operator=(const RandomMachine&) = delete;
     ~RandomMachine() = default;
 
-    int getInt(int min, int max);
-    float getFloat(float min, float max);
+    std::expected<int, RandomError> getInt(int min, int max);
+    std::expected<float, RandomError> getFloat(float min, float max);
 
     int d2();
     int d20();

@@ -22,11 +22,13 @@ public:
 
     // getConfigValue requires (configID, key) or (configID, at, key)
     template<typename T>
-    std::optional<T> getConfigValue(std::string_view configID, std::string_view key);
+    [[nodiscard]] std::optional<T> getConfigValue(
+        std::string_view configID, std::string_view key) const;
 
     // getConfigValue requires (configID, key) or (configID, at, key)
     template<typename T>
-    std::optional<T> getConfigValue(std::string_view configID, std::string_view at, std::string_view key);
+    [[nodiscard]] std::optional<T> getConfigValue(
+        std::string_view configID, std::string_view at, std::string_view key) const;
 
 private:
     std::map<std::string, toml::value, std::less<>> m_ConfigFiles;
@@ -35,9 +37,10 @@ private:
 
 
 template<typename T>
-std::optional<T> ConfigManager::getConfigValue(std::string_view configID, std::string_view key)
+std::optional<T> ConfigManager::getConfigValue(
+    std::string_view configID, std::string_view key) const
 {
-    auto it = m_ConfigFiles.find(std::string(configID));
+    auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
         std::println(std::cerr, "Config file [{}] not found.", configID);
@@ -50,15 +53,16 @@ std::optional<T> ConfigManager::getConfigValue(std::string_view configID, std::s
     }
     catch (const std::exception& e)
     {
-        std::println("Error getting config key [{}]: {}", key, e.what());
+        std::println(std::cerr, "Error getting config key [{}]: {}", key, e.what());
         return std::nullopt;
     }
 }
 
 template<typename T>
-std::optional<T> ConfigManager::getConfigValue(std::string_view configID, std::string_view at, std::string_view key)
+std::optional<T> ConfigManager::getConfigValue(
+    std::string_view configID, std::string_view at, std::string_view key) const
 {
-    auto it = m_ConfigFiles.find(std::string(configID));
+    auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
         std::println(std::cerr, "Config file [{}] not found.", configID);

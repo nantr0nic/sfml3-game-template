@@ -15,8 +15,13 @@ public:
     WindowManager& operator=(const WindowManager&) = delete;
     ~WindowManager();
 
+    // Returns true on success, false if config is invalid or MainWindow already exists
+    // May throw toml::type_error if config values have wrong types
     bool createMainWindow(/* uses config file data */);
+
+    // Returns true on success, false if MainWindow already exists
     bool createMainWindow(unsigned int width, unsigned int height, const std::string& title);
+    
     sf::RenderWindow& getMainWindow();
     const sf::RenderWindow& getMainWindow() const;
 
