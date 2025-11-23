@@ -45,14 +45,6 @@ namespace CoreSystems
                 velocity.value.x += speed.value;
                 facing.dir = FacingDirection::Right;
             }
-            //! temporary way to turn off music while debugging
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::M))
-            {
-                if (auto music = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong"))
-                {
-                    music->pause();
-                }
-            }
 
             //$ --- Animating the player sprite ---
             // if player is walking

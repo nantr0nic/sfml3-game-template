@@ -80,9 +80,23 @@ void Application::processEvents()
     auto& globalEvents = m_AppContext.m_GlobalEventManager->getEventHandles();
     auto& stateEvents = m_StateManager.getCurrentState()->getEventHandlers();
 
+    auto onKeyPressMerged = [&](const sf::Event::KeyPressed& event)
+    {
+        // run global logic first
+        if (globalEvents.onGlobalKeyPress)
+        {
+            globalEvents.onGlobalKeyPress(event);
+        }
+        // then run state-specific
+        if (stateEvents.onKeyPress)
+        {
+            stateEvents.onKeyPress(event);
+        }
+    };
+
     m_AppContext.m_MainWindow->handleEvents(
         globalEvents.onClose,
-        stateEvents.onKeyPress,
+        onKeyPressMerged,
         stateEvents.onMouseButtonPress
     );
 }

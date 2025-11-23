@@ -110,10 +110,6 @@ PlayState::PlayState(AppContext* appContext)
         // State-specific Pause key
         else if (event.scancode == sf::Keyboard::Scancode::P)
         {
-            if (m_MainMusic)
-            {
-                m_MainMusic->pause();
-            }
             auto pauseState = std::make_unique<PauseState>(m_AppContext);
             m_AppContext->m_StateManager->pushState(std::move(pauseState));
         }
@@ -125,7 +121,7 @@ PlayState::PlayState(AppContext* appContext)
 
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
     {
-        // empty on purpose
+        // empty on purpose, it was crashing otherwise
     };
 }
 
@@ -181,8 +177,17 @@ PauseState::PauseState(AppContext* appContext)
         m_PauseText->setPosition(center);
     }
 
+    // Handle music stuff
+    auto* music = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong");
+    bool wasMusicPlaying = (music && music->getStatus() == sf::Music::Status::Playing);
+
+    if (wasMusicPlaying)
+    {
+        music->pause();
+    }
+
     // Lambda to handle pause
-    m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
+    m_StateEvents.onKeyPress = [this, music, wasMusicPlaying](const sf::Event::KeyPressed& event)
     {
         if (event.scancode == sf::Keyboard::Scancode::Escape)
         {
@@ -190,7 +195,7 @@ PauseState::PauseState(AppContext* appContext)
         }
         else if (event.scancode == sf::Keyboard::Scancode::P)
         {
-            if (auto* music = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong"))
+            if (wasMusicPlaying && music)
             {
                 music->play();
             }

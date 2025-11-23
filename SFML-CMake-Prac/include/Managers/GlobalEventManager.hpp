@@ -3,18 +3,23 @@
 
 #pragma once
 
-#include "Managers/WindowManager.hpp"
+#include <SFML/Window/Event.hpp>
+
 #include <functional>
+
+struct AppContext; // foward declaration
 
 struct ApplicationEvents
 {
 	std::function<void(const sf::Event::Closed&)> onClose;
+    std::function<void(const sf::Event::KeyPressed&)> onGlobalKeyPress;
+
 };
 
 class GlobalEventManager
 {
 public:
-    GlobalEventManager(WindowManager& windowManager);
+    explicit GlobalEventManager(AppContext* appContext);
     GlobalEventManager(const GlobalEventManager&) = delete;
     GlobalEventManager& operator=(const GlobalEventManager&) = delete;
     ~GlobalEventManager() = default;

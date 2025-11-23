@@ -22,7 +22,7 @@ struct AppContext
         // then initialize the stuff that uses those configs
         m_WindowManager = std::make_unique<WindowManager>(*m_ConfigManager);
         m_ResourceManager = std::make_unique<ResourceManager>();
-        m_GlobalEventManager = std::make_unique<GlobalEventManager>(*m_WindowManager);
+        m_GlobalEventManager = std::make_unique<GlobalEventManager>(this);
         m_MainClock = std::make_unique<sf::Clock>();
         m_Registry = std::make_unique<entt::registry>();
     }
