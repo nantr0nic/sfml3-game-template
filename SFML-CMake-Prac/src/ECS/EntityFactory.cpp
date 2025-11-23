@@ -35,8 +35,7 @@ namespace EntityFactory
         registry.emplace<Facing>(playerEntity);
 
         // Sprite stuff
-        sf::Sprite playerSprite(*texture);
-        auto& spriteComp = registry.emplace<SpriteComponent>(playerEntity, std::move(playerSprite));
+        auto& spriteComp = registry.emplace<SpriteComponent>(playerEntity, sf::Sprite(*texture));
         spriteComp.sprite.setTextureRect({ {0, 0}, {32, 32} }); // assumes 32x32 sprite size
         spriteComp.sprite.setPosition(position);
         Utils::centerOrigin(spriteComp.sprite);
@@ -49,7 +48,7 @@ namespace EntityFactory
         registry.emplace<BaseScale>(playerEntity, scaleVector);
         // Apply scaling BEFORE getSpritePadding()
         spriteComp.sprite.setScale(scaleVector);
-        SpritePadding padding = Utils::getSpritePadding(playerSprite);
+        SpritePadding padding = Utils::getSpritePadding(spriteComp.sprite);
 
         registry.emplace<ConfineToWindow>(
             playerEntity,
