@@ -164,7 +164,7 @@ namespace CoreSystems
         }
     }
 
-    void renderSystem(entt::registry& registry, sf::RenderWindow& window)
+    void renderSystem(entt::registry& registry, sf::RenderWindow& window, bool showDebug)
     {
         // now renders anything with a sprite
         auto view = registry.view<SpriteComponent>();
@@ -172,14 +172,37 @@ namespace CoreSystems
         {
             const auto& spriteComp = view.get<SpriteComponent>(entity);
             window.draw(spriteComp.sprite);
+            
+            if (showDebug)
+            {
+                auto bounds = spriteComp.sprite.getGlobalBounds();
 
-            //! Debug: bounding box
-            sf::RectangleShape debugBox(sf::Vector2f(spriteComp.sprite.getGlobalBounds().size));
-            debugBox.setPosition(spriteComp.sprite.getGlobalBounds().position);
-            debugBox.setFillColor(sf::Color::Transparent);
-            debugBox.setOutlineColor(sf::Color::Red);
-            debugBox.setOutlineThickness(1.0f);
-            window.draw(debugBox);
+                //$ Debug: bounding box (red)
+                sf::RectangleShape debugBox(bounds.size);
+                debugBox.setPosition(bounds.position);
+                debugBox.setFillColor(sf::Color::Transparent);
+                debugBox.setOutlineColor(sf::Color::Red);
+                debugBox.setOutlineThickness(1.0f);
+                window.draw(debugBox);
+
+                if (auto* confine = registry.try_get<ConfineToWindow>(entity))
+                {
+                    // Draw a Green box representing the "Solid" body (inner bounds)
+                    sf::RectangleShape solidBox;
+                    solidBox.setPosition({ 
+                        bounds.position.x + confine->padLeft, 
+                        bounds.position.y + confine->padTop 
+                    });
+                    solidBox.setSize({ 
+                        bounds.size.x - (confine->padLeft + confine->padRight), 
+                        bounds.size.y - (confine->padTop + confine->padBottom) 
+                    });
+                    solidBox.setFillColor(sf::Color::Transparent);
+                    solidBox.setOutlineColor(sf::Color::Green);
+                    solidBox.setOutlineThickness(1.0f);
+                    window.draw(solidBox);
+                }
+            }
         }
     }
 

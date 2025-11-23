@@ -117,6 +117,10 @@ PlayState::PlayState(AppContext* appContext)
             auto pauseState = std::make_unique<PauseState>(m_AppContext);
             m_AppContext->m_StateManager->pushState(std::move(pauseState));
         }
+        else if (event.scancode == sf::Keyboard::Scancode::F12)
+        {
+            m_ShowDebug = !m_ShowDebug;
+        }
     };
 
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
@@ -147,7 +151,11 @@ void PlayState::update(sf::Time deltaTime)
 
 void PlayState::render()
 {
-    CoreSystems::renderSystem(*m_AppContext->m_Registry, *m_AppContext->m_MainWindow);
+    CoreSystems::renderSystem(
+        *m_AppContext->m_Registry, 
+        *m_AppContext->m_MainWindow,
+        m_ShowDebug
+    );
 }
 
 

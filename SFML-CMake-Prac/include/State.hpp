@@ -63,6 +63,7 @@ public:
 
 private:
     sf::Music* m_MainMusic{ nullptr };
+    bool m_ShowDebug{ false };
 };
 
 class PauseState : public State
