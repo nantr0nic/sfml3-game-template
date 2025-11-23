@@ -12,9 +12,7 @@ namespace CoreSystems
     //$ ----- Game Systems ----- //
     void handlePlayerInput(AppContext* m_AppContext);
 
-    BoundaryHits getPlayerBoundaryHits(entt::registry& registry, sf::RenderWindow& window);
-
-    void movementSystem(entt::registry& registry, sf::Time deltaTime);
+    void movementSystem(entt::registry& registry, sf::Time deltaTime, sf::RenderWindow& window);
 
     void facingSystem(entt::registry& registry);
 

@@ -142,7 +142,7 @@ void PlayState::update(sf::Time deltaTime)
     CoreSystems::handlePlayerInput(m_AppContext);
     CoreSystems::facingSystem(*m_AppContext->m_Registry);
     CoreSystems::animationSystem(*m_AppContext->m_Registry, deltaTime);
-    CoreSystems::movementSystem(*m_AppContext->m_Registry, deltaTime);
+    CoreSystems::movementSystem(*m_AppContext->m_Registry, deltaTime, *m_AppContext->m_MainWindow);
 }
 
 void PlayState::render()

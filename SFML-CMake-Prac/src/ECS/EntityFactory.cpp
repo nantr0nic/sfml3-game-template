@@ -41,6 +41,15 @@ namespace EntityFactory
         spriteComp.sprite.setTextureRect({ {0, 0}, {32, 32} }); // assumes 32x32 sprite size
         spriteComp.sprite.setPosition(position);
         Utils::centerOrigin(spriteComp.sprite);
+        SpritePadding padding = Utils::getSpritePadding(playerSprite);
+
+        registry.emplace<ConfineToWindow>(
+            playerEntity,
+            padding.left,
+            padding.right,
+            padding.top,
+            padding.bottom
+        );
 
         // Animator stuff
         auto& animator = registry.emplace<AnimatorComponent>(playerEntity);

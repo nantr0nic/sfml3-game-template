@@ -10,9 +10,6 @@ namespace CoreSystems
         auto &registry = *m_AppContext->m_Registry;
         auto &window = *m_AppContext->m_MainWindow;
 
-        // Get boundary hits
-        BoundaryHits hits = getPlayerBoundaryHits(registry, window);
-
         auto view = registry.view<PlayerTag, 
                                 Velocity, 
                                 MovementSpeed,
@@ -32,32 +29,28 @@ namespace CoreSystems
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::W))
             {
-                if (!hits.north)
-                {
-                    velocity.value.y -= speed.value;
-                }
+                velocity.value.y -= speed.value;
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::S))
             {
-                if (!hits.south)
-                {
-                    velocity.value.y += speed.value;
-                }
+                velocity.value.y += speed.value;
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::A))
             {
-                if (!hits.west)
-                {
-                    velocity.value.x -= speed.value;
-                    facing.dir = FacingDirection::Left;
-                }
+                velocity.value.x -= speed.value;
+                facing.dir = FacingDirection::Left;
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::D))
             {
-                if (!hits.east)
+                velocity.value.x += speed.value;
+                facing.dir = FacingDirection::Right;
+            }
+            //! temporary way to turn off music while debugging
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::M))
+            {
+                if (auto music = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong"))
                 {
-                    velocity.value.x += speed.value;
-                    facing.dir = FacingDirection::Right;
+                    music->pause();
                 }
             }
 
@@ -85,48 +78,11 @@ namespace CoreSystems
         }
     }
 
-    // For now this will just prevent the player from going off-screen
-    // but we will use this for moving the view of the map later
-    // Assumes one player entity -- only one PlayerTag
-    BoundaryHits getPlayerBoundaryHits(entt::registry& registry, sf::RenderWindow& window)
+    void movementSystem(entt::registry& registry, sf::Time deltaTime, sf::RenderWindow& window)
     {
-        BoundaryHits hits{};
+        // cache window size
+        auto windowSize = window.getSize();
 
-        // Find the player entity
-        auto view = registry.view<PlayerTag, SpriteComponent>();
-
-        for (auto entity : view)
-        {
-            auto& spriteComp = view.get<SpriteComponent>(entity);
-            auto bounds = spriteComp.sprite.getGlobalBounds();
-            auto windowSize = window.getSize();
-
-            // Check boundaries
-            if (bounds.position.x < 0.0f)
-            {
-                hits.west = true;
-            }
-            if (bounds.position.y < 0.0f)
-            {
-                hits.north = true;
-            }
-            if (bounds.position.x + bounds.size.x > windowSize.x)
-            {
-                hits.east = true;
-            }
-            if (bounds.position.y + bounds.size.y > windowSize.y)
-            {
-                hits.south = true;
-            }
-
-            return hits;
-        }
-        // If no player entity exists this will return default false hits values
-        return hits;
-    }
-
-    void movementSystem(entt::registry& registry, sf::Time deltaTime)
-    {
         // now moves anything with a sprite
         auto view = registry.view<SpriteComponent, Velocity>();
         for (auto entity : view)
@@ -135,6 +91,42 @@ namespace CoreSystems
             const auto& velocity = view.get<Velocity>(entity);
 
             spriteComp.sprite.move(velocity.value * deltaTime.asSeconds());
+
+            // Check for 'ConfineToWindow' and pad appropriately
+            if (auto* bounds = registry.try_get<ConfineToWindow>(entity))
+            {
+                auto spriteBounds = spriteComp.sprite.getGlobalBounds();
+
+                float padLeft = bounds->padLeft;
+                float padRight = bounds->padRight;
+                float padTop = bounds->padTop;
+                float padBottom = bounds->padBottom;
+
+                // West Wall
+                if (spriteBounds.position.x + padLeft < 0.0f) 
+                {
+                    float overlap = (spriteBounds.position.x + padLeft) - 0.0f;
+                    spriteComp.sprite.move({ -overlap, 0.0f });
+                }
+                // East Wall
+                if (spriteBounds.position.x + spriteBounds.size.x - padRight > windowSize.x) 
+                {
+                    float overlap = (spriteBounds.position.x + spriteBounds.size.x - padRight) - windowSize.x;
+                    spriteComp.sprite.move({ -overlap, 0.0f });
+                }
+                // North Wall
+                if (spriteBounds.position.y + padTop < 0.0f) 
+                {
+                    float overlap = (spriteBounds.position.y + padTop) - 0.0f;
+                    spriteComp.sprite.move({ 0.0f, -overlap });
+                }
+                // South Wall
+                if (spriteBounds.position.y + spriteBounds.size.y - padBottom > windowSize.y) 
+                {
+                    float overlap = (spriteBounds.position.y + spriteBounds.size.y - padBottom) - windowSize.y;
+                    spriteComp.sprite.move({ 0.0f, -overlap });
+                }
+            }
         }
     }
 
@@ -168,6 +160,14 @@ namespace CoreSystems
         {
             const auto& spriteComp = view.get<SpriteComponent>(entity);
             window.draw(spriteComp.sprite);
+
+            //! temporary: debug bounding box
+            sf::RectangleShape debugBox(sf::Vector2f(spriteComp.sprite.getGlobalBounds().size));
+            debugBox.setPosition(spriteComp.sprite.getGlobalBounds().position);
+            debugBox.setFillColor(sf::Color::Transparent);
+            debugBox.setOutlineColor(sf::Color::Red);
+            debugBox.setOutlineThickness(1.0f);
+            window.draw(debugBox);
         }
     }
 

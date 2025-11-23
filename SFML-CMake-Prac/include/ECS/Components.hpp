@@ -24,6 +24,15 @@ struct BoundaryHits
     bool east{ false };
 };
 
+struct ConfineToWindow 
+{
+    float padLeft{ 0.0f };
+    float padRight{ 0.0f };
+    float padTop{ 0.0f };
+    float padBottom{ 0.0f };
+};
+
+
 // ----- Sprite / Animation Components ----- //
 struct SpriteComponent { sf::Sprite sprite; };
 

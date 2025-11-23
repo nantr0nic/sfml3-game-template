@@ -80,6 +80,8 @@ add_executable(SFML-CMake-Prac
     "${PROJECT_SOURCE_DIR}/src/ECS/Systems.cpp"
     "${PROJECT_SOURCE_DIR}/src/RandomMachine.cpp"
     "${PROJECT_SOURCE_DIR}/src/ConfigManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Utils.cpp"
+
 )
 
 # Copy resources during configuration time.
