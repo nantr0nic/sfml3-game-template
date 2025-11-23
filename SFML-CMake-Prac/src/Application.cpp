@@ -27,7 +27,7 @@ Application::~Application()
 
 void Application::initMainWindow()
 {
-    if (auto mainWindow = m_AppContext.m_WindowManager->createMainWindow())
+    if (m_AppContext.m_WindowManager->createMainWindow())
     {
         m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
         m_AppContext.m_MainWindow->setFramerateLimit(60);
@@ -35,6 +35,7 @@ void Application::initMainWindow()
     else 
     {
         std::println(std::cerr, "<Application> Error creating main window.");
+        m_AppContext.m_MainWindow = nullptr;
     }
 }
 
@@ -64,6 +65,12 @@ void Application::initResources()
 
 void Application::run()
 {
+    if (!m_AppContext.m_MainWindow)
+    {
+        std::println(std::cerr, "<Application> No main window; aborting run().");
+        return;
+    }
+    
     sf::Clock mainClock = *m_AppContext.m_MainClock;
 
     while (m_AppContext.m_MainWindow->isOpen())
