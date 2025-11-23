@@ -3,7 +3,7 @@
 
 #include "ECS/EntityFactory.hpp"
 #include "ECS/Components.hpp"
-#include "Utils.hpp"
+#include "Utilities/Utils.hpp"
 #include "AppContext.hpp"
 
 #include <print>

@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Utils.hpp"
+#include "Utilities/Utils.hpp"
 
 #include <functional>
 #include <map>

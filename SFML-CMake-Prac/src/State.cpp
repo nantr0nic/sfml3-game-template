@@ -1,10 +1,10 @@
 #include "AppContext.hpp"
 #include "State.hpp"
-#include "StateManager.hpp"
+#include "Managers/StateManager.hpp"
 #include "ECS/Components.hpp"
 #include "ECS/EntityFactory.hpp"
 #include "ECS/Systems.hpp"
-#include "Utils.hpp"
+#include "Utilities/Utils.hpp"
 
 #include <print>
 #include <iostream>

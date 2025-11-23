@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "WindowManager.hpp"
+#include "Managers/WindowManager.hpp"
 #include <functional>
 
 struct ApplicationEvents

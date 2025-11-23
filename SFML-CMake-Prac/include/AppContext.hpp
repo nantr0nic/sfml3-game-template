@@ -3,10 +3,10 @@
 #include <SFML/Graphics.hpp>
 #include <entt/entt.hpp>
 
-#include "ConfigManager.hpp"
-#include "WindowManager.hpp"
-#include "GlobalEventManager.hpp"
-#include "ResourceManager.hpp"
+#include "Managers/ConfigManager.hpp"
+#include "Managers/WindowManager.hpp"
+#include "Managers/GlobalEventManager.hpp"
+#include "Managers/ResourceManager.hpp"
 
 #include <memory>
 

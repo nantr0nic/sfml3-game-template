@@ -1,5 +1,5 @@
-#include "GlobalEventManager.hpp"
-#include "WindowManager.hpp"
+#include "Managers/GlobalEventManager.hpp"
+#include "Managers/WindowManager.hpp"
 
 GlobalEventManager::GlobalEventManager(WindowManager& windowManager)
 {

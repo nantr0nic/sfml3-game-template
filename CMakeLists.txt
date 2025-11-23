@@ -72,15 +72,15 @@ set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/SFML-CMake-Prac")
 add_executable(SFML-CMake-Prac
     "${PROJECT_SOURCE_DIR}/src/Main.cpp"
     "${PROJECT_SOURCE_DIR}/src/Application.cpp"
-    "${PROJECT_SOURCE_DIR}/src/WindowManager.cpp"
-    "${PROJECT_SOURCE_DIR}/src/StateManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/State.cpp"
-    "${PROJECT_SOURCE_DIR}/src/GlobalEventManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Managers/WindowManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Managers/StateManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Managers/GlobalEventManager.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Managers/ConfigManager.cpp"
     "${PROJECT_SOURCE_DIR}/src/ECS/EntityFactory.cpp"
     "${PROJECT_SOURCE_DIR}/src/ECS/Systems.cpp"
-    "${PROJECT_SOURCE_DIR}/src/RandomMachine.cpp"
-    "${PROJECT_SOURCE_DIR}/src/ConfigManager.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Utils.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Utilities/RandomMachine.cpp"
+    "${PROJECT_SOURCE_DIR}/src/Utilities/Utils.cpp"
 
 )
 

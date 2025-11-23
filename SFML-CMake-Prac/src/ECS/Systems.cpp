@@ -173,7 +173,7 @@ namespace CoreSystems
             const auto& spriteComp = view.get<SpriteComponent>(entity);
             window.draw(spriteComp.sprite);
 
-            //! temporary: debug bounding box
+            //! Debug: bounding box
             sf::RectangleShape debugBox(sf::Vector2f(spriteComp.sprite.getGlobalBounds().size));
             debugBox.setPosition(spriteComp.sprite.getGlobalBounds().position);
             debugBox.setFillColor(sf::Color::Transparent);

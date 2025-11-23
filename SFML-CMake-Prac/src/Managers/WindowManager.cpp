@@ -1,5 +1,5 @@
-#include "WindowManager.hpp"
-#include "ConfigManager.hpp"
+#include "Managers/WindowManager.hpp"
+#include "Managers/ConfigManager.hpp"
 
 #include <memory>
 #include <print>
