@@ -2,27 +2,41 @@
 
 #include "Utils.hpp"
 
+#include <algorithm>
+
 SpritePadding Utils::getSpritePadding(const sf::Sprite& sprite)
 {
     const sf::Texture& texture = sprite.getTexture();
+
+    sf::IntRect rect = sprite.getTextureRect();
+
+    // Safety check: Texture might be smaller than the rect (though unlikely)
+    if (rect.position.x < 0 || rect.position.y < 0 || rect.size.x <= 0 || rect.size.y <= 0)
+    {
+        return {};
+    }
     
     // This is expensive -- copies texture from GPU to RAM, do not put this into loop
     sf::Image image = texture.copyToImage();
 
-    unsigned int width = image.getSize().x;
-    unsigned int height = image.getSize().y;
-    
-    unsigned int minX = width;
-    unsigned int maxX = 0;
-    unsigned int minY = height;
-    unsigned int maxY = 0;
+    // Make sure we don't read out of the image's bounds
+    unsigned int startX = static_cast<unsigned int>(rect.position.x);
+    unsigned int startY = static_cast<unsigned int>(rect.position.y);
+    unsigned int endX = std::min(image.getSize().x, startX + static_cast<unsigned int>(rect.size.x));
+    unsigned int endY = std::min(image.getSize().y, startY + static_cast<unsigned int>(rect.size.y));
+
+    // Init mix/max to opposites
+    unsigned int minX = endX;
+    unsigned int maxX = startX;
+    unsigned int minY = endY;
+    unsigned int maxY = startY;
 
     bool foundVisible = false;
 
     // Single pass over all pixels
-    for (unsigned int y = 0; y < height; ++y)
+    for (unsigned int y = startY; y < endY; ++y)
     {
-        for (unsigned int x = 0; x < width; ++x)
+        for (unsigned int x = startX; x < endX; ++x)
         {
             // Check if pixel is NOT fully transparent
             if (image.getPixel({ x, y }).a > 0) 
@@ -54,12 +68,11 @@ SpritePadding Utils::getSpritePadding(const sf::Sprite& sprite)
         return {};
     }
 
-    // Calculate padding relative to the full texture size
-    // Right Padding = Total Width - (Last Visible Pixel Index) - 1
+    // Calculate padding relative to the rect of the sprite
     return {
-        static_cast<float>(minX),                  // Left
-        static_cast<float>(width - maxX - 1),      // Right
-        static_cast<float>(minY),                  // Top
-        static_cast<float>(height - maxY - 1)      // Bottom
+        static_cast<float>(minX - startX),      // Left
+        static_cast<float>(endX - maxX - 1),    // Right
+        static_cast<float>(minY - startY),      // Top
+        static_cast<float>(endY - maxY - 1)     // Bottom
     };
 }

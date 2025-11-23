@@ -33,7 +33,6 @@ namespace EntityFactory
         registry.emplace<MovementSpeed>(playerEntity, 350.0f);
         registry.emplace<Velocity>(playerEntity);
         registry.emplace<Facing>(playerEntity);
-        registry.emplace<BaseScale>(playerEntity, sf::Vector2f(3.0f, 3.0f));
 
         // Sprite stuff
         sf::Sprite playerSprite(*texture);
@@ -41,14 +40,23 @@ namespace EntityFactory
         spriteComp.sprite.setTextureRect({ {0, 0}, {32, 32} }); // assumes 32x32 sprite size
         spriteComp.sprite.setPosition(position);
         Utils::centerOrigin(spriteComp.sprite);
+
+        // Sprite scaling and padding stuff
+        //$ we can read a TOML file for scaleFactor later
+        float scaleFactor = 3.0f;
+        sf::Vector2f scaleVector = { scaleFactor, scaleFactor };
+
+        registry.emplace<BaseScale>(playerEntity, scaleVector);
+        // Apply scaling BEFORE getSpritePadding()
+        spriteComp.sprite.setScale(scaleVector);
         SpritePadding padding = Utils::getSpritePadding(playerSprite);
 
         registry.emplace<ConfineToWindow>(
             playerEntity,
-            padding.left,
-            padding.right,
-            padding.top,
-            padding.bottom
+            padding.left * scaleFactor,
+            padding.right * scaleFactor,
+            padding.top * scaleFactor,
+            padding.bottom * scaleFactor
         );
 
         // Animator stuff

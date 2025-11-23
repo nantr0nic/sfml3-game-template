@@ -97,21 +97,33 @@ namespace CoreSystems
             {
                 auto spriteBounds = spriteComp.sprite.getGlobalBounds();
 
-                float padLeft = bounds->padLeft;
-                float padRight = bounds->padRight;
+                /* We need this 'isFlipped' because at present we're using a right-facing only
+                sprite sheet and we flip the sprite with a negative scale to make it face left.
+                So if you/we have both right and left facing sprites in our sheet and use those
+                this check will not be necessary (it won't run anyway is scale is > 0). */
+                
+                // Check sprite/entity orientation
+                // if scale.x is negative, the sprite is flipped horizontally
+                bool isFlipped = spriteComp.sprite.getScale().x < 0;
+
+                // Swap horizontal padding if flipped
+                float currentPadLeft = isFlipped ? bounds->padRight : bounds->padLeft;
+                float currentPadRight = isFlipped ? bounds->padLeft : bounds->padRight;
+
+                // Don't need to swap cuz we're not flipping the sprite along Y axis (in current case)
                 float padTop = bounds->padTop;
                 float padBottom = bounds->padBottom;
 
                 // West Wall
-                if (spriteBounds.position.x + padLeft < 0.0f) 
+                if (spriteBounds.position.x + currentPadLeft < 0.0f) 
                 {
-                    float overlap = (spriteBounds.position.x + padLeft) - 0.0f;
+                    float overlap = (spriteBounds.position.x + currentPadLeft) - 0.0f;
                     spriteComp.sprite.move({ -overlap, 0.0f });
                 }
                 // East Wall
-                if (spriteBounds.position.x + spriteBounds.size.x - padRight > windowSize.x) 
+                if (spriteBounds.position.x + spriteBounds.size.x - currentPadRight > windowSize.x) 
                 {
-                    float overlap = (spriteBounds.position.x + spriteBounds.size.x - padRight) - windowSize.x;
+                    float overlap = (spriteBounds.position.x + spriteBounds.size.x - currentPadRight) - windowSize.x;
                     spriteComp.sprite.move({ -overlap, 0.0f });
                 }
                 // North Wall
