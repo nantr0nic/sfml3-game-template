@@ -1,5 +1,5 @@
-#define TOML_IMPLEMENTATION
-#include "TomlImp.hpp"
+#define TOML_IMPLEMENTATION // This is the ONE place/file where we will define this!
+#include <toml++/toml.hpp>
 
 #include "Managers/ConfigManager.hpp"
 #include "Utilities/Logger.hpp"
