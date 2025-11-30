@@ -1,7 +1,7 @@
 #include "Application.hpp"
+#include "Utilities/Logger.hpp"
 
-#include <print>
-#include <iostream>
+#include <format>
 #include <memory>
 
 Application::Application()
@@ -18,6 +18,11 @@ Application::Application()
     // Push the initial application state
     auto menuState = std::make_unique<MenuState>(&m_AppContext);
     m_StateManager.pushState(std::move(menuState));
+
+    // Debug
+    Logger::Info("Application initialized.");
+    Logger::Warn("This is a warning message.");
+    Logger::Error("This is an error message.");
 }
 
 Application::~Application()
@@ -31,10 +36,12 @@ void Application::initMainWindow()
     {
         m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
         m_AppContext.m_MainWindow->setFramerateLimit(60);
+        Logger::Info(std::format("Main window created. Size: {}x{}", 
+            m_AppContext.m_MainWindow->getSize().x, m_AppContext.m_MainWindow->getSize().y));
     }
     else 
     {
-        std::println(std::cerr, "<Application> Error creating main window.");
+        Logger::Error("Error creating main window.");
         m_AppContext.m_MainWindow = nullptr;
     }
 }
@@ -59,7 +66,7 @@ void Application::initResources()
     }
     catch (const std::exception& e) 
     {
-        std::println(std::cerr, "<Application> Error loading resources: {}", e.what());
+        Logger::Error(std::format("Error loading resources: {}", e.what()));
     }
 }
 
@@ -67,7 +74,7 @@ void Application::run()
 {
     if (!m_AppContext.m_MainWindow)
     {
-        std::println(std::cerr, "<Application> No main window; aborting run().");
+        Logger::Error("No main window; aborting run().");
         return;
     }
     
