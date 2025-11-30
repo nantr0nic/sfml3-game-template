@@ -174,7 +174,7 @@ PauseState::PauseState(AppContext* appContext)
         m_PauseText.emplace(*font, "Paused", 100);
         m_PauseText->setFillColor(sf::Color::Red);
 
-        Utils::centerOrigin(*m_PauseText);
+        utils::centerOrigin(*m_PauseText);
 
         sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
         sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);

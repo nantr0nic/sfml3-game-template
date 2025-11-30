@@ -37,7 +37,7 @@ namespace EntityFactory
         auto& spriteComp = registry.emplace<SpriteComponent>(playerEntity, sf::Sprite(*texture));
         spriteComp.sprite.setTextureRect({ {0, 0}, {32, 32} }); // assumes 32x32 sprite size
         spriteComp.sprite.setPosition(position);
-        Utils::centerOrigin(spriteComp.sprite);
+        utils::centerOrigin(spriteComp.sprite);
 
         // Sprite scaling and padding stuff
         //$ we can read a TOML file for scaleFactor later
@@ -47,7 +47,7 @@ namespace EntityFactory
         registry.emplace<BaseScale>(playerEntity, scaleVector);
         // Apply scaling BEFORE getSpritePadding()
         spriteComp.sprite.setScale(scaleVector);
-        SpritePadding padding = Utils::getSpritePadding(spriteComp.sprite);
+        SpritePadding padding = utils::getSpritePadding(spriteComp.sprite);
 
         registry.emplace<ConfineToWindow>(
             playerEntity,
@@ -107,7 +107,7 @@ namespace EntityFactory
         auto& buttonShape = registry.emplace<UIShape>(buttonEntity);
         buttonShape.shape.setSize({200.f, 100.f});
         buttonShape.shape.setFillColor(sf::Color::Blue);
-        Utils::centerOrigin(buttonShape.shape);
+        utils::centerOrigin(buttonShape.shape);
         buttonShape.shape.setPosition(position);
 
         // Text component
@@ -115,7 +115,7 @@ namespace EntityFactory
             buttonEntity,
             sf::Text(font, text, 50)
         );
-        Utils::centerOrigin(buttonText.text);
+        utils::centerOrigin(buttonText.text);
         buttonText.text.setPosition(position);
         buttonText.text.setFillColor(sf::Color(200, 200, 200));
 
