@@ -4,10 +4,9 @@
 #include "ECS/EntityFactory.hpp"
 #include "ECS/Components.hpp"
 #include "Utilities/Utils.hpp"
+#include "Utilities/Logger.hpp"
 #include "AppContext.hpp"
 
-#include <print>
-#include <iostream>
 #include <string>
 #include <utility>
 
@@ -22,7 +21,7 @@ namespace EntityFactory
 
         if (texture == nullptr)
         {
-            std::println(std::cerr, "<EntityFactory> Couldn't create Player because missing texture.");
+            Logger::Error("Couldn't create Player because missing texture.");
             return entt::null;
         }
 
@@ -73,6 +72,8 @@ namespace EntityFactory
         animator.animations["walk"] = { 3, 8, sf::milliseconds(800) };
 
         //registry.emplace<AnimatorComponent>(playerEntity, std::move(animator));
+        Logger::Info("Player created.");
+
         return playerEntity;
     }
 

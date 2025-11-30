@@ -21,8 +21,6 @@ Application::Application()
 
     // Debug
     Logger::Info("Application initialized.");
-    Logger::Warn("This is a warning message.");
-    Logger::Error("This is an error message.");
 }
 
 Application::~Application()
@@ -36,8 +34,8 @@ void Application::initMainWindow()
     {
         m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
         m_AppContext.m_MainWindow->setFramerateLimit(60);
-        Logger::Info(std::format("Main window created. Size: {}x{}", 
-            m_AppContext.m_MainWindow->getSize().x, m_AppContext.m_MainWindow->getSize().y));
+
+        Logger::Info(std::format("Main window created."));
     }
     else 
     {
@@ -53,12 +51,14 @@ void Application::initResources()
     // Other ones -> log and do something else?
     try 
     {
+        //! Should these resources be loaded elsewhere?
         m_AppContext.m_ResourceManager->loadResource<sf::Font>(
             "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
         );
         m_AppContext.m_ResourceManager->loadResource<sf::Music>(
             "MainSong", "resources/music/VideoGameAm.ogg"
         );
+        //! Should player sprite sheet be loaded in EntityFactory?
         m_AppContext.m_ResourceManager->loadResource<sf::Texture>(
             "PlayerSpriteSheet",
             "resources/sprites/knight.png"

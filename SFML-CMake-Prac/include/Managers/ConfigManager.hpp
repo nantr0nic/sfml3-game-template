@@ -2,13 +2,14 @@
 
 #include <toml.hpp>
 
-#include <print>
-#include <iostream>
 #include <optional>
 #include <string_view>
 #include <string>
 #include <map>
 #include <functional>
+#include <format>
+
+#include "Utilities/Logger.hpp"
 
 class ConfigManager
 {
@@ -43,7 +44,7 @@ std::optional<T> ConfigManager::getConfigValue(
     auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
-        std::println(std::cerr, "Config file [{}] not found.", configID);
+        Logger::Error(std::format("Config file [{}] not found.", configID));
         return std::nullopt;
     }
 
@@ -53,7 +54,7 @@ std::optional<T> ConfigManager::getConfigValue(
     }
     catch (const std::exception& e)
     {
-        std::println(std::cerr, "Error getting config key [{}]: {}", key, e.what());
+        Logger::Error(std::format("Error getting config key [{}]: {}", key, e.what()));
         return std::nullopt;
     }
 }
@@ -65,7 +66,7 @@ std::optional<T> ConfigManager::getConfigValue(
     auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
-        std::println(std::cerr, "Config file [{}] not found.", configID);
+        Logger::Error(std::format("Config file [{}] not found.", configID));
         return std::nullopt;
     }
 
@@ -75,7 +76,7 @@ std::optional<T> ConfigManager::getConfigValue(
     }
     catch (const std::exception& e)
     {
-        std::println(std::cerr, "Error getting config key [{}] under [{}]: {}", key, at, e.what());
+        Logger::Error(std::format("Error getting config key [{}] under [{}]: {}", key, at, e.what()));
         return std::nullopt;
     }
 }

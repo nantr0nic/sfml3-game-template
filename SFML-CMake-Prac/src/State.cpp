@@ -5,11 +5,10 @@
 #include "ECS/EntityFactory.hpp"
 #include "ECS/Systems.hpp"
 #include "Utilities/Utils.hpp"
+#include "Utilities/Logger.hpp"
 
-#include <print>
-#include <iostream>
 #include <memory>
-
+#include <format>
 
 //$ ----- MenuState Implementation ----- //
 MenuState::MenuState(AppContext* appContext)
@@ -36,7 +35,7 @@ MenuState::MenuState(AppContext* appContext)
     }
     else 
     {
-        std::println(std::cerr, "<MenuState> Error: Couldn't load font.");
+        Logger::Error("Couldn't load font.");
     }
 
     // Lambdas to handle input
@@ -55,6 +54,8 @@ MenuState::MenuState(AppContext* appContext)
             m_AppContext->m_MainWindow->close();
         }
     };
+
+    Logger::Info("MenuState initialized.");
 }
 
 MenuState::~MenuState()
@@ -97,7 +98,7 @@ PlayState::PlayState(AppContext* appContext)
     }
     else 
     {
-        std::println(std::cerr, "<PlayState> Error: MainSong not found, not playing music.");
+        Logger::Error("MainSong not found, not playing music.");
     }
     
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
@@ -116,6 +117,7 @@ PlayState::PlayState(AppContext* appContext)
         else if (event.scancode == sf::Keyboard::Scancode::F12)
         {
             m_ShowDebug = !m_ShowDebug;
+            Logger::Warn(std::format("Debug mode toggled: {}", m_ShowDebug ? "On" : "Off"));
         }
     };
 
@@ -123,6 +125,8 @@ PlayState::PlayState(AppContext* appContext)
     {
         // empty on purpose, it was crashing otherwise
     };
+
+    Logger::Info("PlayState initialized.");
 }
 
 PlayState::~PlayState()
@@ -163,7 +167,7 @@ PauseState::PauseState(AppContext* appContext)
 
     if (!font)
     {
-        std::println(std::cerr, "<PauseState> Error: MainFont not found! Can't make pause text.");
+        Logger::Error("MainFont not found! Can't make pause text.");
     }
     else 
     {
@@ -200,6 +204,7 @@ PauseState::PauseState(AppContext* appContext)
                 music->play();
             }
             m_AppContext->m_StateManager->popState();
+            Logger::Info("PauseState popped/removed.");
         }
     };
 
@@ -207,6 +212,8 @@ PauseState::PauseState(AppContext* appContext)
     {
         // empty on purpose
     };
+
+    Logger::Info("PauseState initialized.");
 }
 
 
