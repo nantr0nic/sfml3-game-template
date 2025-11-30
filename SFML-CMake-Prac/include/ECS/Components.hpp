@@ -94,7 +94,7 @@ struct RenderableRect
     {
         shape.setSize(size);
         shape.setFillColor(color);
-        Utils::centerOrigin(shape);
+        utils::centerOrigin(shape);
         shape.setPosition(position);
     }
 

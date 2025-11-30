@@ -11,8 +11,8 @@
 #include <stdexcept>
 #include <functional>
 #include <format>
-#include <print>
-#include <iostream>
+
+#include "Utilities/Logger.hpp"
 
 class ResourceManager 
 {
@@ -52,6 +52,7 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
             throw std::runtime_error(std::format("Failed to load font: {}", filepath));
         }
         m_Fonts.insert_or_assign(std::string(id), std::move(font));
+        logger::Info(std::format("Font ID \"{}\" loaded from: {}", id, filepath));
     } 
     else if constexpr (std::is_same_v<T, sf::Texture>) 
     {
@@ -61,6 +62,7 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
             throw std::runtime_error(std::format("Failed to load texture: {}",  filepath));
         }
         m_Textures.insert_or_assign(std::string(id), std::move(texture));
+        logger::Info(std::format("Texture ID \"{}\" loaded from: {}", id, filepath));
     } 
     else if constexpr (std::is_same_v<T, sf::SoundBuffer>) 
     {
@@ -70,6 +72,7 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
             throw std::runtime_error(std::format("Failed to load sound buffer: {}", filepath));
         }
         m_SoundBuffers.insert_or_assign(std::string(id), std::move(soundBuffer));
+        logger::Info(std::format("SoundBuffer ID \"{}\" loaded from: {}", id, filepath));
     }
     else if constexpr (std::is_same_v<T, sf::Music>) 
     {
@@ -79,12 +82,13 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
             throw std::runtime_error(std::format("Failed to load music: {}", filepath));
         }
         m_Musics.insert_or_assign(std::string(id), std::move(music));
+        logger::Info(std::format("Music ID \"{}\" loaded from: {}", id, filepath));
     }
     else 
     {
-        std::println(std::cerr, 
-            "<ResourceManager> Couldn't load resource. Possibly: Unsupported type or wrong ID? (ID: {})", 
-            id);
+        logger::Error(std::format(
+            "Couldn't load resource. Possibly: Unsupported type or wrong ID? (ID: {})",
+            id));
         return;
     }
 }
@@ -114,9 +118,9 @@ T* ResourceManager::getResource(std::string_view id)
     }
     else 
     {
-        std::println(std::cerr, 
-            "<ResourceManager> Couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", 
-            id);
+        logger::Error(std::format(
+            "Couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})",
+            id));
         return nullptr;
     }
 }
@@ -146,9 +150,9 @@ const T* ResourceManager::getResource(std::string_view id) const
     }
     else 
     {
-        std::println(std::cerr, 
-            "ResourceManager couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})", id
-        );
+        logger::Error(std::format(
+            "Couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})",
+            id));
         return nullptr;
     }
 }

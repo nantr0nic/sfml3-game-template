@@ -1,14 +1,14 @@
 #pragma once
 
-#include <toml.hpp>
+#include "TomlImp.hpp"
 
-#include <print>
-#include <iostream>
 #include <optional>
 #include <string_view>
 #include <string>
 #include <map>
-#include <functional>
+#include <format>
+
+#include "Utilities/Logger.hpp"
 
 class ConfigManager
 {
@@ -20,18 +20,17 @@ public:
 
     void loadConfig(std::string_view configID, std::string_view filepath);
 
-    // getConfigValue requires (configID, key) or (configID, at, key)
+    // getConfigValue requires (configID, key) or (configID, section, key)
     template<typename T>
     [[nodiscard]] std::optional<T> getConfigValue(
         std::string_view configID, std::string_view key) const;
 
-    // getConfigValue requires (configID, key) or (configID, at, key)
-    template<typename T>
+        template<typename T>
     [[nodiscard]] std::optional<T> getConfigValue(
-        std::string_view configID, std::string_view at, std::string_view key) const;
+        std::string_view configID, std::string_view section, std::string_view key) const;
 
 private:
-    std::map<std::string, toml::value, std::less<>> m_ConfigFiles;
+    std::map<std::string, toml::table, std::less<>> m_ConfigFiles;
 
 };
 
@@ -43,39 +42,39 @@ std::optional<T> ConfigManager::getConfigValue(
     auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
-        std::println(std::cerr, "Config file [{}] not found.", configID);
+        logger::Error(std::format("Config file [{}] not found.", configID));
         return std::nullopt;
     }
 
-    try
+    auto retValue = it->second[key].value<T>();
+    if (!retValue.has_value())
     {
-        return toml::find<T>(it->second, std::string(key));
-    }
-    catch (const std::exception& e)
-    {
-        std::println(std::cerr, "Error getting config key [{}]: {}", key, e.what());
+        logger::Warn(std::format("Key [{}] not found in config file [{}].", key, configID));
         return std::nullopt;
     }
+
+    return retValue;
 }
 
 template<typename T>
 std::optional<T> ConfigManager::getConfigValue(
-    std::string_view configID, std::string_view at, std::string_view key) const
+    std::string_view configID, std::string_view section, std::string_view key) const
 {
     auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
-        std::println(std::cerr, "Config file [{}] not found.", configID);
+        logger::Error(std::format("Config file [{}] not found.", configID));
         return std::nullopt;
     }
 
-    try
+    auto retValue = it->second[section][key].value<T>();
+    if (!retValue.has_value())
     {
-        return toml::find<T>(it->second, std::string(at), std::string(key));
-    }
-    catch (const std::exception& e)
-    {
-        std::println(std::cerr, "Error getting config key [{}] under [{}]: {}", key, at, e.what());
+        logger::Warn(std::format(
+            "Section [{}] or Key [{}] not found in config file [{}].", section, key, configID
+        ));
         return std::nullopt;
     }
+
+    return retValue;
 }

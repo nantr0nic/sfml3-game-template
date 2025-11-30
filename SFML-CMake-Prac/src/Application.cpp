@@ -1,7 +1,7 @@
 #include "Application.hpp"
+#include "Utilities/Logger.hpp"
 
-#include <print>
-#include <iostream>
+#include <format>
 #include <memory>
 
 Application::Application()
@@ -18,6 +18,9 @@ Application::Application()
     // Push the initial application state
     auto menuState = std::make_unique<MenuState>(&m_AppContext);
     m_StateManager.pushState(std::move(menuState));
+
+    // Debug
+    logger::Info("Application initialized.");
 }
 
 Application::~Application()
@@ -31,10 +34,12 @@ void Application::initMainWindow()
     {
         m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
         m_AppContext.m_MainWindow->setFramerateLimit(60);
+
+        logger::Info(std::format("Main window created."));
     }
     else 
     {
-        std::println(std::cerr, "<Application> Error creating main window.");
+        logger::Error("Error creating main window.");
         m_AppContext.m_MainWindow = nullptr;
     }
 }
@@ -46,12 +51,14 @@ void Application::initResources()
     // Other ones -> log and do something else?
     try 
     {
+        //! Should these resources be loaded elsewhere?
         m_AppContext.m_ResourceManager->loadResource<sf::Font>(
             "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
         );
         m_AppContext.m_ResourceManager->loadResource<sf::Music>(
             "MainSong", "resources/music/VideoGameAm.ogg"
         );
+        //! Should player sprite sheet be loaded in EntityFactory?
         m_AppContext.m_ResourceManager->loadResource<sf::Texture>(
             "PlayerSpriteSheet",
             "resources/sprites/knight.png"
@@ -59,7 +66,7 @@ void Application::initResources()
     }
     catch (const std::exception& e) 
     {
-        std::println(std::cerr, "<Application> Error loading resources: {}", e.what());
+        logger::Error(std::format("Error loading resources: {}", e.what()));
     }
 }
 
@@ -67,7 +74,7 @@ void Application::run()
 {
     if (!m_AppContext.m_MainWindow)
     {
-        std::println(std::cerr, "<Application> No main window; aborting run().");
+        logger::Error("No main window; aborting run().");
         return;
     }
     

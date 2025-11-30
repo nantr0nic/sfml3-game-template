@@ -1,8 +1,12 @@
+![Preview of what we have so far](screenshots/mainwindow.png)
+
 # Practice with SFML 3.0 & CMake
 
-This repository is a personal project for practicing C++ game development concepts using SFML 3.0, CMake, and other libraries like EnTT and toml11. In my last project, refactoring to add features later led to the expected nightmare that happens when I followed the thought: "Meh,
+This repository is a personal project for practicing C++ game development concepts using SFML 3.0, CMake, and other libraries like EnTT and toml++. In my last project, refactoring to add features later led to the expected nightmare that happens when I followed the thought: "Meh,
 I'll write that if I need it later. I'd rather keep this simple and easy for now." So this practice project is a direct
 consequence of that experience!
+
+After a bit of study, I've also learned some fun acronyms like "YAGNI" so I am also trying to balance the above sentiment with the practice of not over-engineering solutions to problems I don't have yet. Granted, the purpose of this project is to learn architecture patterns SO there might/will probably be some "overkill" stuff.
 
 ## Architecture
 
@@ -18,9 +22,8 @@ To handle common game-related tasks and resources, several manager classes have 
 *   **`StateManager`**: Manages the stack of game states (e.g., `MainMenu`, `Playing`).
 *   **`WindowManager`**: A wrapper for the `sf::RenderWindow` to handle window creation and events.
 *   **`ResourceManager`**: A generic manager for loading and storing shared resources like textures and fonts to prevent redundant loading from disk.
-*   **`ConfigManager`**: Manages loading and accessing configuration data from files (e.g., using toml11).
+*   **`ConfigManager`**: Manages loading and accessing configuration data from files (e.g., using toml++).
 *   **`GlobalEventManager`**: A simple event bus for broadcasting events across different systems.
-*   **`RandomMachine`**: A utility class for generating random numbers.
 
 ## ECS (Entity-Component-System)
 
@@ -30,10 +33,15 @@ The project uses the **EnTT** library to implement an ECS architecture. This pat
 *   **`EntityFactory`**: A factory class responsible for constructing pre-defined game entities (prefabs). It simplifies entity creation by assembling a specific set of components and assigning them to a new entity (e.g., creating a "Player" entity with `Position`, `Velocity`, and `Input` components).
 *   **`Systems.cpp`**: This file contains the game's logic. Systems are functions or classes that iterate over entities with specific sets of components and perform updates/operations/etc.
 
+## Utilities
+
+*   **`Logger.hpp`**: Simple logger that makes use of std::print and std::source_location. Prints Info/Warning/Error to console with ANSI colors. Flags are set to only print Error for release builds.
+*   **`RandomMachine`**: A utility class for generating random numbers.
+
 ## Build & Dependencies
 
 The project is built using CMake with a single `CMakeLists.txt` in the root directory.
 
 *   **SFML 3.0**: Used for graphics, windowing, and audio.
 *   **EnTT**: For the ECS architecture.
-*   **toml11**: For parsing TOML configuration files.
+*   **toml++**: For parsing TOML configuration files.

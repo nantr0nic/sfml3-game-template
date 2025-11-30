@@ -1,9 +1,8 @@
 #include "Managers/WindowManager.hpp"
 #include "Managers/ConfigManager.hpp"
+#include "Utilities/Logger.hpp"
 
 #include <memory>
-#include <print>
-#include <iostream>
 
 WindowManager::WindowManager(ConfigManager& configManager)
     : m_MainWindow(nullptr)
@@ -21,9 +20,7 @@ bool WindowManager::createMainWindow()
 {
     if (m_MainWindow)
     {
-        std::println(std::cerr,
-            "<WindowManager> createMainWindow Failed: Main window already exists."
-        );
+        logger::Error("createMainWindow Failed: Main window already exists.");
         return false;
     }
     else 
@@ -52,9 +49,7 @@ bool WindowManager::createMainWindow(unsigned int width, unsigned int height, co
     // Check if main window already exists, return false if it does
     if (m_MainWindow)
     {
-        std::println(std::cerr,
-            "<WindowManager> createMainWindow Failed: Main window already exists."
-        );
+        logger::Error("createMainWindow Failed: Main window already exists.");
         return false;
     }
     else 

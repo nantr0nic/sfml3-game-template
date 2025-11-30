@@ -10,7 +10,7 @@ struct SpritePadding
     float bottom{ 0.0f };
 };
 
-namespace Utils
+namespace utils
 {
     // For now this only works with rectangles, I'll extend it to other
     // types if needed later

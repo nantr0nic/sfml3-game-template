@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-SpritePadding Utils::getSpritePadding(const sf::Sprite& sprite)
+SpritePadding utils::getSpritePadding(const sf::Sprite& sprite)
 {
     const sf::Texture& texture = sprite.getTexture();
 

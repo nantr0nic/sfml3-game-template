@@ -5,11 +5,10 @@
 #include "ECS/EntityFactory.hpp"
 #include "ECS/Systems.hpp"
 #include "Utilities/Utils.hpp"
+#include "Utilities/Logger.hpp"
 
-#include <print>
-#include <iostream>
 #include <memory>
-
+#include <format>
 
 //$ ----- MenuState Implementation ----- //
 MenuState::MenuState(AppContext* appContext)
@@ -36,7 +35,7 @@ MenuState::MenuState(AppContext* appContext)
     }
     else 
     {
-        std::println(std::cerr, "<MenuState> Error: Couldn't load font.");
+        logger::Error("Couldn't load font.");
     }
 
     // Lambdas to handle input
@@ -55,6 +54,8 @@ MenuState::MenuState(AppContext* appContext)
             m_AppContext->m_MainWindow->close();
         }
     };
+
+    logger::Info("MenuState initialized.");
 }
 
 MenuState::~MenuState()
@@ -97,7 +98,7 @@ PlayState::PlayState(AppContext* appContext)
     }
     else 
     {
-        std::println(std::cerr, "<PlayState> Error: MainSong not found, not playing music.");
+        logger::Error("MainSong not found, not playing music.");
     }
     
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
@@ -116,6 +117,7 @@ PlayState::PlayState(AppContext* appContext)
         else if (event.scancode == sf::Keyboard::Scancode::F12)
         {
             m_ShowDebug = !m_ShowDebug;
+            logger::Warn(std::format("Debug mode toggled: {}", m_ShowDebug ? "On" : "Off"));
         }
     };
 
@@ -123,6 +125,8 @@ PlayState::PlayState(AppContext* appContext)
     {
         // empty on purpose, it was crashing otherwise
     };
+
+    logger::Info("PlayState initialized.");
 }
 
 PlayState::~PlayState()
@@ -163,14 +167,14 @@ PauseState::PauseState(AppContext* appContext)
 
     if (!font)
     {
-        std::println(std::cerr, "<PauseState> Error: MainFont not found! Can't make pause text.");
+        logger::Error("MainFont not found! Can't make pause text.");
     }
     else 
     {
         m_PauseText.emplace(*font, "Paused", 100);
         m_PauseText->setFillColor(sf::Color::Red);
 
-        Utils::centerOrigin(*m_PauseText);
+        utils::centerOrigin(*m_PauseText);
 
         sf::Vector2u windowSize = m_AppContext->m_MainWindow->getSize();
         sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
@@ -200,6 +204,7 @@ PauseState::PauseState(AppContext* appContext)
                 music->play();
             }
             m_AppContext->m_StateManager->popState();
+            logger::Info("PauseState popped/removed.");
         }
     };
 
@@ -207,6 +212,8 @@ PauseState::PauseState(AppContext* appContext)
     {
         // empty on purpose
     };
+
+    logger::Info("PauseState initialized.");
 }
 
 
