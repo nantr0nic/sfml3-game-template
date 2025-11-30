@@ -1,21 +1,18 @@
 ﻿# Trying out a single top-level CMakeLists.txt
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.28)
 project("SFML-CMake-Prac" LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-# For IDEs and language servers like clangd to understand the project structure
-# (e.g., include paths), we need to generate a compile_commands.json file.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# --------------------------------------------------------------------
-# STAGE 1: Fetch and configure SFML using FetchContent
-# --------------------------------------------------------------------
+# ------------------ #
+# Fetch dependencies #
+# ------------------ #
 include(FetchContent)
 
-# Declare the SFML dependency
+# ----- SFML ----- #
 FetchContent_Declare(
     sfml_dependency
     GIT_REPOSITORY https://github.com/SFML/SFML.git
@@ -30,98 +27,99 @@ set(SFML_BUILD_WINDOW ON CACHE BOOL "Build the Window module")
 set(SFML_BUILD_AUDIO ON CACHE BOOL "Build the Audio module")
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "Do not build the Network module")
 
-# This command downloads, configures, and adds the SFML targets to our build.
-FetchContent_MakeAvailable(sfml_dependency)
-
-# --------------------------------------------------------------------
-# STAGE 2: Fetch and configure EnTT, toml11, and magic_enum
-# --------------------------------------------------------------------
-
-# Declare the EnTT dependency (header-only)
+# ----- EnTT ----- #
 FetchContent_Declare(
     entt
     GIT_REPOSITORY https://github.com/skypjack/entt.git
     GIT_TAG        v3.15.0
 )
 
-# Declare the toml11 dependency (header-only)
+# ----- toml++ ----- #
 FetchContent_Declare(
-    toml11
-    GIT_REPOSITORY https://github.com/ToruNiina/toml11.git
-    GIT_TAG        v4.4.0
-    SYSTEM        # Setting as SYSTEM to suppress deprecated literal operator warning
+    tomlplusplus
+    GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+    GIT_TAG        v3.4.0  
 )
 
-# Declare the magic_enum dependency (header-only)
+# --- magic_enum --- #
 FetchContent_Declare(
     magic_enum
     GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
     GIT_TAG        v0.9.7
 )
 
-FetchContent_MakeAvailable(entt toml11 magic_enum) 
+FetchContent_MakeAvailable(sfml_dependency entt tomlplusplus magic_enum) 
 
-# --------------------------------------------------------------------
-# STAGE 3: Configure your application
-# --------------------------------------------------------------------
+# ------------------ #
+# Configure project  #
+# ------------------ #
 
 # Define a variable for our project's source code subdirectory.
 # This makes it easier to reference files within it.
-set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/SFML-CMake-Prac")
+#set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/SFML-CMake-Prac")
 
 add_executable(SFML-CMake-Prac
-    "${PROJECT_SOURCE_DIR}/src/Main.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Application.cpp"
-    "${PROJECT_SOURCE_DIR}/src/State.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Managers/WindowManager.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Managers/StateManager.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Managers/GlobalEventManager.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Managers/ConfigManager.cpp"
-    "${PROJECT_SOURCE_DIR}/src/ECS/EntityFactory.cpp"
-    "${PROJECT_SOURCE_DIR}/src/ECS/Systems.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Utilities/RandomMachine.cpp"
-    "${PROJECT_SOURCE_DIR}/src/Utilities/Utils.cpp"
-
+    "SFML-CMake-Prac/src/Main.cpp"
+    "SFML-CMake-Prac/src/Application.cpp"
+    "SFML-CMake-Prac/src/State.cpp"
+    "SFML-CMake-Prac/src/Managers/WindowManager.cpp"
+    "SFML-CMake-Prac/src/Managers/StateManager.cpp"
+    "SFML-CMake-Prac/src/Managers/GlobalEventManager.cpp"
+    "SFML-CMake-Prac/src/Managers/ConfigManager.cpp"
+    "SFML-CMake-Prac/src/ECS/EntityFactory.cpp"
+    "SFML-CMake-Prac/src/ECS/Systems.cpp"
+    "SFML-CMake-Prac/src/Utilities/RandomMachine.cpp"
+    "SFML-CMake-Prac/src/Utilities/Utils.cpp"
 )
 
-# Copy resources during configuration time.
-# Note: Changes to resources will require re-running CMake configuration.
-#file(COPY "${PROJECT_SOURCE_DIR}/resources/" DESTINATION "${CMAKE_BINARY_DIR}/resources")
-#file(COPY "${PROJECT_SOURCE_DIR}/config/" DESTINATION "${CMAKE_BINARY_DIR}/config")
-
-### This is an alternative way to include the resources at build time,
-### it does NOT require re-running CMake when resources change.
-### However, it may slow down build times slightly.
 # This runs every time the SFML-CMake-Prac target is built.
+# It will copy the resources to the build directory
 add_custom_command(
     TARGET SFML-CMake-Prac
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${PROJECT_SOURCE_DIR}/resources"
+            "${CMAKE_CURRENT_SOURCE_DIR}/SFML-CMake-Prac/resources"
             "$<TARGET_FILE_DIR:SFML-CMake-Prac>/resources"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${PROJECT_SOURCE_DIR}/config"
+            "${CMAKE_CURRENT_SOURCE_DIR}/SFML-CMake-Prac/config"
             "$<TARGET_FILE_DIR:SFML-CMake-Prac>/config"
     COMMENT "Copying resources and config to build directory"
 )
 
-# The ${entt_SOURCE_DIR} variable is automatically set by FetchContent.
+# -------------------- #
+#  compile definitions #
+# -------------------- #
+
+target_compile_definitions(SFML-CMake-Prac PRIVATE TOML_HEADER_ONLY=0)
+
+# ------------------ #
+# Configure include  #
+# ------------------ #
+
+# manually setting entt because clangd was being weird >:/
 target_include_directories(SFML-CMake-Prac PRIVATE
     "${entt_SOURCE_DIR}/include"
-    "${PROJECT_SOURCE_DIR}/include"
+    "SFML-CMake-Prac/include"
 )
 
-# Link to all the required libraries that FetchContent made available
+# ------------------ #
+#   Link libraries   #
+# ------------------ #
+
 target_link_libraries(SFML-CMake-Prac PRIVATE
     SFML::Graphics
     SFML::Window
     SFML::Audio
     EnTT::EnTT
-    toml11::toml11
+    tomlplusplus::tomlplusplus
     magic_enum::magic_enum
 )
 
-### MSVC-specific settings ###
+# ------------------ #
+#   MSVC  Settings   #
+# ------------------ #
+
+# This should hopefully mitigate any false 'trojan' flags by Windows Defender
 if(MSVC)
     target_compile_options(SFML-CMake-Prac PRIVATE "/std:c++latest" /Zi /GL /guard:cf /Gy)
     target_link_options(SFML-CMake-Prac PRIVATE /LTCG /GUARD:CF /OPT:REF /OPT:ICF)
