@@ -17,7 +17,7 @@ namespace utils
     {
         if (min > max)
         {
-            Logger::Error(std::format(
+            logger::Error(std::format(
                 "RandomMachine: Min ({}) is greater than max ({}). Falling back to {}.", min, max, fallback), loc
             );
             return fallback;
@@ -31,7 +31,7 @@ namespace utils
     {
         if (min > max)
         {
-            Logger::Error(std::format(
+            logger::Error(std::format(
                 "RandomMachine: Min ({}) is greater than max ({}). Falling back to {}.", min, max, fallback), loc
             );
             return fallback;

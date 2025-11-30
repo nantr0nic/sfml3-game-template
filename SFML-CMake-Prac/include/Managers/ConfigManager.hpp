@@ -44,7 +44,7 @@ std::optional<T> ConfigManager::getConfigValue(
     auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
-        Logger::Error(std::format("Config file [{}] not found.", configID));
+        logger::Error(std::format("Config file [{}] not found.", configID));
         return std::nullopt;
     }
 
@@ -54,7 +54,7 @@ std::optional<T> ConfigManager::getConfigValue(
     }
     catch (const std::exception& e)
     {
-        Logger::Error(std::format("Error getting config key [{}]: {}", key, e.what()));
+        logger::Error(std::format("Error getting config key [{}]: {}", key, e.what()));
         return std::nullopt;
     }
 }
@@ -66,7 +66,7 @@ std::optional<T> ConfigManager::getConfigValue(
     auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
-        Logger::Error(std::format("Config file [{}] not found.", configID));
+        logger::Error(std::format("Config file [{}] not found.", configID));
         return std::nullopt;
     }
 
@@ -76,7 +76,7 @@ std::optional<T> ConfigManager::getConfigValue(
     }
     catch (const std::exception& e)
     {
-        Logger::Error(std::format("Error getting config key [{}] under [{}]: {}", key, at, e.what()));
+        logger::Error(std::format("Error getting config key [{}] under [{}]: {}", key, at, e.what()));
         return std::nullopt;
     }
 }

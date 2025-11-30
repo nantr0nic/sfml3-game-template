@@ -35,7 +35,7 @@ MenuState::MenuState(AppContext* appContext)
     }
     else 
     {
-        Logger::Error("Couldn't load font.");
+        logger::Error("Couldn't load font.");
     }
 
     // Lambdas to handle input
@@ -55,7 +55,7 @@ MenuState::MenuState(AppContext* appContext)
         }
     };
 
-    Logger::Info("MenuState initialized.");
+    logger::Info("MenuState initialized.");
 }
 
 MenuState::~MenuState()
@@ -98,7 +98,7 @@ PlayState::PlayState(AppContext* appContext)
     }
     else 
     {
-        Logger::Error("MainSong not found, not playing music.");
+        logger::Error("MainSong not found, not playing music.");
     }
     
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
@@ -117,7 +117,7 @@ PlayState::PlayState(AppContext* appContext)
         else if (event.scancode == sf::Keyboard::Scancode::F12)
         {
             m_ShowDebug = !m_ShowDebug;
-            Logger::Warn(std::format("Debug mode toggled: {}", m_ShowDebug ? "On" : "Off"));
+            logger::Warn(std::format("Debug mode toggled: {}", m_ShowDebug ? "On" : "Off"));
         }
     };
 
@@ -126,7 +126,7 @@ PlayState::PlayState(AppContext* appContext)
         // empty on purpose, it was crashing otherwise
     };
 
-    Logger::Info("PlayState initialized.");
+    logger::Info("PlayState initialized.");
 }
 
 PlayState::~PlayState()
@@ -167,7 +167,7 @@ PauseState::PauseState(AppContext* appContext)
 
     if (!font)
     {
-        Logger::Error("MainFont not found! Can't make pause text.");
+        logger::Error("MainFont not found! Can't make pause text.");
     }
     else 
     {
@@ -204,7 +204,7 @@ PauseState::PauseState(AppContext* appContext)
                 music->play();
             }
             m_AppContext->m_StateManager->popState();
-            Logger::Info("PauseState popped/removed.");
+            logger::Info("PauseState popped/removed.");
         }
     };
 
@@ -213,7 +213,7 @@ PauseState::PauseState(AppContext* appContext)
         // empty on purpose
     };
 
-    Logger::Info("PauseState initialized.");
+    logger::Info("PauseState initialized.");
 }
 
 

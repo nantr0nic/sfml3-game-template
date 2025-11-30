@@ -15,7 +15,7 @@ GlobalEventManager::GlobalEventManager(AppContext* appContext)
 		if (event.scancode == sf::Keyboard::Scancode::Escape)
 		{
 			// We will want to remove this if we want escape to exit an inventory window etc.
-			Logger::Info("Escape key pressed! Exiting.");
+			logger::Info("Escape key pressed! Exiting.");
 			appContext->m_MainWindow->close();
 		}
 		else if (event.scancode == sf::Keyboard::Scancode::M)

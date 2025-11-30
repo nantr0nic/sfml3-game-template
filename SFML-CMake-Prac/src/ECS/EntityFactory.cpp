@@ -21,7 +21,7 @@ namespace EntityFactory
 
         if (texture == nullptr)
         {
-            Logger::Error("Couldn't create Player because missing texture.");
+            logger::Error("Couldn't create Player because missing texture.");
             return entt::null;
         }
 
@@ -72,7 +72,7 @@ namespace EntityFactory
         animator.animations["walk"] = { 3, 8, sf::milliseconds(800) };
 
         //registry.emplace<AnimatorComponent>(playerEntity, std::move(animator));
-        Logger::Info("Player created.");
+        logger::Info("Player created.");
 
         return playerEntity;
     }

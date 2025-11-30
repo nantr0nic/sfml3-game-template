@@ -20,7 +20,7 @@ bool WindowManager::createMainWindow()
 {
     if (m_MainWindow)
     {
-        Logger::Error("createMainWindow Failed: Main window already exists.");
+        logger::Error("createMainWindow Failed: Main window already exists.");
         return false;
     }
     else 
@@ -49,7 +49,7 @@ bool WindowManager::createMainWindow(unsigned int width, unsigned int height, co
     // Check if main window already exists, return false if it does
     if (m_MainWindow)
     {
-        Logger::Error("createMainWindow Failed: Main window already exists.");
+        logger::Error("createMainWindow Failed: Main window already exists.");
         return false;
     }
     else 

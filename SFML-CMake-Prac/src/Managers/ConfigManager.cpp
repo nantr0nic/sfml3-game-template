@@ -12,18 +12,18 @@ void ConfigManager::loadConfig(std::string_view configID, std::string_view filep
         toml::value newConfig = toml::parse(std::string(filepath));
         m_ConfigFiles.insert_or_assign(std::string(configID), std::move(newConfig));
 
-        Logger::Info(std::format("Config ID \"{}\" loaded from: {}", configID, filepath));
+        logger::Info(std::format("Config ID \"{}\" loaded from: {}", configID, filepath));
     }
     catch (const toml::syntax_error& e)
     {
-        Logger::Error(std::format("TOML syntax error in {}: {}", filepath, e.what()));
+        logger::Error(std::format("TOML syntax error in {}: {}", filepath, e.what()));
     }
     catch (const toml::file_io_error& e)
     {
-        Logger::Error(std::format("Failed to open config file {}: {}", filepath, e.what()));
+        logger::Error(std::format("Failed to open config file {}: {}", filepath, e.what()));
     }
     catch (const std::exception& e)
     {
-        Logger::Error(std::format("Error loading config file:", e.what()));
+        logger::Error(std::format("Error loading config file:", e.what()));
     }
 }

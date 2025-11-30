@@ -14,7 +14,7 @@ enum class LogLevel
     None
 };
 
-namespace Logger
+namespace logger
 {
     namespace Color
     {
@@ -136,12 +136,12 @@ namespace Logger
     //$ just be okay with using std::format() when needed :)
 
     //$ For example: if you want to print the Info message "Player health: 80" then the 
-    //$ above functions require Logger::Info(std::format("Player health: {}", player.health));
-    //$ Or, Logger::Error(std::format("{}", e.what());
+    //$ above functions require logger::Info(std::format("Player health: {}", player.health));
+    //$ Or, logger::Error(std::format("{}", e.what());
 
     //$ Whereas, these variadic templates enable a simpler interface:
-    //$ Logger:Info("Player health: {}", player.health);
-    //$ Logger:Error("{}", e.what());
+    //$ logger::Info("Player health: {}", player.health);
+    //$ logger::Error("{}", e.what());
     /*
     // Public Helpers (Templates)
     template<typename... Args>

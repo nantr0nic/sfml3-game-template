@@ -20,7 +20,7 @@ Application::Application()
     m_StateManager.pushState(std::move(menuState));
 
     // Debug
-    Logger::Info("Application initialized.");
+    logger::Info("Application initialized.");
 }
 
 Application::~Application()
@@ -35,11 +35,11 @@ void Application::initMainWindow()
         m_AppContext.m_MainWindow = &m_AppContext.m_WindowManager->getMainWindow();
         m_AppContext.m_MainWindow->setFramerateLimit(60);
 
-        Logger::Info(std::format("Main window created."));
+        logger::Info(std::format("Main window created."));
     }
     else 
     {
-        Logger::Error("Error creating main window.");
+        logger::Error("Error creating main window.");
         m_AppContext.m_MainWindow = nullptr;
     }
 }
@@ -66,7 +66,7 @@ void Application::initResources()
     }
     catch (const std::exception& e) 
     {
-        Logger::Error(std::format("Error loading resources: {}", e.what()));
+        logger::Error(std::format("Error loading resources: {}", e.what()));
     }
 }
 
@@ -74,7 +74,7 @@ void Application::run()
 {
     if (!m_AppContext.m_MainWindow)
     {
-        Logger::Error("No main window; aborting run().");
+        logger::Error("No main window; aborting run().");
         return;
     }
     
