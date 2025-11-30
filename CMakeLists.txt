@@ -66,6 +66,7 @@ add_executable(SFML-CMake-Prac
     "SFML-CMake-Prac/src/Managers/StateManager.cpp"
     "SFML-CMake-Prac/src/Managers/GlobalEventManager.cpp"
     "SFML-CMake-Prac/src/Managers/ConfigManager.cpp"
+    "SFML-CMake-Prac/src/Managers/ResourceManager.cpp"
     "SFML-CMake-Prac/src/ECS/EntityFactory.cpp"
     "SFML-CMake-Prac/src/ECS/Systems.cpp"
     "SFML-CMake-Prac/src/Utilities/RandomMachine.cpp"
@@ -90,7 +91,7 @@ add_custom_command(
 #  compile definitions #
 # -------------------- #
 
-target_compile_definitions(SFML-CMake-Prac PRIVATE TOML_HEADER_ONLY=0)
+target_compile_definitions(SFML-CMake-Prac PRIVATE TOML_HEADER_ONLY=0 TOML_EXCEPTIONS=0)
 
 # ------------------ #
 # Configure include  #

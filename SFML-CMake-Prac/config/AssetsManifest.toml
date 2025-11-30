@@ -1,0 +1,17 @@
+# --- Fonts ---
+[[fonts]]
+id = "MainFont"
+path = "resources/fonts/CaesarDressing-Regular.ttf"
+
+# --- Textures ---
+[[textures]]
+id = "PlayerSpriteSheet"
+path = "resources/sprites/knight.png"
+
+# --- SoundBuffers ---
+[[soundbuffers]]
+
+# --- Music ---
+[[musics]]
+id = "MainSong"
+path = "resources/music/VideoGameAm.ogg"
