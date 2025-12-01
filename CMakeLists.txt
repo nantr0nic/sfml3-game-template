@@ -41,22 +41,11 @@ FetchContent_Declare(
     GIT_TAG        v3.4.0  
 )
 
-# --- magic_enum --- #
-FetchContent_Declare(
-    magic_enum
-    GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
-    GIT_TAG        v0.9.7
-)
-
-FetchContent_MakeAvailable(sfml_dependency entt tomlplusplus magic_enum) 
+FetchContent_MakeAvailable(sfml_dependency entt tomlplusplus) 
 
 # ------------------ #
 # Configure project  #
 # ------------------ #
-
-# Define a variable for our project's source code subdirectory.
-# This makes it easier to reference files within it.
-#set(PROJECT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/SFML-CMake-Prac")
 
 add_executable(SFML-CMake-Prac
     "SFML-CMake-Prac/src/Main.cpp"
@@ -113,7 +102,29 @@ target_link_libraries(SFML-CMake-Prac PRIVATE
     SFML::Audio
     EnTT::EnTT
     tomlplusplus::tomlplusplus
-    magic_enum::magic_enum
+)
+
+# ---------------------- #
+#   Precompile Headers   #
+# ---------------------- #
+target_precompile_headers(SFML-CMake-Prac PRIVATE 
+    # STL
+    <vector>
+    <string>
+    <string_view>
+    <map>
+    <memory>
+    <optional>
+    <format>
+    <print>
+    <functional>
+    <source_location>
+
+    # Third party libraries
+    <SFML/Graphics.hpp>
+    <SFML/Window.hpp>
+    <SFML/Audio.hpp>
+    <entt/entt.hpp>
 )
 
 # ------------------ #
