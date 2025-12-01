@@ -26,11 +26,15 @@ namespace EntityFactory
             return entt::null;
         }
 
+        context.m_ConfigManager->loadConfig("player", "config/Player.toml");
+        float moveSpeed = context.m_ConfigManager->getConfigValue<float>("player", "player", "movementSpeed").value_or(350.0f);
+        float scaleFactor = context.m_ConfigManager->getConfigValue<float>("player", "player", "scaleFactor").value_or(3.0f);
+
         auto playerEntity = registry.create();
 
         // Add all components that make a "player"
         registry.emplace<PlayerTag>(playerEntity);  // way to ID the player
-        registry.emplace<MovementSpeed>(playerEntity, 350.0f);
+        registry.emplace<MovementSpeed>(playerEntity, moveSpeed);
         registry.emplace<Velocity>(playerEntity);
         registry.emplace<Facing>(playerEntity);
 
@@ -41,8 +45,6 @@ namespace EntityFactory
         utils::centerOrigin(spriteComp.sprite);
 
         // Sprite scaling and padding stuff
-        //$ we can read a TOML file for scaleFactor later
-        float scaleFactor = 3.0f;
         sf::Vector2f scaleVector = { scaleFactor, scaleFactor };
 
         registry.emplace<BaseScale>(playerEntity, scaleVector);
