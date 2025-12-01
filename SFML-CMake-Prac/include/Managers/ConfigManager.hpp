@@ -7,6 +7,7 @@
 #include <string>
 #include <map>
 #include <format>
+#include <source_location>
 
 #include "Utilities/Logger.hpp"
 
@@ -23,11 +24,13 @@ public:
     // getConfigValue requires (configID, key) or (configID, section, key)
     template<typename T>
     [[nodiscard]] std::optional<T> getConfigValue(
-        std::string_view configID, std::string_view key) const;
+        std::string_view configID, std::string_view key, 
+        const std::source_location& loc = std::source_location::current()) const;
 
         template<typename T>
     [[nodiscard]] std::optional<T> getConfigValue(
-        std::string_view configID, std::string_view section, std::string_view key) const;
+        std::string_view configID, std::string_view section, std::string_view key,
+        const std::source_location& loc = std::source_location::current()) const;
 
 private:
     std::map<std::string, toml::table, std::less<>> m_ConfigFiles;
@@ -37,12 +40,13 @@ private:
 
 template<typename T>
 std::optional<T> ConfigManager::getConfigValue(
-    std::string_view configID, std::string_view key) const
+    std::string_view configID, std::string_view key, const std::source_location& loc) const
 {
     auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
-        logger::Error(std::format("Config file [{}] not found.", configID));
+        logger::Error(std::format("File: {}({}:{}) -> Config file ID [{}] not found.", 
+            logger::formatPath(loc.file_name()), loc.line(), loc.column(), configID));
         return std::nullopt;
     }
 
@@ -58,12 +62,14 @@ std::optional<T> ConfigManager::getConfigValue(
 
 template<typename T>
 std::optional<T> ConfigManager::getConfigValue(
-    std::string_view configID, std::string_view section, std::string_view key) const
+    std::string_view configID, std::string_view section, std::string_view key, 
+    const std::source_location& loc) const
 {
     auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
-        logger::Error(std::format("Config file [{}] not found.", configID));
+        logger::Error(std::format("File: {}({}:{}) -> Config file ID [{}] not found.", 
+            logger::formatPath(loc.file_name()), loc.line(), loc.column(), configID));
         return std::nullopt;
     }
 
