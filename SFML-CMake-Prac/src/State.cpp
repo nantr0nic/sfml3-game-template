@@ -6,6 +6,7 @@
 #include "ECS/Systems.hpp"
 #include "Utilities/Utils.hpp"
 #include "Utilities/Logger.hpp"
+#include "AssetKeys.hpp"
 
 #include <memory>
 #include <format>
@@ -18,7 +19,7 @@ MenuState::MenuState(AppContext* appContext)
     sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
 
     // Play button entity
-    sf::Font* font = m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont");
+    sf::Font* font = m_AppContext->m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
     if (font)
     {
         EntityFactory::createButton(
@@ -88,7 +89,7 @@ PlayState::PlayState(AppContext* appContext)
     sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
     EntityFactory::createPlayer(*m_AppContext, { center.x, center.y });
 
-    m_MainMusic = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong");
+    m_MainMusic = m_AppContext->m_ResourceManager->getResource<sf::Music>(Assets::Musics::MainSong);
 
     // Start music
     if (m_MainMusic)
@@ -163,7 +164,7 @@ void PlayState::render()
 PauseState::PauseState(AppContext* appContext)
     : State(appContext)
 {
-    sf::Font* font = m_AppContext->m_ResourceManager->getResource<sf::Font>("MainFont");
+    sf::Font* font = m_AppContext->m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
 
     if (!font)
     {
@@ -182,7 +183,7 @@ PauseState::PauseState(AppContext* appContext)
     }
 
     // Handle music stuff
-    auto* music = m_AppContext->m_ResourceManager->getResource<sf::Music>("MainSong");
+    auto* music = m_AppContext->m_ResourceManager->getResource<sf::Music>(Assets::Musics::MainSong);
     bool wasMusicPlaying = (music && music->getStatus() == sf::Music::Status::Playing);
 
     if (wasMusicPlaying)
@@ -204,7 +205,7 @@ PauseState::PauseState(AppContext* appContext)
                 music->play();
             }
             m_AppContext->m_StateManager->popState();
-            logger::Info("PauseState popped/removed.");
+            logger::Info("Game unpaused.");
         }
     };
 
@@ -213,7 +214,7 @@ PauseState::PauseState(AppContext* appContext)
         // empty on purpose
     };
 
-    logger::Info("PauseState initialized.");
+    logger::Info("Game paused.");
 }
 
 

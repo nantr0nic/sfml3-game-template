@@ -6,6 +6,7 @@
 #include "Utilities/Utils.hpp"
 #include "Utilities/Logger.hpp"
 #include "AppContext.hpp"
+#include "AssetKeys.hpp"
 
 #include <string>
 #include <utility>
@@ -17,7 +18,7 @@ namespace EntityFactory
     entt::entity createPlayer(AppContext& context, sf::Vector2f position)
     {
         auto& registry = *context.m_Registry;
-        auto* texture = context.m_ResourceManager->getResource<sf::Texture>("PlayerSpriteSheet");
+        auto* texture = context.m_ResourceManager->getResource<sf::Texture>(Assets::Textures::Player);
 
         if (texture == nullptr)
         {
