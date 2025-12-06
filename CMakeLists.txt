@@ -1,6 +1,6 @@
 ﻿# Trying out a single top-level CMakeLists.txt
 cmake_minimum_required(VERSION 3.28)
-project("SFML-CMake-Prac" LANGUAGES CXX)
+project("sfml3-game-template" LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -47,32 +47,32 @@ FetchContent_MakeAvailable(sfml_dependency entt tomlplusplus)
 # Configure project  #
 # ------------------ #
 
-add_executable(SFML-CMake-Prac
-    "SFML-CMake-Prac/src/Main.cpp"
-    "SFML-CMake-Prac/src/Application.cpp"
-    "SFML-CMake-Prac/src/State.cpp"
-    "SFML-CMake-Prac/src/Managers/WindowManager.cpp"
-    "SFML-CMake-Prac/src/Managers/StateManager.cpp"
-    "SFML-CMake-Prac/src/Managers/GlobalEventManager.cpp"
-    "SFML-CMake-Prac/src/Managers/ConfigManager.cpp"
-    "SFML-CMake-Prac/src/Managers/ResourceManager.cpp"
-    "SFML-CMake-Prac/src/ECS/EntityFactory.cpp"
-    "SFML-CMake-Prac/src/ECS/Systems.cpp"
-    "SFML-CMake-Prac/src/Utilities/RandomMachine.cpp"
-    "SFML-CMake-Prac/src/Utilities/Utils.cpp"
+add_executable(sfml3-game-template
+    "sfml3-game-template/src/Main.cpp"
+    "sfml3-game-template/src/Application.cpp"
+    "sfml3-game-template/src/State.cpp"
+    "sfml3-game-template/src/Managers/WindowManager.cpp"
+    "sfml3-game-template/src/Managers/StateManager.cpp"
+    "sfml3-game-template/src/Managers/GlobalEventManager.cpp"
+    "sfml3-game-template/src/Managers/ConfigManager.cpp"
+    "sfml3-game-template/src/Managers/ResourceManager.cpp"
+    "sfml3-game-template/src/ECS/EntityFactory.cpp"
+    "sfml3-game-template/src/ECS/Systems.cpp"
+    "sfml3-game-template/src/Utilities/RandomMachine.cpp"
+    "sfml3-game-template/src/Utilities/Utils.cpp"
 )
 
-# This runs every time the SFML-CMake-Prac target is built.
+# This runs every time the sfml3-game-template target is built.
 # It will copy the resources to the build directory
 add_custom_command(
-    TARGET SFML-CMake-Prac
+    TARGET sfml3-game-template
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_CURRENT_SOURCE_DIR}/SFML-CMake-Prac/resources"
-            "$<TARGET_FILE_DIR:SFML-CMake-Prac>/resources"
+            "${CMAKE_CURRENT_SOURCE_DIR}/sfml3-game-template/resources"
+            "$<TARGET_FILE_DIR:sfml3-game-template>/resources"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_CURRENT_SOURCE_DIR}/SFML-CMake-Prac/config"
-            "$<TARGET_FILE_DIR:SFML-CMake-Prac>/config"
+            "${CMAKE_CURRENT_SOURCE_DIR}/sfml3-game-template/config"
+            "$<TARGET_FILE_DIR:sfml3-game-template>/config"
     COMMENT "Copying resources and config to build directory"
 )
 
@@ -80,23 +80,23 @@ add_custom_command(
 #  compile definitions #
 # -------------------- #
 
-target_compile_definitions(SFML-CMake-Prac PRIVATE TOML_EXCEPTIONS=0)
+target_compile_definitions(sfml3-game-template PRIVATE TOML_EXCEPTIONS=0)
 
 # ------------------ #
 # Configure include  #
 # ------------------ #
 
 # manually setting entt because clangd was being weird >:/
-target_include_directories(SFML-CMake-Prac PRIVATE
+target_include_directories(sfml3-game-template PRIVATE
     "${entt_SOURCE_DIR}/include"
-    "SFML-CMake-Prac/include"
+    "sfml3-game-template/include"
 )
 
 # ------------------ #
 #   Link libraries   #
 # ------------------ #
 
-target_link_libraries(SFML-CMake-Prac PRIVATE
+target_link_libraries(sfml3-game-template PRIVATE
     SFML::Graphics
     SFML::Window
     SFML::Audio
@@ -107,7 +107,7 @@ target_link_libraries(SFML-CMake-Prac PRIVATE
 # ---------------------- #
 #   Precompile Headers   #
 # ---------------------- #
-target_precompile_headers(SFML-CMake-Prac PRIVATE 
+target_precompile_headers(sfml3-game-template PRIVATE 
     # STL
     <vector>
     <string>
@@ -133,9 +133,9 @@ target_precompile_headers(SFML-CMake-Prac PRIVATE
 
 # This should hopefully mitigate any false 'trojan' flags by Windows Defender
 if(MSVC)
-    target_compile_options(SFML-CMake-Prac PRIVATE "/std:c++latest" /Zi /GL /guard:cf /Gy)
-    target_link_options(SFML-CMake-Prac PRIVATE /LTCG /GUARD:CF /OPT:REF /OPT:ICF)
-    set_property(TARGET SFML-CMake-Prac PROPERTY
+    target_compile_options(sfml3-game-template PRIVATE "/std:c++latest" /Zi /GL /guard:cf /Gy)
+    target_link_options(sfml3-game-template PRIVATE /LTCG /GUARD:CF /OPT:REF /OPT:ICF)
+    set_property(TARGET sfml3-game-template PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
     )
 endif()
