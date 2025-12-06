@@ -45,6 +45,8 @@ out/
 
 # VS files
 .vs/
+.vscode/
+*.code-workspace
 
 # github stuff
 .github/
