@@ -80,7 +80,7 @@ add_custom_command(
 #  compile definitions #
 # -------------------- #
 
-target_compile_definitions(SFML-CMake-Prac PRIVATE TOML_HEADER_ONLY=0 TOML_EXCEPTIONS=0)
+target_compile_definitions(SFML-CMake-Prac PRIVATE TOML_EXCEPTIONS=0)
 
 # ------------------ #
 # Configure include  #
