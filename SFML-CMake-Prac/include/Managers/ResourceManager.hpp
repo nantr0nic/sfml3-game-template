@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <toml++/toml.hpp>
 
 #include <map>
 #include <memory>
@@ -21,6 +22,8 @@ public:
     ResourceManager(const ResourceManager&) = delete;
     ResourceManager& operator=(const ResourceManager&) = delete;
     ~ResourceManager() = default;
+
+    void loadAssetsFromManifest(std::string_view filepath);
 
     template<typename T>
     void loadResource(std::string_view id, std::string_view filepath);

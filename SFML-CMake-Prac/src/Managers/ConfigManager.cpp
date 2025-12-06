@@ -1,4 +1,3 @@
-#define TOML_IMPLEMENTATION // This is the ONE place/file where we will define this!
 #include <toml++/toml.hpp>
 
 #include "Managers/ConfigManager.hpp"
@@ -8,19 +7,17 @@
 
 void ConfigManager::loadConfig(std::string_view configID, std::string_view filepath)
 {
-    try
-    {
-        toml::table newConfig = toml::parse_file(filepath);
-        m_ConfigFiles.insert_or_assign(std::string(configID), std::move(newConfig));
+    toml::parse_result configFile = toml::parse_file(filepath);
 
-        logger::Info(std::format("Config ID \"{}\" loaded from: {}", configID, filepath));
-    }
-    catch (const toml::parse_error& e)
+    if (!configFile)
     {
-        logger::Error(std::format("Error parsing config file: {} ", e.description()));
+        logger::Error(std::format(
+            "Error parsing config file --> {}", configFile.error().description()
+        ));
+        return;
     }
-    catch (const std::exception& e)
-    {
-        logger::Error(std::format("Error loading config file: {}", e.what()));
-    }
+
+    m_ConfigFiles.insert_or_assign(std::string(configID), std::move(configFile.table()));
+
+    logger::Info(std::format("Config ID \"{}\" loaded from: {}", configID, filepath));
 }

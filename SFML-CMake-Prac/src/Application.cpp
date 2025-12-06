@@ -46,28 +46,7 @@ void Application::initMainWindow()
 
 void Application::initResources()
 {
-    // We can decide here what to do if resources fail to load
-    // Completely necessary ones fail -> terminate
-    // Other ones -> log and do something else?
-    try 
-    {
-        //! Should these resources be loaded elsewhere?
-        m_AppContext.m_ResourceManager->loadResource<sf::Font>(
-            "MainFont", "resources/fonts/CaesarDressing-Regular.ttf"
-        );
-        m_AppContext.m_ResourceManager->loadResource<sf::Music>(
-            "MainSong", "resources/music/VideoGameAm.ogg"
-        );
-        //! Should player sprite sheet be loaded in EntityFactory?
-        m_AppContext.m_ResourceManager->loadResource<sf::Texture>(
-            "PlayerSpriteSheet",
-            "resources/sprites/knight.png"
-        );
-    }
-    catch (const std::exception& e) 
-    {
-        logger::Error(std::format("Error loading resources: {}", e.what()));
-    }
+    m_AppContext.m_ResourceManager->loadAssetsFromManifest("config/AssetsManifest.toml");
 }
 
 void Application::run()

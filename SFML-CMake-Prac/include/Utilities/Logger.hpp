@@ -6,16 +6,15 @@
 #include <cstdio>
 #include <format>
 
-enum class LogLevel 
-{
-    Info,       // We'll use Green
-    Warning,    // We'll use yellow
-    Error,      // We'll use red
-    None
-};
-
 namespace logger
 {
+    enum class LogLevel 
+    {
+        Info,       // We'll use Green
+        Warning,    // We'll use yellow
+        Error,      // We'll use red
+        None
+    };
     namespace Color
     {
         constexpr std::string_view Reset = "\033[0m"; // Use for in-message reset
@@ -94,7 +93,7 @@ namespace logger
         FILE* stream = (level == LogLevel::Error) ? stderr : stdout;
 
         // Prepare the format string
-        constexpr auto fmtString = "[[{}{}{}]] file: {}({}:{}) '{}' --> {}{}{}";
+        constexpr auto fmtString = "[[{}{}{}]] {}({}:{}) --> {}{}{}";
         // [[Error]] file: file_name(line:column) 'function_name' --> message
         std::println(stream, fmtString, 
             colorStr, 
@@ -103,7 +102,7 @@ namespace logger
             formatPath(loc.file_name()), 
             loc.line(), 
             loc.column(), 
-            loc.function_name(),
+            //loc.function_name(), // too verbose but will leave here for debug 
             colorStr, 
             message,
             Color::Reset

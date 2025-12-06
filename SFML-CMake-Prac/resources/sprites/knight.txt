@@ -1,0 +1,12 @@
+The knight sprite is released under the CC0 license:
+
+"These assets are released under a Creative Commons Zero (CC0) license. 
+You can distribute, remix, adapt, and build upon the material in any medium or 
+format, even for commercial purposes.
+
+Attribution is not required."
+
+While attribution is not required, I found this bundle very useful and wish to
+provide the source in case others might find it useful as well:
+
+https://brackeysgames.itch.io/brackeys-platformer-bundle
