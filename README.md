@@ -18,6 +18,11 @@ consequence of that experience wherein my goal is to build a solid foundation ba
 
 I've also learned some fun acronyms like "YAGNI" so I am also trying to balance the above goal with the practice of not over-engineering solutions to problems I don't have yet. Granted, the purpose of this project is to learn architectural patterns SO there might/will probably be some "overkill" stuff.
 
+### Examples
+Projects made with this template:
+
+* [Breakdown](https://github.com/nantr0nic/breakdown) - A breakout game where the bricks begin to descend. 
+
 ## Features
 ### Architecture
 
