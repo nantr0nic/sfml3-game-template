@@ -167,7 +167,7 @@ PauseState::PauseState(AppContext& appContext)
 
         utils::centerOrigin(*m_PauseText);
 
-        sf::Vector2u windowSize = m_AppContext.m_MainWindow->getSize();
+        sf::Vector2f windowSize = m_AppContext.m_MainWindow->getView().getSize();
         sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
         m_PauseText->setPosition(center);
     }

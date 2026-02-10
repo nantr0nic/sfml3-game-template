@@ -73,7 +73,7 @@ namespace CoreSystems
     void movementSystem(entt::registry& registry, sf::Time deltaTime, sf::RenderWindow& window)
     {
         // cache window size
-        auto windowSize = window.getSize();
+        auto windowSize = window.getView().getSize();
 
         // now moves anything with a sprite
         auto view = registry.view<SpriteComponent, Velocity>();
