@@ -36,7 +36,7 @@ void Application::initMainWindow()
 
         logger::Info(std::format("Main window created."));
     }
-    else 
+    else
     {
         logger::Error("Error creating main window.");
         m_AppContext.m_MainWindow = nullptr;
@@ -55,12 +55,13 @@ void Application::run()
         logger::Error("No main window; aborting run().");
         return;
     }
-    
+
     sf::Clock mainClock = *m_AppContext.m_MainClock;
 
     while (m_AppContext.m_MainWindow->isOpen())
     {
         sf::Time deltaTime = mainClock.restart();
+        m_StateManager.processPending();
         processEvents();
         update(deltaTime);
         render();
