@@ -17,7 +17,7 @@ struct StateEvents
 class State
 {
 public:
-    State(AppContext* appContext) : m_AppContext(appContext) {}
+    explicit State(AppContext& appContext) : m_AppContext(appContext) {}
     virtual ~State() = default;
 
     /* enter() and exit() are left here as a reminder for the future
@@ -35,14 +35,14 @@ public:
     virtual void render() = 0;
 
 protected:
-    AppContext* m_AppContext;
+    AppContext& m_AppContext;
     StateEvents m_StateEvents;  // each state will have its own StateEvents instance
 };
 
 class MenuState : public State
 {
 public:
-    MenuState(AppContext* appContext);
+    MenuState(AppContext& appContext);
     virtual ~MenuState() override;
 
     virtual void update(sf::Time deltaTime) override;
@@ -55,7 +55,7 @@ private:
 class PlayState : public State
 {
 public:
-    PlayState(AppContext* appContext);
+    PlayState(AppContext& appContext);
     virtual ~PlayState() override;
 
     virtual void update(sf::Time deltaTime) override;
@@ -69,7 +69,7 @@ private:
 class PauseState : public State
 {
 public:
-    PauseState(AppContext* appContext);
+    PauseState(AppContext& appContext);
     virtual ~PauseState() override = default;
 
     virtual void update(sf::Time deltaTime) override;

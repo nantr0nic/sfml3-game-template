@@ -5,10 +5,10 @@
 namespace CoreSystems
 {
     //$ "Core" / game systems (maybe rename...)
-    void handlePlayerInput(AppContext* m_AppContext)
+    void handlePlayerInput(AppContext& m_AppContext)
     {
-        auto &registry = *m_AppContext->m_Registry;
-        auto &window = *m_AppContext->m_MainWindow;
+        auto &registry = *m_AppContext.m_Registry;
+        auto &window = *m_AppContext.m_MainWindow;
 
         auto view = registry.view<PlayerTag, 
                                 Velocity, 

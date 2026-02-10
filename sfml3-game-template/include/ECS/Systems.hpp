@@ -10,7 +10,7 @@ struct BoundaryHits;
 namespace CoreSystems
 {
     //$ ----- Game Systems ----- //
-    void handlePlayerInput(AppContext* m_AppContext);
+    void handlePlayerInput(AppContext& m_AppContext);
 
     void movementSystem(entt::registry& registry, sf::Time deltaTime, sf::RenderWindow& window);
 
