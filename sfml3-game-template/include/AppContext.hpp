@@ -7,6 +7,8 @@
 #include "Managers/WindowManager.hpp"
 #include "Managers/GlobalEventManager.hpp"
 #include "Managers/ResourceManager.hpp"
+#include "AssetKeys.hpp"
+#include "AppData.hpp"
 
 #include <memory>
 
@@ -17,7 +19,7 @@ struct AppContext
     AppContext() {
         // make ConfigManager and load config files first
         m_ConfigManager = std::make_unique<ConfigManager>();
-        m_ConfigManager->loadConfig("window", "config/WindowConfig.toml");
+        m_ConfigManager->loadConfig(Assets::Configs::Window, "config/WindowConfig.toml");
 
         // then initialize the stuff that uses those configs
         m_WindowManager = std::make_unique<WindowManager>(*m_ConfigManager);
@@ -25,6 +27,12 @@ struct AppContext
         m_GlobalEventManager = std::make_unique<GlobalEventManager>(this);
         m_MainClock = std::make_unique<sf::Clock>();
         m_Registry = std::make_unique<entt::registry>();
+
+        // Set target width / height
+        m_AppSettings.targetWidth = m_ConfigManager->getConfigValue<float>(
+                      Assets::Configs::Window, "mainWindow", "X").value_or(1280.0f);
+        m_AppSettings.targetHeight = m_ConfigManager->getConfigValue<float>(
+                      Assets::Configs::Window, "mainWindow", "Y").value_or(720.0f);
     }
 
     AppContext(const AppContext&) = delete;
@@ -39,6 +47,10 @@ struct AppContext
     std::unique_ptr<ResourceManager> m_ResourceManager{ nullptr };
     std::unique_ptr<sf::Clock> m_MainClock{ nullptr };
     std::unique_ptr<entt::registry> m_Registry{ nullptr };
+
+    // AppData members
+    AppSettings m_AppSettings;
+    AppData m_AppData;
 
     // Pointers to Application-level objects
     sf::RenderWindow* m_MainWindow{ nullptr };

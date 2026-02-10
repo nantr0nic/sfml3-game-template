@@ -19,4 +19,9 @@ namespace Assets
     {
         constexpr std::string_view MainSong = "MainSong";
     }
+    namespace Configs
+    {
+        constexpr std::string_view Window = "WindowConfig";
+        constexpr std::string_view Player = "Player";
+    }
 }

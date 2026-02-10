@@ -4,6 +4,38 @@
 
 #include <algorithm>
 
+void utils::boxView(sf::View &view, int windowWidth, int windowHeight)
+{
+    float windowRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
+    float viewRatio = view.getSize().x / view.getSize().y;
+    
+    float sizeX = 1;
+    float sizeY = 1;
+    float posX = 0;
+    float posY = 0;
+
+    bool horizontalSpacing = true;
+    if (windowRatio < viewRatio)
+    {
+        horizontalSpacing = false;
+    }
+
+    // If window is wider than game, add bars on sides (Pillarbox)
+    if (horizontalSpacing)
+    {
+        sizeX = viewRatio / windowRatio;
+        posX = (1 - sizeX) / 2.f;
+    }
+    // If window is taller than game, add bars on top/bottom (Letterbox)
+    else
+    {
+        sizeY = windowRatio / viewRatio;
+        posY = (1 - sizeY) / 2.f;
+    }
+
+    view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
+}
+
 SpritePadding utils::getSpritePadding(const sf::Sprite& sprite)
 {
     const sf::Texture& texture = sprite.getTexture();

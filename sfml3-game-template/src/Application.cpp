@@ -1,5 +1,6 @@
 #include "Application.hpp"
 #include "Utilities/Logger.hpp"
+#include "Utilities/Utils.hpp"
 
 #include <format>
 #include <memory>
@@ -73,8 +74,7 @@ void Application::processEvents()
     auto& globalEvents = m_AppContext.m_GlobalEventManager->getEventHandles();
     auto& stateEvents = m_StateManager.getCurrentState()->getEventHandlers();
 
-    auto onKeyPressMerged = [&](const sf::Event::KeyPressed& event)
-    {
+    auto onKeyPressMerged = [&](const sf::Event::KeyPressed& event) {
         // run global logic first
         if (globalEvents.onGlobalKeyPress)
         {
@@ -86,11 +86,21 @@ void Application::processEvents()
             stateEvents.onKeyPress(event);
         }
     };
+    
+    auto onResized = [&](const sf::Event::Resized& event) {
+        sf::Vector2f targetSize = {m_AppContext.m_AppSettings.targetWidth, 
+                                    m_AppContext.m_AppSettings.targetHeight};
+
+        sf::View view(sf::FloatRect({0.0f, 0.0f}, targetSize));
+        utils::boxView(view, event.size.x, event.size.y);
+        m_AppContext.m_MainWindow->setView(view);
+    };
 
     m_AppContext.m_MainWindow->handleEvents(
         globalEvents.onClose,
         onKeyPressMerged,
-        stateEvents.onMouseButtonPress
+        stateEvents.onMouseButtonPress,
+        onResized
     );
 }
 

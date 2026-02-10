@@ -15,26 +15,20 @@
 MenuState::MenuState(AppContext& appContext)
     : State(appContext)
 {
-    sf::Vector2u windowSize = m_AppContext.m_MainWindow->getSize();
-    sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
+    sf::Vector2f center = getWindowCenter();
 
     // Play button entity
     sf::Font* font = m_AppContext.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
     if (font)
     {
-        EntityFactory::createButton(
-            m_AppContext,
-            *font,
-            "Play",
-            center,
-            // lambda for when button is clicked
+        EntityFactory::createButton(m_AppContext, *font, "Play", center,
             [this]() {
                 auto playState = std::make_unique<PlayState>(m_AppContext);
                 m_AppContext.m_StateManager->replaceState(std::move(playState));
             }
         );
     }
-    else 
+    else
     {
         logger::Error("Couldn't load font.");
     }
@@ -42,9 +36,7 @@ MenuState::MenuState(AppContext& appContext)
     // Lambdas to handle input
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
     {
-        // using ECS system here instead of previous SFML event response
         UISystems::uiClickSystem(*m_AppContext.m_Registry, event);
-
     };
 
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
@@ -84,8 +76,7 @@ PlayState::PlayState(AppContext& appContext)
     : State(appContext)
 {
     // We create the player entity here
-    sf::Vector2u windowSize = m_AppContext.m_MainWindow->getSize();
-    sf::Vector2f center(windowSize.x / 2.0f, windowSize.y / 2.0f);
+    sf::Vector2f center = getWindowCenter();
     EntityFactory::createPlayer(m_AppContext, { center.x, center.y });
 
     m_MainMusic = m_AppContext.m_ResourceManager->getResource<sf::Music>(Assets::Musics::MainSong);
@@ -96,11 +87,11 @@ PlayState::PlayState(AppContext& appContext)
         m_MainMusic->setLooping(true);
         m_MainMusic->play();
     }
-    else 
+    else
     {
         logger::Error("MainSong not found, not playing music.");
     }
-    
+
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
     {
         // "Global" Escape key
@@ -135,7 +126,7 @@ PlayState::~PlayState()
     auto& registry = *m_AppContext.m_Registry;
     auto view = registry.view<PlayerTag>();
     registry.destroy(view.begin(), view.end());
-    
+
     // Here you would also clean up enemies, bullets, etc.
     // (e.g., registry.clear<EnemyTag, BulletTag>();)
 }
@@ -152,7 +143,7 @@ void PlayState::update(sf::Time deltaTime)
 void PlayState::render()
 {
     CoreSystems::renderSystem(
-        *m_AppContext.m_Registry, 
+        *m_AppContext.m_Registry,
         *m_AppContext.m_MainWindow,
         m_ShowDebug
     );
@@ -169,7 +160,7 @@ PauseState::PauseState(AppContext& appContext)
     {
         logger::Error("MainFont not found! Can't make pause text.");
     }
-    else 
+    else
     {
         m_PauseText.emplace(*font, "Paused", 100);
         m_PauseText->setFillColor(sf::Color::Red);

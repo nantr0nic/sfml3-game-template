@@ -3,10 +3,10 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
+#include "AppContext.hpp"
+
 #include <functional>
 #include <optional>
-
-class AppContext;
 
 struct StateEvents
 {
@@ -20,14 +20,6 @@ public:
     explicit State(AppContext& appContext) : m_AppContext(appContext) {}
     virtual ~State() = default;
 
-    /* enter() and exit() are left here as a reminder for the future
-    * These can be left empty, but can be used to load context stuff
-    * like music, menu options, reading configs from file for menu layout, etc.
-    * They can be left empty if not needed.
-    */
-    //virtual void enter() = 0;
-    //virtual void exit() = 0;
-
     StateEvents& getEventHandlers() noexcept { return m_StateEvents; }
     const StateEvents& getEventHandlers() const noexcept { return m_StateEvents; }
 
@@ -36,7 +28,14 @@ public:
 
 protected:
     AppContext& m_AppContext;
-    StateEvents m_StateEvents;  // each state will have its own StateEvents instance
+    StateEvents m_StateEvents; 
+    
+    sf::Vector2f getWindowCenter() const noexcept
+    {
+        sf::Vector2f windowSize = { m_AppContext.m_AppSettings.targetWidth,
+                                    m_AppContext.m_AppSettings.targetHeight };
+        return { windowSize.x / 2.0f, windowSize.y / 2.0f };
+    }
 };
 
 class MenuState : public State
