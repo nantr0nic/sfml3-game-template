@@ -109,22 +109,39 @@ target_link_libraries(sfml3-game-template PRIVATE
 # ---------------------- #
 target_precompile_headers(sfml3-game-template PRIVATE 
     # STL
+    <map>
     <vector>
     <string>
     <string_view>
-    <map>
-    <memory>
-    <optional>
     <format>
     <print>
-    <functional>
     <source_location>
+    <memory>
+    <optional>
+    <functional>
+    <random>
+    <utility>
+    <limits>
+    <algorithm>
+    <stdexcept> # goal is to get rid of this
+    <atomic>
+    <queue>
+    <mutex>
+    <thread>
+    <condition_variable>
+    <chrono>
+
+    # C STD
+    <cstdint>
+    <cstdio>
+    <cmath>
 
     # Third party libraries
     <SFML/Graphics.hpp>
     <SFML/Window.hpp>
     <SFML/Audio.hpp>
     <entt/entt.hpp>
+    <toml++/toml.hpp>
 )
 
 # ------------------ #

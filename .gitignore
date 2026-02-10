@@ -58,3 +58,6 @@ settings.json
 
 # clangd stuff
 .clangd
+
+# Zed
+.zed/
