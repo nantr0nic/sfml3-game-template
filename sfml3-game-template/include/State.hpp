@@ -11,8 +11,8 @@
 
 struct StateEvents
 {
-	std::function<void(const sf::Event::KeyPressed&)> onKeyPress;
-    std::function<void(const sf::Event::MouseButtonPressed&)> onMouseButtonPress;
+	std::function<void(const sf::Event::KeyPressed&)> onKeyPress = [](const auto&){};
+    std::function<void(const sf::Event::MouseButtonPressed&)> onMouseButtonPress = [](const auto&){};
 };
 
 class State
@@ -87,7 +87,7 @@ public:
     virtual void render() override;
 
 private:
-    sf::Music* m_MainMusic{ nullptr };
+    sf::Music* m_Music{ nullptr };
     bool m_ShowDebug{ false };
 };
 

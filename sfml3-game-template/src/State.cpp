@@ -44,8 +44,11 @@ void MenuState::update([[maybe_unused]] sf::Time deltaTime)
 
 void MenuState::render()
 {
-    // Render menu here
     UISystems::uiRenderSystem(*m_AppContext.m_Registry, *m_AppContext.m_MainWindow);
+    if (m_TitleText)
+    {
+        m_AppContext.m_MainWindow->draw(*m_TitleText);
+    }
 }
 
 void MenuState::initTitleText()
@@ -331,17 +334,24 @@ PlayState::PlayState(AppContext& appContext)
     sf::Vector2f center = getWindowCenter();
     EntityFactory::createPlayer(m_AppContext, { center.x, center.y });
 
-    m_MainMusic = m_AppContext.m_ResourceManager->getResource<sf::Music>(Assets::Musics::MainSong);
-
-    // Start music
-    if (m_MainMusic)
+    // Handle Music
+    m_Music = appContext.m_ResourceManager->getResource<sf::Music>(Assets::Musics::MainSong);
+    if (!m_Music)
     {
-        m_MainMusic->setLooping(true);
-        m_MainMusic->play();
+        logger::Error("Couldn't load MainSong! Music will not be played.");
     }
     else
     {
-        logger::Error("MainSong not found, not playing music.");
+        if (appContext.m_AppSettings.musicMuted)
+        {
+            logger::Info("Music muted, not playing MainSong.");
+        }
+        else
+        {
+            m_Music->setLooping(true);
+            m_Music->play();
+            logger::Info("Playing MainSong");
+        }
     }
 
     m_StateEvents.onKeyPress = [this](const sf::Event::KeyPressed& event)
@@ -362,11 +372,6 @@ PlayState::PlayState(AppContext& appContext)
             m_ShowDebug = !m_ShowDebug;
             logger::Warn(std::format("Debug mode toggled: {}", m_ShowDebug ? "On" : "Off"));
         }
-    };
-
-    m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event)
-    {
-        // empty on purpose, it was crashing otherwise
     };
 
     logger::Info("PlayState initialized.");
