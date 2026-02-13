@@ -38,10 +38,15 @@ FetchContent_Declare(
 FetchContent_Declare(
     tomlplusplus
     GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-    GIT_TAG        v3.4.0  
+    GIT_TAG        v3.4.0
 )
 
-FetchContent_MakeAvailable(sfml_dependency entt tomlplusplus) 
+FetchContent_MakeAvailable(sfml_dependency entt tomlplusplus)
+
+# ------------------ #
+#  Find Packages     #
+# ------------------ #
+find_package(Threads REQUIRED)
 
 # ------------------ #
 # Configure project  #
@@ -62,18 +67,26 @@ add_executable(sfml3-game-template
     "sfml3-game-template/src/Utilities/Utils.cpp"
 )
 
-# This runs every time the sfml3-game-template target is built.
-# It will copy the resources to the build directory
-add_custom_command(
-    TARGET sfml3-game-template
-    POST_BUILD
+# This will copy the resources to the build directory
+add_custom_target(CopyAssets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${CMAKE_CURRENT_SOURCE_DIR}/sfml3-game-template/resources"
             "$<TARGET_FILE_DIR:sfml3-game-template>/resources"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${CMAKE_CURRENT_SOURCE_DIR}/sfml3-game-template/config"
             "$<TARGET_FILE_DIR:sfml3-game-template>/config"
-    COMMENT "Copying resources and config to build directory"
+    COMMENT "Syncing resources and config files..."
+)
+ADD_DEPENDENCIES(sfml3-game-template CopyAssets)
+
+# This is to copy compile_commands.json to out directory for clangd
+add_custom_target(
+    copy-compile-commands ALL
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+            "${CMAKE_BINARY_DIR}/compile_commands.json"
+            "${CMAKE_SOURCE_DIR}/out/compile_commands.json"
+    DEPENDS "${CMAKE_BINARY_DIR}/compile_commands.json"
+    COMMENT "Copying compile_commands.json to out directory"
 )
 
 # -------------------- #
@@ -102,12 +115,13 @@ target_link_libraries(sfml3-game-template PRIVATE
     SFML::Audio
     EnTT::EnTT
     tomlplusplus::tomlplusplus
+    Threads::Threads
 )
 
 # ---------------------- #
 #   Precompile Headers   #
 # ---------------------- #
-target_precompile_headers(sfml3-game-template PRIVATE 
+target_precompile_headers(sfml3-game-template PRIVATE
     # STL
     <map>
     <vector>
@@ -155,4 +169,24 @@ if(MSVC)
     set_property(TARGET sfml3-game-template PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
     )
+endif()
+
+# ----- Windows Settings ----- #
+# Default to ON (Show console)
+# Turn this OFF to disable console window on Windows (preferred for Release builds)
+option(SHOW_CONSOLE "Show console window on Windows builds" ON)
+
+if(WIN32)
+    if(SHOW_CONSOLE)
+        # 1. CONSOLE MODE
+        message(STATUS "Windows Build: Console Window ENABLED")
+    else()
+        # 2. GUI MODE
+        set_target_properties(breakdown PROPERTIES WIN32_EXECUTABLE ON)
+
+        # Link SFML::Main to provide the 'WinMain' entry point required by GUI apps
+        target_link_libraries(breakdown PRIVATE SFML::Main)
+
+        message(STATUS "Windows Build: Console Window DISABLED (GUI Mode)")
+    endif()
 endif()
