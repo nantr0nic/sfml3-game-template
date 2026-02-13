@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <SFML/Window/Event.hpp>
 
 #include "AppContext.hpp"
 
@@ -44,11 +45,36 @@ public:
     MenuState(AppContext& appContext);
     virtual ~MenuState() override;
 
-    virtual void update(sf::Time deltaTime) override;
+    virtual void update([[maybe_unused]] sf::Time deltaTime) override;
     virtual void render() override;
 
 private:
-    // Empty -- replaced previous data members with ECS components
+    void initTitleText();
+    void initMenuButtons();
+    void assignStateEvents();
+    
+private:
+    std::optional<sf::Text> m_TitleText;
+};
+
+class SettingsMenuState : public State
+{
+public:
+    explicit SettingsMenuState(AppContext& context, bool fromPlayState = false);
+    virtual ~SettingsMenuState() override;
+
+    virtual void update(sf::Time /* deltaTime */) override;
+    virtual void render() override;
+    
+private:
+    void initMenuButtons();
+    void assignStateEvents();
+
+private:
+    sf::RectangleShape m_Background;
+    std::optional<sf::Text> m_MusicVolumeText;
+    std::optional<sf::Text> m_SfxVolumeText;
+    bool m_FromPlayState;
 };
 
 class PlayState : public State
@@ -69,9 +95,9 @@ class PauseState : public State
 {
 public:
     PauseState(AppContext& appContext);
-    virtual ~PauseState() override = default;
+    virtual ~PauseState() override;
 
-    virtual void update(sf::Time deltaTime) override;
+    virtual void update([[maybe_unused]] sf::Time deltaTime) override;
     virtual void render() override;
 
 private:

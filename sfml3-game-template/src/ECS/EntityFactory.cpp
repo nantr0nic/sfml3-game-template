@@ -94,21 +94,37 @@ namespace EntityFactory
         return rectEntity;
     }
 
-    //$ --- UI ---
-    entt::entity createButton(AppContext& context,
-                            sf::Font& font,
-                            const std::string& text,
-                            sf::Vector2f position,
-                            std::function<void()> action)
+    //$ ----- G/UI ----- //
+    entt::entity createButton(AppContext& context, sf::Font& font,
+                            const std::string& text, sf::Vector2f position,
+                            std::function<void()> action,
+                            UITags tag, sf::Vector2f size)
     {
         auto& registry = *context.m_Registry;
 
         auto buttonEntity = registry.create();
-        registry.emplace<MenuUITag>(buttonEntity); // Tag for easy cleanup
+
+        switch (tag)
+        {
+            case UITags::Menu:
+                registry.emplace<MenuUITag>(buttonEntity);
+                break;
+            case UITags::Settings:
+                registry.emplace<SettingsUITag>(buttonEntity);
+                break;
+            case UITags::Transition:
+                registry.emplace<TransUITag>(buttonEntity);
+                break;
+            case UITags::Pause:
+                registry.emplace<PauseUITag>(buttonEntity);
+                break;
+            default:
+                break;
+        }
 
         // Shape component
         auto& buttonShape = registry.emplace<UIShape>(buttonEntity);
-        buttonShape.shape.setSize({200.f, 100.f});
+        buttonShape.shape.setSize(size);
         buttonShape.shape.setFillColor(sf::Color::Blue);
         utils::centerOrigin(buttonShape.shape);
         buttonShape.shape.setPosition(position);
@@ -123,11 +139,164 @@ namespace EntityFactory
         buttonText.text.setFillColor(sf::Color(200, 200, 200));
 
         // Bounds component
-        registry.emplace<Bounds>(buttonEntity, buttonShape.shape.getGlobalBounds());
+        registry.emplace<UIBounds>(buttonEntity, buttonShape.shape.getGlobalBounds());
 
         // Clickable component
-        registry.emplace<Clickable>(buttonEntity, std::move(action));
-        
+        registry.emplace<UIAction>(buttonEntity, std::move(action));
+
+        return buttonEntity;
+    }
+
+    entt::entity createGUIButton(AppContext& context, sf::Texture& texture,
+                                sf::Vector2f position,
+                                std::function<void()> action, UITags tag)
+    {
+        auto& registry = *context.m_Registry;
+        auto buttonEntity = registry.create();
+
+        switch (tag)
+        {
+            case UITags::Menu:
+                registry.emplace<MenuUITag>(buttonEntity);
+                break;
+            case UITags::Settings:
+                registry.emplace<SettingsUITag>(buttonEntity);
+                break;
+            case UITags::Transition:
+                registry.emplace<TransUITag>(buttonEntity);
+                break;
+            case UITags::Pause:
+                registry.emplace<PauseUITag>(buttonEntity);
+                break;
+            default:
+                break;
+        }
+
+        registry.emplace<GUIButtonTag>(buttonEntity);
+
+        sf::Sprite buttonSprite(texture);
+        buttonSprite.setPosition(position);
+        sf::FloatRect bounds = buttonSprite.getGlobalBounds();
+        registry.emplace<GUISprite>(buttonEntity, std::move(buttonSprite));
+
+        // Bounds component
+        registry.emplace<UIBounds>(buttonEntity, bounds);
+
+        // Clickable component
+        registry.emplace<UIAction>(buttonEntity, std::move(action));
+
+        return buttonEntity;
+    }
+
+    entt::entity createButtonLabel(AppContext& context, const entt::entity buttonEntity,
+                                sf::Font& font, const std::string& text,
+                                unsigned int size, const sf::Color& color, UITags tag)
+    {
+        auto& registry = *context.m_Registry;
+        auto labelEntity = registry.create();
+        switch (tag)
+        {
+            case UITags::Menu:
+                registry.emplace<MenuUITag>(labelEntity);
+                break;
+            case UITags::Settings:
+                registry.emplace<SettingsUITag>(labelEntity);
+                break;
+            case UITags::Transition:
+                registry.emplace<TransUITag>(labelEntity);
+                break;
+            case UITags::Pause:
+                registry.emplace<PauseUITag>(labelEntity);
+                break;
+            default:
+                break;
+        }
+
+        // We'll assume the label goes to the left (for now)
+        auto& buttonBounds = registry.get<UIBounds>(buttonEntity);
+        sf::FloatRect buttonRect = buttonBounds.rect;
+
+        auto& labelText = registry.emplace<UIText>(labelEntity, sf::Text(font, text, size));
+        labelText.text.setFillColor(color);
+
+        sf::FloatRect textBounds = labelText.text.getLocalBounds();
+
+        // set origin to RIGHT-CENTER of the text
+        sf::Vector2f origin;
+        origin.x = textBounds.position.x + textBounds.size.x; // far right edge
+        origin.y = textBounds.position.y + (textBounds.size.y / 2.0f);
+        labelText.text.setOrigin(origin);
+
+        float labelPadding = 10.0f;
+
+        sf::Vector2f position;
+        position.x = buttonRect.position.x - labelPadding; // left of the button
+        position.y = buttonRect.position.y + (buttonRect.size.y / 2.0f);
+
+        labelText.text.setPosition(position);
+
+        return labelEntity;
+    }
+
+    entt::entity createLabeledButton(AppContext &context, sf::Texture &texture,
+                                sf::Vector2f position, std::function<void ()> action,
+                                sf::Font& font, UITags tag, const std::string& text,
+                                unsigned int size, const sf::Color& color)
+    {
+        auto& registry = *context.m_Registry;
+        auto buttonEntity = registry.create();
+
+        switch (tag)
+        {
+            case UITags::Menu:
+                registry.emplace<MenuUITag>(buttonEntity);
+                break;
+            case UITags::Settings:
+                registry.emplace<SettingsUITag>(buttonEntity);
+                break;
+            case UITags::Transition:
+                registry.emplace<TransUITag>(buttonEntity);
+                break;
+            case UITags::Pause:
+                registry.emplace<PauseUITag>(buttonEntity);
+                break;
+            default:
+                break;
+        }
+
+        registry.emplace<GUIButtonTag>(buttonEntity);
+
+        sf::Sprite buttonSprite(texture);
+        buttonSprite.setPosition(position);
+        sf::FloatRect bounds = buttonSprite.getGlobalBounds();
+        registry.emplace<GUISprite>(buttonEntity, std::move(buttonSprite));
+
+        // Bounds component
+        auto& buttonBounds = registry.emplace<UIBounds>(buttonEntity, bounds);
+        sf::FloatRect buttonRect = buttonBounds.rect;
+
+        // Clickable component
+        registry.emplace<UIAction>(buttonEntity, std::move(action));
+
+        // Label text
+        auto& labelText = registry.emplace<UIText>(buttonEntity, sf::Text(font, text, size));
+        labelText.text.setFillColor(color);
+
+        sf::FloatRect textBounds = labelText.text.getLocalBounds();
+
+        sf::Vector2f origin;
+        origin.x = textBounds.position.x + textBounds.size.x; // far right edge
+        origin.y = textBounds.position.y + (textBounds.size.y / 2.0f);
+        labelText.text.setOrigin(origin);
+
+        float labelPadding = 10.0f;
+
+        sf::Vector2f labelPosition;
+        labelPosition.x = buttonRect.position.x - labelPadding; // left of the button
+        labelPosition.y = buttonRect.position.y + (buttonRect.size.y / 2.0f);
+
+        labelText.text.setPosition(labelPosition);
+
         return buttonEntity;
     }
 }

@@ -30,4 +30,6 @@ namespace UISystems
     void uiClickSystem(entt::registry& registry, const sf::Event::MouseButtonPressed& event);
 
     void uiHoverSystem(entt::registry& registry, sf::RenderWindow& window);
+    
+    void uiSettingsChecks(AppContext& context);
 }

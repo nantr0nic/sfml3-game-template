@@ -103,17 +103,29 @@ struct RenderableRect
 
 
 //$ ----- UI Components -----
+enum class UITags { None, Menu, Settings, Transition, Pause };
 
-// Tag to identify menu UI entities for easy cleanup
+// Tag to identify UI/HUD entities
 struct MenuUITag {};
+struct SettingsUITag {};
+struct TransUITag {};
+struct PauseUITag {};
+struct GUIButtonTag {};
+
+struct UIHover {};
 
 struct UIText { sf::Text text; };
 
 struct UIShape { sf::RectangleShape shape; };
 
-// Defines the clickable/hoverable area
-struct Bounds { sf::FloatRect rect; };
+struct UIBounds { sf::FloatRect rect; };
 
-struct Clickable { std::function<void()> action; };
+struct UIAction { std::function<void()> action; };
 
-struct Hovered {};
+struct UIToggleCond { std::function<bool()> shouldShowOverlay; };
+
+struct GUISprite { sf::Sprite sprite; };
+
+struct GUIRedX { sf::Sprite sprite; };
+
+struct GUITexture { sf::Texture texture; };
