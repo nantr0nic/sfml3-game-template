@@ -2,31 +2,24 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <SFML/Window/Event.hpp>
+
+#include "AppContext.hpp"
 
 #include <functional>
 #include <optional>
 
-class AppContext;
-
 struct StateEvents
 {
-	std::function<void(const sf::Event::KeyPressed&)> onKeyPress;
-    std::function<void(const sf::Event::MouseButtonPressed&)> onMouseButtonPress;
+	std::function<void(const sf::Event::KeyPressed&)> onKeyPress = [](const auto&){};
+    std::function<void(const sf::Event::MouseButtonPressed&)> onMouseButtonPress = [](const auto&){};
 };
 
 class State
 {
 public:
-    State(AppContext* appContext) : m_AppContext(appContext) {}
+    explicit State(AppContext& appContext) : m_AppContext(appContext) {}
     virtual ~State() = default;
-
-    /* enter() and exit() are left here as a reminder for the future
-    * These can be left empty, but can be used to load context stuff
-    * like music, menu options, reading configs from file for menu layout, etc.
-    * They can be left empty if not needed.
-    */
-    //virtual void enter() = 0;
-    //virtual void exit() = 0;
 
     StateEvents& getEventHandlers() noexcept { return m_StateEvents; }
     const StateEvents& getEventHandlers() const noexcept { return m_StateEvents; }
@@ -35,44 +28,76 @@ public:
     virtual void render() = 0;
 
 protected:
-    AppContext* m_AppContext;
-    StateEvents m_StateEvents;  // each state will have its own StateEvents instance
+    AppContext& m_AppContext;
+    StateEvents m_StateEvents; 
+    
+    sf::Vector2f getWindowCenter() const noexcept
+    {
+        sf::Vector2f windowSize = { m_AppContext.m_AppSettings.targetWidth,
+                                    m_AppContext.m_AppSettings.targetHeight };
+        return { windowSize.x / 2.0f, windowSize.y / 2.0f };
+    }
 };
 
 class MenuState : public State
 {
 public:
-    MenuState(AppContext* appContext);
+    MenuState(AppContext& appContext);
     virtual ~MenuState() override;
 
-    virtual void update(sf::Time deltaTime) override;
+    virtual void update([[maybe_unused]] sf::Time deltaTime) override;
     virtual void render() override;
 
 private:
-    // Empty -- replaced previous data members with ECS components
+    void initTitleText();
+    void initMenuButtons();
+    void assignStateEvents();
+    
+private:
+    std::optional<sf::Text> m_TitleText;
+};
+
+class SettingsMenuState : public State
+{
+public:
+    explicit SettingsMenuState(AppContext& context, bool fromPlayState = false);
+    virtual ~SettingsMenuState() override;
+
+    virtual void update(sf::Time /* deltaTime */) override;
+    virtual void render() override;
+    
+private:
+    void initMenuButtons();
+    void assignStateEvents();
+
+private:
+    sf::RectangleShape m_Background;
+    std::optional<sf::Text> m_MusicVolumeText;
+    std::optional<sf::Text> m_SfxVolumeText;
+    bool m_FromPlayState;
 };
 
 class PlayState : public State
 {
 public:
-    PlayState(AppContext* appContext);
+    PlayState(AppContext& appContext);
     virtual ~PlayState() override;
 
     virtual void update(sf::Time deltaTime) override;
     virtual void render() override;
 
 private:
-    sf::Music* m_MainMusic{ nullptr };
+    sf::Music* m_Music{ nullptr };
     bool m_ShowDebug{ false };
 };
 
 class PauseState : public State
 {
 public:
-    PauseState(AppContext* appContext);
-    virtual ~PauseState() override = default;
+    PauseState(AppContext& appContext);
+    virtual ~PauseState() override;
 
-    virtual void update(sf::Time deltaTime) override;
+    virtual void update([[maybe_unused]] sf::Time deltaTime) override;
     virtual void render() override;
 
 private:

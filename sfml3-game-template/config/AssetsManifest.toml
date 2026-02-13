@@ -3,10 +3,31 @@
 id = "MainFont"
 path = "resources/fonts/CaesarDressing-Regular.ttf"
 
+[[fonts]]
+id = "ScoreFont"
+path = "resources/fonts/Micro5-Regular.ttf"
+
 # --- Textures ---
 [[textures]]
 id = "PlayerSpriteSheet"
 path = "resources/sprites/knight.png"
+
+# GUI textures
+[[textures]]
+id = "ButtonRedX"
+path = "resources/GUI/buttonS1RedX.png"
+
+[[textures]]
+id = "ButtonLeftArrow"
+path = "resources/GUI/buttonLeftArrow.png"
+
+[[textures]]
+id = "ButtonRightArrow"
+path = "resources/GUI/buttonRightArrow.png"
+
+[[textures]]
+id = "ButtonBackground"
+path = "resources/GUI/buttonS1Background.png"
 
 # --- SoundBuffers ---
 [[soundbuffers]]

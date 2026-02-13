@@ -1,6 +1,7 @@
 #include "Managers/WindowManager.hpp"
 #include "Managers/ConfigManager.hpp"
 #include "Utilities/Logger.hpp"
+#include "AssetKeys.hpp"
 
 #include <memory>
 
@@ -23,15 +24,15 @@ bool WindowManager::createMainWindow()
         logger::Error("createMainWindow Failed: Main window already exists.");
         return false;
     }
-    else 
+    else
     {
         unsigned int width = m_ConfigManager.getConfigValue<unsigned int>(
-            "window", "mainWindow", "X").value_or(800u);
+            Assets::Configs::Window, "mainWindow", "X").value_or(800u);
         unsigned int height = m_ConfigManager.getConfigValue<unsigned int>(
-            "window", "mainWindow", "Y").value_or(600u);
+            Assets::Configs::Window, "mainWindow", "Y").value_or(600u);
         std::string title = m_ConfigManager.getConfigValue<std::string>(
-            "window", "mainWindow", "Title").value_or("Error parsing title");
-        
+            Assets::Configs::Window, "mainWindow", "Title").value_or("Error parsing title");
+
         m_MainWindow = std::make_unique<sf::RenderWindow>(
             sf::VideoMode({ width, height }),
             title,
@@ -52,7 +53,7 @@ bool WindowManager::createMainWindow(unsigned int width, unsigned int height, co
         logger::Error("createMainWindow Failed: Main window already exists.");
         return false;
     }
-    else 
+    else
     {
         m_MainWindow = std::make_unique<sf::RenderWindow>(
             // Use .ini settings later for dimensions, etc.
