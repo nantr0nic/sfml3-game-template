@@ -102,6 +102,30 @@ namespace EntityFactory
     }
 
     //$ ----- G/UI ----- //
+    
+    //$ --- GUI Helpers --- //
+    void emplaceUITag(entt::registry& registry, entt::entity entity, UITags tag)
+    {
+        switch (tag)
+        {
+            case UITags::Menu:
+                registry.emplace<MenuUITag>(entity);
+                break;
+            case UITags::Settings:
+                registry.emplace<SettingsUITag>(entity);
+                break;
+            case UITags::Transition:
+                registry.emplace<TransUITag>(entity);
+                break;
+            case UITags::Pause:
+                registry.emplace<PauseUITag>(entity);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    //$ --- GUI Entities --- //
     entt::entity createButton(AppContext& context, sf::Font& font,
                             const std::string& text, sf::Vector2f position,
                             std::function<void()> action,
@@ -111,23 +135,7 @@ namespace EntityFactory
 
         auto buttonEntity = registry.create();
 
-        switch (tag)
-        {
-            case UITags::Menu:
-                registry.emplace<MenuUITag>(buttonEntity);
-                break;
-            case UITags::Settings:
-                registry.emplace<SettingsUITag>(buttonEntity);
-                break;
-            case UITags::Transition:
-                registry.emplace<TransUITag>(buttonEntity);
-                break;
-            case UITags::Pause:
-                registry.emplace<PauseUITag>(buttonEntity);
-                break;
-            default:
-                break;
-        }
+        emplaceUITag(registry, buttonEntity, tag);
 
         // Shape component
         auto& buttonShape = registry.emplace<UIShape>(buttonEntity);
@@ -161,23 +169,7 @@ namespace EntityFactory
         auto& registry = *context.m_Registry;
         auto buttonEntity = registry.create();
 
-        switch (tag)
-        {
-            case UITags::Menu:
-                registry.emplace<MenuUITag>(buttonEntity);
-                break;
-            case UITags::Settings:
-                registry.emplace<SettingsUITag>(buttonEntity);
-                break;
-            case UITags::Transition:
-                registry.emplace<TransUITag>(buttonEntity);
-                break;
-            case UITags::Pause:
-                registry.emplace<PauseUITag>(buttonEntity);
-                break;
-            default:
-                break;
-        }
+        emplaceUITag(registry, buttonEntity, tag);
 
         registry.emplace<GUIButtonTag>(buttonEntity);
 
@@ -201,23 +193,8 @@ namespace EntityFactory
     {
         auto& registry = *context.m_Registry;
         auto labelEntity = registry.create();
-        switch (tag)
-        {
-            case UITags::Menu:
-                registry.emplace<MenuUITag>(labelEntity);
-                break;
-            case UITags::Settings:
-                registry.emplace<SettingsUITag>(labelEntity);
-                break;
-            case UITags::Transition:
-                registry.emplace<TransUITag>(labelEntity);
-                break;
-            case UITags::Pause:
-                registry.emplace<PauseUITag>(labelEntity);
-                break;
-            default:
-                break;
-        }
+        
+        emplaceUITag(registry, buttonEntity, tag);
 
         // We'll assume the label goes to the left (for now)
         auto& buttonBounds = registry.get<UIBounds>(buttonEntity);
@@ -253,23 +230,7 @@ namespace EntityFactory
         auto& registry = *context.m_Registry;
         auto buttonEntity = registry.create();
 
-        switch (tag)
-        {
-            case UITags::Menu:
-                registry.emplace<MenuUITag>(buttonEntity);
-                break;
-            case UITags::Settings:
-                registry.emplace<SettingsUITag>(buttonEntity);
-                break;
-            case UITags::Transition:
-                registry.emplace<TransUITag>(buttonEntity);
-                break;
-            case UITags::Pause:
-                registry.emplace<PauseUITag>(buttonEntity);
-                break;
-            default:
-                break;
-        }
+        emplaceUITag(registry, buttonEntity, tag);
 
         registry.emplace<GUIButtonTag>(buttonEntity);
 
