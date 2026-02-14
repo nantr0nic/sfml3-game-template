@@ -36,6 +36,23 @@ void utils::boxView(sf::View &view, int windowWidth, int windowHeight)
     view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
 }
 
+sf::Color utils::loadColorFromConfig(const ConfigManager& configManager, std::string_view configID, 
+                                     std::string_view section, std::string_view colorKey)
+{
+    auto* configTable = configManager.getConfigTable(configID);
+    if (!configTable) return sf::Color::Magenta;
+
+    auto* valueColorArray = (*configTable)[section][colorKey].as_array();
+    if (valueColorArray && valueColorArray->size() == 3)
+    {
+        std::uint8_t red = static_cast<uint8_t>(valueColorArray->at(0).value_or(255));
+        std::uint8_t green = static_cast<uint8_t>(valueColorArray->at(1).value_or(0));
+        std::uint8_t blue = static_cast<uint8_t>(valueColorArray->at(2).value_or(255));
+        return sf::Color(red, green, blue);
+    }
+    return sf::Color::Magenta;
+}
+
 SpritePadding utils::getSpritePadding(const sf::Sprite& sprite)
 {
     const sf::Texture& texture = sprite.getTexture();

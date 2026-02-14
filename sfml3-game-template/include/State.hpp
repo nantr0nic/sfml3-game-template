@@ -15,6 +15,13 @@ struct StateEvents
     std::function<void(const sf::Event::MouseButtonPressed&)> onMouseButtonPress = [](const auto&){};
 };
 
+enum class TransitionType
+{
+    LevelLoss,
+    LevelWin,
+    GameWin
+};
+
 class State
 {
 public:
@@ -102,4 +109,23 @@ public:
 
 private:
     std::optional<sf::Text> m_PauseText;
+};
+
+class GameTransitionState : public State
+{
+public:
+    explicit GameTransitionState(AppContext& context, 
+                                TransitionType type = TransitionType::LevelLoss);
+    virtual ~GameTransitionState() override;
+
+    virtual void update([[maybe_unused]] sf::Time deltaTime) override;
+    virtual void render() override;
+
+private:
+    std::optional<sf::Text> m_TransitionText;
+    
+private:
+    void initTitleText(TransitionType type);
+    void initMenuButtons(TransitionType type);
+    void assignStateEvents();
 };

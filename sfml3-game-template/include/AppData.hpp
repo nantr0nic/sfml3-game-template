@@ -12,7 +12,11 @@ struct AppData
     // Game audio storage: holds sounds while they are playing
     std::list<sf::Sound> activeSounds;
     
-    /* Below is an example of some game data
+    /*
+    Below is an example of some game data. It is currently unused in the template.
+    Also see how GameTransitionState is used to manage transitions between game states
+    and manipulates the data here.
+    */
     
     // Game level data 
     bool levelStarted{ false };
@@ -25,7 +29,7 @@ struct AppData
         levelNumber = 1;
         activeSounds.clear();
     }
-    */
+
 };
 
 struct AppSettings
