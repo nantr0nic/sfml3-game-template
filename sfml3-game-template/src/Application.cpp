@@ -81,7 +81,13 @@ void Application::run()
 void Application::processEvents()
 {
     auto& globalEvents = m_AppContext.m_GlobalEventManager->getEventHandles();
-    auto& stateEvents = m_StateManager.getCurrentState()->getEventHandlers();
+    auto* currentState = m_StateManager.getCurrentState();
+    if (!currentState)
+    {
+        logger::Error("No current state; aborting processEvents().");
+        return;
+    }
+    auto& stateEvents = currentState->getEventHandlers();
 
     auto onKeyPressMerged = [&](const sf::Event::KeyPressed& event) {
         // run global logic first

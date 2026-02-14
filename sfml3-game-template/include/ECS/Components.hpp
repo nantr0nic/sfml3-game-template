@@ -96,7 +96,7 @@ struct RenderableCircle
 
 struct RenderableRect
 {
-    RenderableRect(sf::Vector2f size, sf::Color& color, sf::Vector2f position)
+    RenderableRect(sf::Vector2f size, const sf::Color& color, sf::Vector2f position)
         : shape()
     {
         shape.setSize(size);

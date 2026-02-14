@@ -56,13 +56,13 @@ struct AppSettings
         logger::Info(std::format("SFX muted: {}", sfxMuted ? "true" : "false"));
     }
     
-    float getMusicVolume()
+    float getMusicVolume() const
     {
         logger::Info(std::format("Music volume: {}", musicVolume));
         return musicVolume;
     }
     
-    float getSfxVolume()
+    float getSfxVolume() const
     {
         logger::Info(std::format("SFX volume: {}", sfxVolume));
         return sfxVolume;

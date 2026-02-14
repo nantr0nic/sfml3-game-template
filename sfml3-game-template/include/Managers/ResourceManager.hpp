@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML/Audio/Music.hpp>
-#include <SFML/Audio/Sound.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <toml++/toml.hpp>
@@ -16,7 +16,7 @@
 #include <functional>
 #include <format>
 
-class ResourceManager 
+class ResourceManager
 {
 public:
     ResourceManager() = default;
@@ -46,47 +46,51 @@ private:
 template<typename T>
 void ResourceManager::loadResource(std::string_view id, std::string_view filepath)
 {
-    if constexpr (std::is_same_v<T, sf::Font>) 
+    if constexpr (std::is_same_v<T, sf::Font>)
     {
         auto font = std::make_unique<sf::Font>();
-        if (!font->openFromFile(filepath)) 
+        if (!font->openFromFile(filepath))
         {
             logger::Error(std::format("Failed to load font: {}", filepath));
+            return;
         }
         m_Fonts.insert_or_assign(std::string(id), std::move(font));
         logger::Info(std::format("Font ID \"{}\" loaded from: {}", id, filepath));
-    } 
-    else if constexpr (std::is_same_v<T, sf::Texture>) 
+    }
+    else if constexpr (std::is_same_v<T, sf::Texture>)
     {
         auto texture = std::make_unique<sf::Texture>();
-        if (!texture->loadFromFile(filepath)) 
+        if (!texture->loadFromFile(filepath))
         {
             logger::Error(std::format("Failed to load texture: {}",  filepath));
+            return;
         }
         m_Textures.insert_or_assign(std::string(id), std::move(texture));
         logger::Info(std::format("Texture ID \"{}\" loaded from: {}", id, filepath));
-    } 
-    else if constexpr (std::is_same_v<T, sf::SoundBuffer>) 
+    }
+    else if constexpr (std::is_same_v<T, sf::SoundBuffer>)
     {
         auto soundBuffer = std::make_unique<sf::SoundBuffer>();
-        if (!soundBuffer->loadFromFile(filepath)) 
+        if (!soundBuffer->loadFromFile(filepath))
         {
             logger::Error(std::format("Failed to load sound buffer: {}", filepath));
+            return;
         }
         m_SoundBuffers.insert_or_assign(std::string(id), std::move(soundBuffer));
         logger::Info(std::format("SoundBuffer ID \"{}\" loaded from: {}", id, filepath));
     }
-    else if constexpr (std::is_same_v<T, sf::Music>) 
+    else if constexpr (std::is_same_v<T, sf::Music>)
     {
         auto music = std::make_unique<sf::Music>();
-        if (!music->openFromFile(filepath)) 
+        if (!music->openFromFile(filepath))
         {
             logger::Error(std::format("Failed to load music: {}", filepath));
+            return;
         }
         m_Musics.insert_or_assign(std::string(id), std::move(music));
         logger::Info(std::format("Music ID \"{}\" loaded from: {}", id, filepath));
     }
-    else 
+    else
     {
         logger::Error(std::format(
             "Couldn't load resource. Possibly: Unsupported type or wrong ID? (ID: {})",
@@ -98,27 +102,27 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
 template<typename T>
 T* ResourceManager::getResource(std::string_view id)
 {
-    if constexpr (std::is_same_v<T, sf::Font>) 
+    if constexpr (std::is_same_v<T, sf::Font>)
     {
         auto it = m_Fonts.find(id);
         return (it != m_Fonts.end()) ? it->second.get() : nullptr;
-    } 
-    else if constexpr (std::is_same_v<T, sf::Texture>) 
+    }
+    else if constexpr (std::is_same_v<T, sf::Texture>)
     {
         auto it = m_Textures.find(id);
         return (it != m_Textures.end()) ? it->second.get() : nullptr;
-    } 
-    else if constexpr (std::is_same_v<T, sf::SoundBuffer>) 
+    }
+    else if constexpr (std::is_same_v<T, sf::SoundBuffer>)
     {
         auto it = m_SoundBuffers.find(id);
         return (it != m_SoundBuffers.end()) ? it->second.get() : nullptr;
     }
-    else if constexpr (std::is_same_v<T, sf::Music>) 
+    else if constexpr (std::is_same_v<T, sf::Music>)
     {
         auto it = m_Musics.find(id);
         return (it != m_Musics.end()) ? it->second.get() : nullptr;
     }
-    else 
+    else
     {
         logger::Error(std::format(
             "Couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})",
@@ -130,27 +134,27 @@ T* ResourceManager::getResource(std::string_view id)
 template<typename T>
 const T* ResourceManager::getResource(std::string_view id) const
 {
-    if constexpr (std::is_same_v<T, sf::Font>) 
+    if constexpr (std::is_same_v<T, sf::Font>)
     {
         auto it = m_Fonts.find(id);
         return (it != m_Fonts.end()) ? it->second.get() : nullptr;
-    } 
-    else if constexpr (std::is_same_v<T, sf::Texture>) 
+    }
+    else if constexpr (std::is_same_v<T, sf::Texture>)
     {
         auto it = m_Textures.find(id);
         return (it != m_Textures.end()) ? it->second.get() : nullptr;
-    } 
-    else if constexpr (std::is_same_v<T, sf::SoundBuffer>) 
+    }
+    else if constexpr (std::is_same_v<T, sf::SoundBuffer>)
     {
         auto it = m_SoundBuffers.find(id);
         return (it != m_SoundBuffers.end()) ? it->second.get() : nullptr;
     }
-    else if constexpr (std::is_same_v<T, sf::Music>) 
+    else if constexpr (std::is_same_v<T, sf::Music>)
     {
         auto it = m_Musics.find(id);
         return (it != m_Musics.end()) ? it->second.get() : nullptr;
     }
-    else 
+    else
     {
         logger::Error(std::format(
             "Couldn't get resource. Possibly: Unsupported type or wrong ID? (ID: {})",

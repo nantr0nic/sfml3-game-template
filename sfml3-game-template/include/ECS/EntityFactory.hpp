@@ -16,7 +16,7 @@ namespace EntityFactory
 
     entt::entity createRectangle(AppContext& context,
                                 sf::Vector2f size,
-                                sf::Color& color,
+                                const sf::Color& color,
                                 sf::Vector2f position);
 
     //$ --- G/UI Entities --- //
