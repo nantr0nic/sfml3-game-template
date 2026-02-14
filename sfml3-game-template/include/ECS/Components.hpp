@@ -1,6 +1,13 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
 
 #include "Utilities/Utils.hpp"
 
@@ -24,7 +31,7 @@ struct BoundaryHits
     bool east{ false };
 };
 
-struct ConfineToWindow 
+struct ConfineToWindow
 {
     float padLeft{ 0.0f };
     float padRight{ 0.0f };
@@ -48,17 +55,17 @@ struct Animation
     int row{ 0 };                        // The row on the sprite sheet (0 for idle, 1 for walk, etc.)
     int frames{ 0 };                     // Total number of frames in this animation
     sf::Time duration{ sf::Time::Zero }; // Total duration this animation should take
-    
+
     // Calculates time per frame. sf::Time / float is a valid operation.
     sf::Time getTimePerFrame() const
-    { 
+    {
         return (frames > 0) ? duration / static_cast<float>(frames) : sf::Time::Zero;
     }
 };
 
 struct AnimatorComponent
 {
-    // Stores all available animations by name 
+    // Stores all available animations by name
     std::map<std::string, Animation> animations;
 
     std::string currentAnimationName{ "" }; // "idle", "walk", etc.
@@ -73,7 +80,7 @@ struct Facing { FacingDirection dir = FacingDirection::Right; };
 
 struct BaseScale { sf::Vector2f value{ 1.0f, 1.0f }; };
 
-struct RenderableCircle 
+struct RenderableCircle
 {
     RenderableCircle(float radius, const sf::Color& color, sf::Vector2f position)
         : shape()
@@ -84,7 +91,7 @@ struct RenderableCircle
         shape.setPosition(position);
     }
 
-    sf::CircleShape shape; 
+    sf::CircleShape shape;
 };
 
 struct RenderableRect

@@ -280,7 +280,7 @@ namespace logger
     //$ This is a more 'elegant' solution where std::format() is not required in logging
     //$ messages if including parameters in the message, but it is difficult for me to
     //$ understand so I'm going to use the simpler non-variadic-template functions and
-    //$ just be okay with using std::format() when needed :)
+    //$ just be okay with using std::format() when needed for now :)
 
     //$ For example: if you want to print the Info message "Player health: 80" then the
     //$ above functions require logger::Info(std::format("Player health: {}", player.health));

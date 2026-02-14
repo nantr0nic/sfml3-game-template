@@ -1,9 +1,15 @@
 #include "Managers/WindowManager.hpp"
+
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/WindowEnums.hpp>
+#include <SFML/Window/VideoMode.hpp>
+
 #include "Managers/ConfigManager.hpp"
 #include "Utilities/Logger.hpp"
 #include "AssetKeys.hpp"
 
 #include <memory>
+#include <stdexcept>
 
 WindowManager::WindowManager(ConfigManager& configManager)
     : m_MainWindow(nullptr)

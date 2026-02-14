@@ -1,7 +1,14 @@
-#include <SFML/Graphics.hpp>
+#include "ECS/EntityFactory.hpp"
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <entt/entt.hpp>
 
-#include "ECS/EntityFactory.hpp"
 #include "ECS/Components.hpp"
 #include "Utilities/Utils.hpp"
 #include "Utilities/Logger.hpp"

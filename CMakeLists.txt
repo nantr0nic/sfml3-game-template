@@ -125,6 +125,7 @@ target_precompile_headers(sfml3-game-template PRIVATE
     # STL
     <map>
     <vector>
+    <list>
     <string>
     <string_view>
     <format>
@@ -144,6 +145,7 @@ target_precompile_headers(sfml3-game-template PRIVATE
     <thread>
     <condition_variable>
     <chrono>
+    <type_traits>
 
     # C STD
     <cstdint>
@@ -154,6 +156,7 @@ target_precompile_headers(sfml3-game-template PRIVATE
     <SFML/Graphics.hpp>
     <SFML/Window.hpp>
     <SFML/Audio.hpp>
+    <SFML/System.hpp>
     <entt/entt.hpp>
     <toml++/toml.hpp>
 )
@@ -182,10 +185,10 @@ if(WIN32)
         message(STATUS "Windows Build: Console Window ENABLED")
     else()
         # 2. GUI MODE
-        set_target_properties(breakdown PROPERTIES WIN32_EXECUTABLE ON)
+        set_target_properties(sfml3-game-template PROPERTIES WIN32_EXECUTABLE ON)
 
         # Link SFML::Main to provide the 'WinMain' entry point required by GUI apps
-        target_link_libraries(breakdown PRIVATE SFML::Main)
+        target_link_libraries(sfml3-game-template PRIVATE SFML::Main)
 
         message(STATUS "Windows Build: Console Window DISABLED (GUI Mode)")
     endif()

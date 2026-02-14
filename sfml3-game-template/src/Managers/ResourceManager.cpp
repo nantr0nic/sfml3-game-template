@@ -1,6 +1,7 @@
+#include "Managers/ResourceManager.hpp"
+
 #include <toml++/toml.hpp>
 
-#include "Managers/ResourceManager.hpp"
 #include "Utilities/Logger.hpp"
 
 #include <string_view>

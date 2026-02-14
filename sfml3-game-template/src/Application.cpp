@@ -1,4 +1,13 @@
 #include "Application.hpp"
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/System/Clock.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Event.hpp>
+
 #include "Utilities/Logger.hpp"
 #include "Utilities/Utils.hpp"
 

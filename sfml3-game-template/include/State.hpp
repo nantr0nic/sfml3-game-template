@@ -1,7 +1,10 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 
 #include "AppContext.hpp"
@@ -52,7 +55,7 @@ public:
     MenuState(AppContext& appContext);
     virtual ~MenuState() override;
 
-    virtual void update([[maybe_unused]] sf::Time deltaTime) override;
+    virtual void update(sf::Time deltaTime) override;
     virtual void render() override;
 
 private:
@@ -70,7 +73,7 @@ public:
     explicit SettingsMenuState(AppContext& context, bool fromPlayState = false);
     virtual ~SettingsMenuState() override;
 
-    virtual void update(sf::Time /* deltaTime */) override;
+    virtual void update(sf::Time deltaTime) override;
     virtual void render() override;
     
 private:
@@ -104,7 +107,7 @@ public:
     PauseState(AppContext& appContext);
     virtual ~PauseState() override;
 
-    virtual void update([[maybe_unused]] sf::Time deltaTime) override;
+    virtual void update(sf::Time deltaTime) override;
     virtual void render() override;
 
 private:
@@ -118,7 +121,7 @@ public:
                                 TransitionType type = TransitionType::LevelLoss);
     virtual ~GameTransitionState() override;
 
-    virtual void update([[maybe_unused]] sf::Time deltaTime) override;
+    virtual void update(sf::Time deltaTime) override;
     virtual void render() override;
 
 private:

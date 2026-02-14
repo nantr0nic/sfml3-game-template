@@ -1,3 +1,7 @@
+#pragma once
+
+#include <SFML/System/Time.hpp>
+
 #include "AppContext.hpp"
 #include "Managers/StateManager.hpp"
 

@@ -1,8 +1,12 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <toml++/toml.hpp>
+
+#include "Utilities/Logger.hpp"
 
 #include <map>
 #include <memory>
@@ -12,8 +16,6 @@
 #include <stdexcept>
 #include <functional>
 #include <format>
-
-#include "Utilities/Logger.hpp"
 
 class ResourceManager 
 {

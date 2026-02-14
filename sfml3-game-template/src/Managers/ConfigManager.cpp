@@ -1,6 +1,7 @@
+#include "Managers/ConfigManager.hpp"
+
 #include <toml++/toml.hpp>
 
-#include "Managers/ConfigManager.hpp"
 #include "Utilities/Logger.hpp"
 
 #include <format>

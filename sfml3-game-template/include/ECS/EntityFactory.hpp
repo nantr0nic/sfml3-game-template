@@ -1,9 +1,9 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <entt/entt.hpp>
-
-#include <functional>
 
 #include "AppContext.hpp"
 #include "Components.hpp"

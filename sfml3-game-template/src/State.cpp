@@ -1,12 +1,21 @@
-#include <SFML/System.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
+#include "State.hpp"
+
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 
 #include "AppContext.hpp"
 #include "AppData.hpp"
 #include "AssetKeys.hpp"
-#include "State.hpp"
 #include "Managers/StateManager.hpp"
 #include "ECS/Components.hpp"
 #include "ECS/EntityFactory.hpp"
@@ -16,6 +25,7 @@
 
 #include <memory>
 #include <format>
+#include <string>
 
 //$ ----- MenuState Implementation ----- //
 MenuState::MenuState(AppContext& appContext)
@@ -129,7 +139,7 @@ SettingsMenuState::~SettingsMenuState()
     registry.destroy(view.begin(), view.end());
 }
 
-void SettingsMenuState::update(sf::Time deltaTime)
+void SettingsMenuState::update([[maybe_unused]] sf::Time deltaTime)
 {
     UISystems::uiHoverSystem(*m_AppContext.m_Registry, *m_AppContext.m_MainWindow);
     UISystems::uiSettingsChecks(m_AppContext);
@@ -479,7 +489,7 @@ PauseState::~PauseState()
     registry.destroy(view.begin(), view.end());
 }
 
-void PauseState::update(sf::Time deltaTime)
+void PauseState::update([[maybe_unused]] sf::Time deltaTime)
 {
     UISystems::uiHoverSystem(*m_AppContext.m_Registry, *m_AppContext.m_MainWindow);
 }
@@ -527,7 +537,7 @@ GameTransitionState::~GameTransitionState()
     registry.destroy(view.begin(), view.end());
 }
 
-void GameTransitionState::update(sf::Time deltaTime)
+void GameTransitionState::update([[maybe_unused]] sf::Time deltaTime)
 {
     UISystems::uiHoverSystem(*m_AppContext.m_Registry, *m_AppContext.m_MainWindow);
 }

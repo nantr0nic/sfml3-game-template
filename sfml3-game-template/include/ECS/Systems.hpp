@@ -1,11 +1,11 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/Window/Event.hpp>
 #include <entt/entt.hpp>
 
-// forward declarations
-class AppContext;
-struct BoundaryHits;
+#include "AppContext.hpp"
 
 namespace CoreSystems
 {
