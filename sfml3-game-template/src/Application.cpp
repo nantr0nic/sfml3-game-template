@@ -66,7 +66,7 @@ void Application::run()
         return;
     }
 
-    sf::Clock mainClock = *m_AppContext.m_MainClock;
+    auto& mainClock = *m_AppContext.m_MainClock;
 
     while (m_AppContext.m_MainWindow->isOpen())
     {

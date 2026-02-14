@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <string_view>
 
-void utils::boxView(sf::View &view, int windowWidth, int windowHeight)
+void utils::boxView(sf::View &view, unsigned int windowWidth, unsigned int windowHeight)
 {
     if (windowHeight <= 0 || view.getSize().y <= 0.0f)
     {

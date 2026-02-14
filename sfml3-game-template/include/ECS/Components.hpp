@@ -134,5 +134,3 @@ struct UIToggleCond { std::function<bool()> shouldShowOverlay; };
 struct GUISprite { sf::Sprite sprite; };
 
 struct GUIRedX { sf::Sprite sprite; };
-
-struct GUITexture { sf::Texture texture; };

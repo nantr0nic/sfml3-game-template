@@ -68,6 +68,12 @@ add_executable(sfml3-game-template
 )
 
 # This will copy the resources to the build directory
+#!!! This will copy the resources every time the project is built!
+#!!! For now with the limited resources being used, this is OK but at a certain
+#!!! point it will be necessary to optimize this process. I looked into it
+#!!! and it looks like more than I want to deal with right now. So be aware!
+#!!! If your project is large and you have a lot of resources, consider using a
+#!!! more efficient method for copying resources.
 add_custom_target(CopyAssets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${CMAKE_CURRENT_LIST_DIR}/sfml3-game-template/resources"
@@ -77,7 +83,8 @@ add_custom_target(CopyAssets ALL
             "$<TARGET_FILE_DIR:sfml3-game-template>/config"
     COMMENT "Syncing resources and config files..."
 )
-ADD_DEPENDENCIES(sfml3-game-template CopyAssets)
+
+add_dependencies(sfml3-game-template CopyAssets)
 
 # This is to copy compile_commands.json to out directory for clangd
 add_custom_target(
