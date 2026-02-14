@@ -1,8 +1,14 @@
+#include "Managers/ResourceManager.hpp"
+
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Audio/SoundBuffer.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <toml++/toml.hpp>
 
-#include "Managers/ResourceManager.hpp"
 #include "Utilities/Logger.hpp"
 
+#include <string>
 #include <string_view>
 #include <format>
 
@@ -18,7 +24,6 @@ void ResourceManager::loadAssetsFromManifest(std::string_view filepath)
         return;
     }
 
-    // Load in order of manifest/ResourceManager data members
     // Load Fonts
     if (auto fonts = manifestFile["fonts"].as_array())
     {

@@ -1,14 +1,30 @@
 #include "ECS/Systems.hpp"
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Rect.hpp>   
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Event.hpp>      
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
+#include <entt/entt.hpp>
+
 #include "ECS/Components.hpp"
+#include "Utilities/Utils.hpp"
 #include "AppContext.hpp"
+#include "AssetKeys.hpp"
 
 namespace CoreSystems
 {
     //$ "Core" / game systems (maybe rename...)
-    void handlePlayerInput(AppContext* m_AppContext)
+    void handlePlayerInput(AppContext& m_AppContext)
     {
-        auto &registry = *m_AppContext->m_Registry;
-        auto &window = *m_AppContext->m_MainWindow;
+        auto &registry = *m_AppContext.m_Registry;
+        auto &window = *m_AppContext.m_MainWindow;
 
         auto view = registry.view<PlayerTag, 
                                 Velocity, 
@@ -73,7 +89,7 @@ namespace CoreSystems
     void movementSystem(entt::registry& registry, sf::Time deltaTime, sf::RenderWindow& window)
     {
         // cache window size
-        auto windowSize = window.getSize();
+        auto windowSize = window.getView().getSize();
 
         // now moves anything with a sprite
         auto view = registry.view<SpriteComponent, Velocity>();
@@ -243,18 +259,18 @@ namespace UISystems
     void uiHoverSystem(entt::registry& registry, sf::RenderWindow& window)
     {
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-        auto view = registry.view<Bounds>();
+        auto view = registry.view<UIBounds>();
 
         for (auto entity : view)
         {
-            const auto& bounds = view.get<Bounds>(entity);
+            const auto& bounds = view.get<UIBounds>(entity);
             if (bounds.rect.contains(mousePos))
             {
-                registry.emplace_or_replace<Hovered>(entity);
+                registry.emplace_or_replace<UIHover>(entity);
             }
-            else if (registry.all_of<Hovered>(entity))
+            else if (registry.all_of<UIHover>(entity))
             {
-                registry.remove<Hovered>(entity);
+                registry.remove<UIHover>(entity);
             }
         }
     }
@@ -263,12 +279,12 @@ namespace UISystems
     {
         // Render shapes
         auto shapeView = registry.view<UIShape>();
-        for (auto entity : shapeView)
+        for (auto shapeEntity : shapeView)
         {
-            auto& uiShape = shapeView.get<UIShape>(entity);
-            
+            auto& uiShape = shapeView.get<UIShape>(shapeEntity);
+
             // Change color on hover
-            if (registry.all_of<Hovered>(entity))
+            if (registry.all_of<UIHover>(shapeEntity))
             {
                 uiShape.shape.setFillColor(sf::Color(100, 100, 255)); // Hover color
             }
@@ -276,27 +292,46 @@ namespace UISystems
             {
                 uiShape.shape.setFillColor(sf::Color::Blue); // Normal color
             }
-            
+
             window.draw(uiShape.shape);
         }
 
         // Render text
         auto textView = registry.view<UIText>();
-        for (auto entity : textView)
+        for (auto textEntity : textView)
         {
-            auto& uiText = textView.get<UIText>(entity);
+            auto& uiText = textView.get<UIText>(textEntity);
 
-            // Change text color on hover
-            if (registry.all_of<Hovered>(entity))
+            // Change text color on hover for interactive UI
+            if (registry.any_of<UIAction, UIBounds>(textEntity))
             {
-                uiText.text.setFillColor(sf::Color::White); // Hover text color
-            }
-            else
-            {
-                uiText.text.setFillColor(sf::Color(200, 200, 200)); // Normal text color
+                if (registry.all_of<UIHover>(textEntity))
+                {
+                    uiText.text.setFillColor(sf::Color::White); // Hover text color
+                }
+                else
+                {
+                    uiText.text.setFillColor(sf::Color(200, 200, 200)); // Normal text color
+                }
             }
 
             window.draw(uiText.text);
+        }
+
+        // Render UI buttons
+        auto buttonView = registry.view<GUISprite>();
+        for (auto buttonEntity : buttonView)
+        {
+            auto& button = buttonView.get<GUISprite>(buttonEntity);
+            window.draw(button.sprite);
+        }
+
+        // Render Red X overlay
+        auto xView = registry.view<GUIRedX>();
+        for (auto entity : xView)
+        {
+            auto& redX = xView.get<GUIRedX>(entity);
+            window.draw(redX.sprite);
         }
     }
 
@@ -304,10 +339,10 @@ namespace UISystems
     {
         if (event.button == sf::Mouse::Button::Left)
         {
-            auto view = registry.view<Hovered, Clickable>();
+            auto view = registry.view<UIHover, UIAction>();
             for (auto entity : view)
             {
-                auto& clickable = view.get<Clickable>(entity);
+                auto& clickable = view.get<UIAction>(entity);
                 if (clickable.action)
                 {
                     clickable.action();
@@ -317,6 +352,44 @@ namespace UISystems
         else
         {
             // empty
+        }
+    }
+    
+    void uiSettingsChecks(AppContext& context)
+    {
+        auto* buttonRedX = context.m_ResourceManager->getResource<sf::Texture>(
+                                                                Assets::Textures::ButtonRedX);
+        if (!buttonRedX)
+        {
+            return;
+        }
+
+        auto redXSprite = sf::Sprite(*buttonRedX);
+        utils::centerOrigin(redXSprite);
+
+        auto& registry = context.m_Registry;
+        
+        auto buttonView = registry->view<GUISprite, UIToggleCond>();
+        for (auto buttonEntity : buttonView)
+        {
+            auto& condition = buttonView.get<UIToggleCond>(buttonEntity);
+            if (condition.shouldShowOverlay())
+            {
+                if (!registry->all_of<GUIRedX>(buttonEntity))
+                {
+                    auto& buttonSprite = registry->get<GUISprite>(buttonEntity);
+                    auto buttonCenter = buttonSprite.sprite.getGlobalBounds().getCenter();
+                    redXSprite.setPosition(buttonCenter);
+                    registry->emplace<GUIRedX>(buttonEntity, redXSprite);
+                }
+            }
+            else 
+            {
+                if (registry->all_of<GUIRedX>(buttonEntity))
+                {
+                    registry->remove<GUIRedX>(buttonEntity);
+                }
+            }
         }
     }
 }

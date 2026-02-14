@@ -2,14 +2,15 @@
 
 #include <toml++/toml.hpp>
 
+#include "Utilities/Logger.hpp"
+
 #include <optional>
 #include <string_view>
 #include <string>
 #include <map>
 #include <format>
 #include <source_location>
-
-#include "Utilities/Logger.hpp"
+#include <vector>
 
 class ConfigManager
 {
@@ -19,12 +20,21 @@ public:
     ConfigManager& operator=(const ConfigManager&) = delete;
     ~ConfigManager() noexcept = default;
 
+    const std::map<std::string, toml::table, std::less<>> getConfigFiles() const { return m_ConfigFiles; }
+
     void loadConfig(std::string_view configID, std::string_view filepath);
+
+    [[nodiscard]] const toml::table* getConfigTable(std::string_view configID) const;
+
+    std::vector<std::string> getStringArray(
+        std::string_view configID, std::string_view section,
+        std::string_view key,
+        const std::source_location& loc = std::source_location::current()) const;
 
     // getConfigValue requires (configID, key) or (configID, section, key)
     template<typename T>
     [[nodiscard]] std::optional<T> getConfigValue(
-        std::string_view configID, std::string_view key, 
+        std::string_view configID, std::string_view key,
         const std::source_location& loc = std::source_location::current()) const;
 
         template<typename T>
@@ -45,7 +55,7 @@ std::optional<T> ConfigManager::getConfigValue(
     auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
-        logger::Error(std::format("File: {}({}:{}) -> Config file ID [{}] not found.", 
+        logger::Error(std::format("File: {}({}:{}) -> Config file ID [{}] not found.",
             logger::formatPath(loc.file_name()), loc.line(), loc.column(), configID));
         return std::nullopt;
     }
@@ -62,13 +72,13 @@ std::optional<T> ConfigManager::getConfigValue(
 
 template<typename T>
 std::optional<T> ConfigManager::getConfigValue(
-    std::string_view configID, std::string_view section, std::string_view key, 
+    std::string_view configID, std::string_view section, std::string_view key,
     const std::source_location& loc) const
 {
     auto it = m_ConfigFiles.find(configID);
     if (it == m_ConfigFiles.end())
     {
-        logger::Error(std::format("File: {}({}:{}) -> Config file ID [{}] not found.", 
+        logger::Error(std::format("File: {}({}:{}) -> Config file ID [{}] not found.",
             logger::formatPath(loc.file_name()), loc.line(), loc.column(), configID));
         return std::nullopt;
     }

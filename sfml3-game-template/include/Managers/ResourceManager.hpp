@@ -1,19 +1,20 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
+#include <SFML/Audio/Music.hpp>
+#include <SFML/Audio/Sound.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <toml++/toml.hpp>
+
+#include "Utilities/Logger.hpp"
 
 #include <map>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <stdexcept>
 #include <functional>
 #include <format>
-
-#include "Utilities/Logger.hpp"
 
 class ResourceManager 
 {
@@ -42,8 +43,6 @@ private:
 
 };
 
-//! VVV Try error handling that doesn't use throw/catch?
-
 template<typename T>
 void ResourceManager::loadResource(std::string_view id, std::string_view filepath)
 {
@@ -52,7 +51,7 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
         auto font = std::make_unique<sf::Font>();
         if (!font->openFromFile(filepath)) 
         {
-            throw std::runtime_error(std::format("Failed to load font: {}", filepath));
+            logger::Error(std::format("Failed to load font: {}", filepath));
         }
         m_Fonts.insert_or_assign(std::string(id), std::move(font));
         logger::Info(std::format("Font ID \"{}\" loaded from: {}", id, filepath));
@@ -62,7 +61,7 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
         auto texture = std::make_unique<sf::Texture>();
         if (!texture->loadFromFile(filepath)) 
         {
-            throw std::runtime_error(std::format("Failed to load texture: {}",  filepath));
+            logger::Error(std::format("Failed to load texture: {}",  filepath));
         }
         m_Textures.insert_or_assign(std::string(id), std::move(texture));
         logger::Info(std::format("Texture ID \"{}\" loaded from: {}", id, filepath));
@@ -72,7 +71,7 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
         auto soundBuffer = std::make_unique<sf::SoundBuffer>();
         if (!soundBuffer->loadFromFile(filepath)) 
         {
-            throw std::runtime_error(std::format("Failed to load sound buffer: {}", filepath));
+            logger::Error(std::format("Failed to load sound buffer: {}", filepath));
         }
         m_SoundBuffers.insert_or_assign(std::string(id), std::move(soundBuffer));
         logger::Info(std::format("SoundBuffer ID \"{}\" loaded from: {}", id, filepath));
@@ -82,7 +81,7 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
         auto music = std::make_unique<sf::Music>();
         if (!music->openFromFile(filepath)) 
         {
-            throw std::runtime_error(std::format("Failed to load music: {}", filepath));
+            logger::Error(std::format("Failed to load music: {}", filepath));
         }
         m_Musics.insert_or_assign(std::string(id), std::move(music));
         logger::Info(std::format("Music ID \"{}\" loaded from: {}", id, filepath));

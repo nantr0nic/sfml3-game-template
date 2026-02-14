@@ -1,8 +1,62 @@
-#include <SFML/Graphics.hpp>
-
 #include "Utilities/Utils.hpp"
 
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/View.hpp>
+
 #include <algorithm>
+#include <cstdint>
+#include <string_view>
+
+void utils::boxView(sf::View &view, int windowWidth, int windowHeight)
+{
+    float windowRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
+    float viewRatio = view.getSize().x / view.getSize().y;
+
+    float sizeX = 1;
+    float sizeY = 1;
+    float posX = 0;
+    float posY = 0;
+
+    bool horizontalSpacing = true;
+    if (windowRatio < viewRatio)
+    {
+        horizontalSpacing = false;
+    }
+
+    // If window is wider than game, add bars on sides (Pillarbox)
+    if (horizontalSpacing)
+    {
+        sizeX = viewRatio / windowRatio;
+        posX = (1 - sizeX) / 2.f;
+    }
+    // If window is taller than game, add bars on top/bottom (Letterbox)
+    else
+    {
+        sizeY = windowRatio / viewRatio;
+        posY = (1 - sizeY) / 2.f;
+    }
+
+    view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
+}
+
+sf::Color utils::loadColorFromConfig(const ConfigManager& configManager, std::string_view configID,
+                                     std::string_view section, std::string_view colorKey)
+{
+    auto* configTable = configManager.getConfigTable(configID);
+    if (!configTable) return sf::Color::Magenta;
+
+    auto* valueColorArray = (*configTable)[section][colorKey].as_array();
+    if (valueColorArray && valueColorArray->size() == 3)
+    {
+        std::uint8_t red = static_cast<uint8_t>(valueColorArray->at(0).value_or(255));
+        std::uint8_t green = static_cast<uint8_t>(valueColorArray->at(1).value_or(0));
+        std::uint8_t blue = static_cast<uint8_t>(valueColorArray->at(2).value_or(255));
+        return sf::Color(red, green, blue);
+    }
+    return sf::Color::Magenta;
+}
 
 SpritePadding utils::getSpritePadding(const sf::Sprite& sprite)
 {
@@ -15,7 +69,7 @@ SpritePadding utils::getSpritePadding(const sf::Sprite& sprite)
     {
         return {};
     }
-    
+
     // This is expensive -- copies texture from GPU to RAM, do not put this into loop
     sf::Image image = texture.copyToImage();
 
@@ -39,7 +93,7 @@ SpritePadding utils::getSpritePadding(const sf::Sprite& sprite)
         for (unsigned int x = startX; x < endX; ++x)
         {
             // Check if pixel is NOT fully transparent
-            if (image.getPixel({ x, y }).a > 0) 
+            if (image.getPixel({ x, y }).a > 0)
             {
                 if (x < minX)
                 {

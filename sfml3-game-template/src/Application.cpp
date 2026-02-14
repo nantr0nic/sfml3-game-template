@@ -1,12 +1,22 @@
 #include "Application.hpp"
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/System/Clock.hpp>
+#include <SFML/System/Time.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Event.hpp>
+
 #include "Utilities/Logger.hpp"
+#include "Utilities/Utils.hpp"
 
 #include <format>
 #include <memory>
 
 Application::Application()
     : m_AppContext()
-    , m_StateManager(&m_AppContext)
+    , m_StateManager(m_AppContext)
 {
     // Initialize Application Window and data
     initMainWindow();
@@ -16,10 +26,9 @@ Application::Application()
     m_AppContext.m_StateManager = &m_StateManager;
 
     // Push the initial application state
-    auto menuState = std::make_unique<MenuState>(&m_AppContext);
+    auto menuState = std::make_unique<MenuState>(m_AppContext);
     m_StateManager.pushState(std::move(menuState));
 
-    // Debug
     logger::Info("Application initialized.");
 }
 
@@ -37,7 +46,7 @@ void Application::initMainWindow()
 
         logger::Info(std::format("Main window created."));
     }
-    else 
+    else
     {
         logger::Error("Error creating main window.");
         m_AppContext.m_MainWindow = nullptr;
@@ -56,12 +65,13 @@ void Application::run()
         logger::Error("No main window; aborting run().");
         return;
     }
-    
+
     sf::Clock mainClock = *m_AppContext.m_MainClock;
 
     while (m_AppContext.m_MainWindow->isOpen())
     {
         sf::Time deltaTime = mainClock.restart();
+        m_StateManager.processPending();
         processEvents();
         update(deltaTime);
         render();
@@ -73,8 +83,7 @@ void Application::processEvents()
     auto& globalEvents = m_AppContext.m_GlobalEventManager->getEventHandles();
     auto& stateEvents = m_StateManager.getCurrentState()->getEventHandlers();
 
-    auto onKeyPressMerged = [&](const sf::Event::KeyPressed& event)
-    {
+    auto onKeyPressMerged = [&](const sf::Event::KeyPressed& event) {
         // run global logic first
         if (globalEvents.onGlobalKeyPress)
         {
@@ -86,11 +95,21 @@ void Application::processEvents()
             stateEvents.onKeyPress(event);
         }
     };
+    
+    auto onResized = [&](const sf::Event::Resized& event) {
+        sf::Vector2f targetSize = {m_AppContext.m_AppSettings.targetWidth, 
+                                    m_AppContext.m_AppSettings.targetHeight};
+
+        sf::View view(sf::FloatRect({0.0f, 0.0f}, targetSize));
+        utils::boxView(view, event.size.x, event.size.y);
+        m_AppContext.m_MainWindow->setView(view);
+    };
 
     m_AppContext.m_MainWindow->handleEvents(
         globalEvents.onClose,
         onKeyPressMerged,
-        stateEvents.onMouseButtonPress
+        stateEvents.onMouseButtonPress,
+        onResized
     );
 }
 

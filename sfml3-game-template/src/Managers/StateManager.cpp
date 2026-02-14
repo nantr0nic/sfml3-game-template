@@ -1,9 +1,10 @@
 #include "Managers/StateManager.hpp"
 
+#include <memory>
 #include <utility>
 
-StateManager::StateManager(AppContext* appContext)
-    : m_AppContext(*appContext)
+StateManager::StateManager(AppContext& context)
+    : m_AppContext(context)
 {
 }
 
@@ -13,24 +14,46 @@ StateManager::~StateManager()
 
 void StateManager::pushState(std::unique_ptr<State> state)
 {
-    m_States.push_back(std::move(state));
+    m_PendingChanges.push_back({ StateAction::Push, std::move(state) });
 }
 
 void StateManager::popState()
 {
-    if (!m_States.empty())
-    {
-        m_States.pop_back();
-    }
+    m_PendingChanges.push_back({ StateAction::Pop, nullptr });
 }
 
 void StateManager::replaceState(std::unique_ptr<State> state)
 {
-    if (!m_States.empty())
+    m_PendingChanges.push_back({ StateAction::Replace, std::move(state) });
+}
+
+void StateManager::processPending()
+{
+    for (auto& change : m_PendingChanges)
     {
-        m_States.pop_back();
+        switch (change.action)
+        {
+            case StateAction::Push:
+                m_States.push_back(std::move(change.state));
+                break;
+            case StateAction::Pop:
+                if (!m_States.empty())
+                {
+                    m_States.pop_back();
+                }
+                break;
+            case StateAction::Replace:
+                if (!m_States.empty())
+                {
+                    m_States.pop_back();
+                }
+                m_States.push_back(std::move(change.state));
+                break;
+            default:
+                break;
+        }
     }
-    m_States.push_back(std::move(state));
+    m_PendingChanges.clear();
 }
 
 State* StateManager::getCurrentState() noexcept
