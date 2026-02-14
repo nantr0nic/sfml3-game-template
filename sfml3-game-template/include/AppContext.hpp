@@ -17,6 +17,14 @@ class StateManager;
 
 struct AppContext
 {
+    /**
+     * @brief Initializes the application context and prepares core managers, resources, and settings.
+     *
+     * Creates and stores core singletons used across the application (configuration, window, resource and
+     * global event managers), constructs the main clock and EnTT registry, loads the window configuration
+     * from "config/WindowConfig.toml", and populates m_AppSettings.targetWidth and
+     * m_AppSettings.targetHeight from that configuration (defaults to 1280.0f and 720.0f when keys are absent).
+     */
     AppContext() {
         // make ConfigManager and load config files first
         m_ConfigManager = std::make_unique<ConfigManager>();
@@ -36,7 +44,13 @@ struct AppContext
                       Assets::Configs::Window, "mainWindow", "Y").value_or(720.0f);
     }
 
-    AppContext(const AppContext&) = delete;
+    /**
+ * @brief Disable copy construction for AppContext.
+ *
+ * Ensures the context cannot be copied, preserving unique ownership of managers,
+ * clocks, and other non-copyable resources.
+ */
+AppContext(const AppContext&) = delete;
     AppContext& operator=(const AppContext&) = delete;
 
     ~AppContext() noexcept = default;

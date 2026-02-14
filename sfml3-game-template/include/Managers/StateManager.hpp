@@ -20,8 +20,20 @@ class StateManager
 {
 public:
     explicit StateManager(AppContext& context);
-    StateManager(const StateManager&) = delete;
-    StateManager& operator=(const StateManager&) = delete;
+    /**
+ * @brief Disables copying of a StateManager.
+ *
+ * Prevents creation of a new StateManager by copying an existing one to ensure
+ * unique ownership of managed states and the application context.
+ */
+StateManager(const StateManager&) = delete;
+    /**
+ * @brief Disabled copy assignment to prevent copying of StateManager instances.
+ *
+ * Copying a StateManager is not allowed because it manages unique ownership of states
+ * and holds a reference to AppContext.
+ */
+StateManager& operator=(const StateManager&) = delete;
     ~StateManager();
 
     void pushState(std::unique_ptr<State> state);

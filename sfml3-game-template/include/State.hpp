@@ -28,11 +28,38 @@ enum class TransitionType
 class State
 {
 public:
-    explicit State(AppContext& appContext) : m_AppContext(appContext) {}
-    virtual ~State() = default;
+    /**
+ * @brief Constructs a State tied to the shared application context.
+ *
+ * Stores a reference to the provided AppContext for use by the state and its
+ * derived classes.
+ *
+ * @param appContext Reference to the application's shared context.
+ */
+explicit State(AppContext& appContext) : m_AppContext(appContext) {}
+    /**
+ * @brief Ensures proper polymorphic destruction of State-derived objects.
+ *
+ * Declared virtual and defaulted so deleting a derived instance through a
+ * pointer-to-State invokes the correct destructor chain.
+ */
+virtual ~State() = default;
 
-    StateEvents& getEventHandlers() noexcept { return m_StateEvents; }
-    const StateEvents& getEventHandlers() const noexcept { return m_StateEvents; }
+    /**
+ * @brief Accesses the state's modifiable event handlers.
+ *
+ * Provides writable access to the state's stored StateEvents so callers can
+ * assign or modify input callback handlers for this state.
+ *
+ * @return Reference to the state's StateEvents allowing modification of its callbacks.
+ */
+StateEvents& getEventHandlers() noexcept { return m_StateEvents; }
+    /**
+ * @brief Provides read-only access to the state's event handlers.
+ *
+ * @return const StateEvents& Reference to the state's collection of event callbacks.
+ */
+const StateEvents& getEventHandlers() const noexcept { return m_StateEvents; }
 
     virtual void update(sf::Time deltaTime) = 0;
     virtual void render() = 0;
@@ -41,6 +68,13 @@ protected:
     AppContext& m_AppContext;
     StateEvents m_StateEvents; 
     
+    /**
+     * @brief Computes the center point of the application window.
+     *
+     * Uses the configured target width and height from the application's settings to determine the window center.
+     *
+     * @return sf::Vector2f The (x, y) coordinates of the window center.
+     */
     sf::Vector2f getWindowCenter() const noexcept
     {
         sf::Vector2f windowSize = { m_AppContext.m_AppSettings.targetWidth,

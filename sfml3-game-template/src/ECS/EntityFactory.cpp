@@ -87,6 +87,18 @@ namespace EntityFactory
         return playerEntity;
     }
 
+    /**
+     * @brief Creates a rectangle-renderable entity and attaches its render component.
+     *
+     * Creates a new entity in the registry and attaches a RenderableRect component configured
+     * with the given size, color, and position.
+     *
+     * @param context Application context containing the entity registry.
+     * @param size Width and height of the rectangle.
+     * @param color Fill color for the rectangle.
+     * @param position Position of the rectangle's origin in world coordinates.
+     * @return entt::entity The created rectangle entity.
+     */
     entt::entity createRectangle(AppContext& context, 
                                 sf::Vector2f size,
                                 sf::Color& color,
@@ -101,7 +113,23 @@ namespace EntityFactory
         return rectEntity;
     }
 
-    //$ ----- G/UI ----- //
+    /**
+     * @brief Creates a UI button entity with a shaped background, centered label, input bounds, and click action.
+     *
+     * The function creates a new entity in the registry, attaches a tag-specific UI marker component based on
+     * `tag` (Menu, Settings, Transition, or Pause), a UIShape sized and positioned at `position`, a centered
+     * UIText using `font` and `text`, a UIBounds component derived from the shape, and a UIAction that invokes
+     * `action` when activated.
+     *
+     * @param context Application context containing the entity registry used to create and store the entity.
+     * @param font Font used to construct the button label.
+     * @param text Label string displayed on the button.
+     * @param position World position where the button is placed; both shape and text are centered at this position.
+     * @param action Callable invoked when the button is clicked or activated.
+     * @param tag Enumeration value selecting which UI tag component to attach (Menu, Settings, Transition, Pause).
+     * @param size Size of the button shape (width, height).
+     * @return entt::entity The created button entity.
+     */
     entt::entity createButton(AppContext& context, sf::Font& font,
                             const std::string& text, sf::Vector2f position,
                             std::function<void()> action,
@@ -154,6 +182,21 @@ namespace EntityFactory
         return buttonEntity;
     }
 
+    /**
+     * @brief Creates a textured GUI button entity and registers its UI components.
+     *
+     * Constructs a new entity representing a GUI button, assigns a tag-specific UI marker,
+     * attaches a GUI button marker, stores the provided texture as a sprite positioned at
+     * the given coordinates, records the sprite bounds for hit testing, and associates
+     * the provided click action.
+     *
+     * @param context Application context providing the entity registry.
+     * @param texture Texture used to build the button sprite.
+     * @param position Position where the button sprite will be placed.
+     * @param action Callback invoked when the button is activated.
+     * @param tag UI category used to attach a corresponding UI tag component (Menu, Settings, Transition, Pause).
+     * @return entt::entity The created button entity.
+     */
     entt::entity createGUIButton(AppContext& context, sf::Texture& texture,
                                 sf::Vector2f position,
                                 std::function<void()> action, UITags tag)
@@ -195,6 +238,24 @@ namespace EntityFactory
         return buttonEntity;
     }
 
+    /**
+     * @brief Creates a text label entity positioned to the left of an existing UI button.
+     *
+     * Creates a new entity tagged for the specified UI layer, attaches a `UIText`
+     * component using the provided font, string, size, and color, and positions the
+     * label immediately to the left of the target button while vertically centering
+     * it relative to the button. The label's text origin is set so the text is
+     * right-aligned against the computed position.
+     *
+     * @param context Application context containing the entity registry.
+     * @param buttonEntity The existing button entity whose `UIBounds` are used to position the label.
+     * @param font Font used for the label text.
+     * @param text String content of the label.
+     * @param size Character size for the label text.
+     * @param color Fill color for the label text.
+     * @param tag UI tag to attach to the label (Menu, Settings, Transition, or Pause).
+     * @return entt::entity The newly created label entity.
+     */
     entt::entity createButtonLabel(AppContext& context, const entt::entity buttonEntity,
                                 sf::Font& font, const std::string& text,
                                 unsigned int size, const sf::Color& color, UITags tag)
@@ -245,6 +306,23 @@ namespace EntityFactory
         return labelEntity;
     }
 
+    /**
+     * @brief Creates a textured GUI button entity with a right-aligned label positioned to the left of the button.
+     *
+     * Constructs a button entity that contains a sprite built from the provided texture, a UI action invoked on activation,
+     * and a text label aligned to the right and placed to the left of the button sprite with a fixed padding.
+     *
+     * @param context Application context providing the ECS registry and asset access.
+     * @param texture Texture used to create the button sprite.
+     * @param position Position of the button sprite in world/window coordinates.
+     * @param action Callable invoked when the button is activated (clicked).
+     * @param font Font used for the label text.
+     * @param tag Logical UI category for the button (Menu, Settings, Transition, Pause).
+     * @param text Label string displayed to the left of the button.
+     * @param size Character size for the label text.
+     * @param color Fill color applied to the label text.
+     * @return entt::entity The newly created button entity.
+     */
     entt::entity createLabeledButton(AppContext &context, sf::Texture &texture,
                                 sf::Vector2f position, std::function<void ()> action,
                                 sf::Font& font, UITags tag, const std::string& text,

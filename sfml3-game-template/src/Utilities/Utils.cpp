@@ -9,6 +9,17 @@
 #include <cstdint>
 #include <string_view>
 
+/**
+ * @brief Adjusts a view's viewport to preserve its aspect ratio by adding pillarbox or letterbox bars.
+ *
+ * Computes the relative viewport rectangle so the view content maintains its aspect ratio within a window
+ * of the given width and height, centering the view and leaving empty bars on the sides (pillarbox)
+ * or top/bottom (letterbox) as required, then applies it with view.setViewport(...).
+ *
+ * @param view The SFML view to modify.
+ * @param windowWidth Current window width in pixels.
+ * @param windowHeight Current window height in pixels.
+ */
 void utils::boxView(sf::View &view, int windowWidth, int windowHeight)
 {
     float windowRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
@@ -41,6 +52,19 @@ void utils::boxView(sf::View &view, int windowWidth, int windowHeight)
     view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
 }
 
+/**
+ * @brief Load an RGB color from a configuration table.
+ *
+ * Retrieves a 3-element numeric array located at [section][colorKey] in the configuration
+ * identified by configID and constructs an `sf::Color` from the values.
+ *
+ * @param configManager Configuration manager used to look up the table.
+ * @param configID Identifier of the configuration table to read.
+ * @param section Section/key grouping inside the configuration table.
+ * @param colorKey Key whose value is expected to be a 3-element array: [R, G, B].
+ * @return sf::Color Color constructed from the three array values (`R`, `G`, `B`).
+ *         Returns `sf::Color::Magenta` if the config table, array, or array size is missing or invalid.
+ */
 sf::Color utils::loadColorFromConfig(const ConfigManager& configManager, std::string_view configID,
                                      std::string_view section, std::string_view colorKey)
 {
@@ -58,6 +82,16 @@ sf::Color utils::loadColorFromConfig(const ConfigManager& configManager, std::st
     return sf::Color::Magenta;
 }
 
+/**
+ * @brief Computes the pixel padding around the visible (non-transparent) area of a sprite within its texture rectangle.
+ *
+ * The padding values are measured relative to the sprite's texture rectangle: how many pixels of transparent
+ * space exist on the left, right, top, and bottom sides before the first/last visible pixel. If the texture
+ * rectangle is invalid or the sprite is completely transparent, an empty (zero) padding is returned.
+ *
+ * @param sprite Sprite whose texture rect will be analyzed.
+ * @return SpritePadding Structure containing `{ left, right, top, bottom }` padding values in pixels as floats.
+ */
 SpritePadding utils::getSpritePadding(const sf::Sprite& sprite)
 {
     const sf::Texture& texture = sprite.getTexture();

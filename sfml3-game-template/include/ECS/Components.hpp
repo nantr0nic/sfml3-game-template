@@ -56,7 +56,13 @@ struct Animation
     int frames{ 0 };                     // Total number of frames in this animation
     sf::Time duration{ sf::Time::Zero }; // Total duration this animation should take
 
-    // Calculates time per frame. sf::Time / float is a valid operation.
+    /**
+     * @brief Compute the duration of a single animation frame.
+     *
+     * If `frames` is greater than zero, returns `duration` divided by `frames`; otherwise returns `sf::Time::Zero`.
+     *
+     * @return sf::Time Time interval for one frame, or `sf::Time::Zero` when `frames == 0`.
+     */
     sf::Time getTimePerFrame() const
     {
         return (frames > 0) ? duration / static_cast<float>(frames) : sf::Time::Zero;
@@ -82,6 +88,16 @@ struct BaseScale { sf::Vector2f value{ 1.0f, 1.0f }; };
 
 struct RenderableCircle
 {
+    /**
+     * @brief Create a circle renderable and initialize its visual properties.
+     *
+     * Initializes the internal sf::CircleShape with the given radius and fill color,
+     * sets the origin to the circle's center, and places it at the provided position.
+     *
+     * @param radius Radius of the circle in pixels.
+     * @param color Fill color to apply to the circle.
+     * @param position World position where the circle's center will be placed.
+     */
     RenderableCircle(float radius, const sf::Color& color, sf::Vector2f position)
         : shape()
     {

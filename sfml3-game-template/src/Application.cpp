@@ -14,6 +14,13 @@
 #include <format>
 #include <memory>
 
+/**
+ * @brief Constructs the Application and initializes core systems.
+ *
+ * Initializes the application context and state manager, creates the main window,
+ * loads resources, registers the state manager in the application context, and
+ * pushes the initial menu state onto the state stack.
+ */
 Application::Application()
     : m_AppContext()
     , m_StateManager(m_AppContext)
@@ -37,6 +44,13 @@ Application::~Application()
     // WindowManager destructor will handle window cleanup
 }
 
+/**
+ * @brief Creates and configures the application's main window and stores its pointer in the application context.
+ *
+ * Attempts to create the main window via the WindowManager. On success stores a pointer to the created window
+ * in AppContext, sets the frame rate limit to 60, and logs an informational message. On failure sets the
+ * AppContext main window pointer to `nullptr` and logs an error.
+ */
 void Application::initMainWindow()
 {
     if (m_AppContext.m_WindowManager->createMainWindow())
@@ -58,6 +72,13 @@ void Application::initResources()
     m_AppContext.m_ResourceManager->loadAssetsFromManifest("config/AssetsManifest.toml");
 }
 
+/**
+ * @brief Runs the application's main loop until the main window closes.
+ *
+ * Starts the frame loop that, each iteration, obtains frame delta time from the application's main clock,
+ * processes pending state changes, handles input and window events, updates application state, and renders a frame.
+ * If no main window is available when called, the function logs an error and returns without entering the loop.
+ */
 void Application::run()
 {
     if (!m_AppContext.m_MainWindow)
@@ -78,6 +99,14 @@ void Application::run()
     }
 }
 
+/**
+ * @brief Process pending window and input events, dispatching them to global and state handlers.
+ *
+ * Dispatches close, key press, mouse button press, and resize events for the main window.
+ * Key press events invoke the global key handler first (if present) and then the current
+ * state's key handler. Resize events update the main window's view to match the application's
+ * target size while preserving aspect/letterboxing via utils::boxView.
+ */
 void Application::processEvents()
 {
     auto& globalEvents = m_AppContext.m_GlobalEventManager->getEventHandles();
@@ -118,6 +147,12 @@ void Application::update(sf::Time deltaTime)
 	m_StateManager.update(deltaTime);
 }
 
+/**
+ * @brief Renders the current frame to the main window.
+ *
+ * Clears the main window to black, delegates drawing of the active state to the
+ * StateManager, and presents the rendered frame to the display.
+ */
 void Application::render()
 {
     m_AppContext.m_MainWindow->clear(sf::Color::Black);

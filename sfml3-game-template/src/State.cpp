@@ -26,7 +26,13 @@
 #include <format>
 #include <string>
 
-//$ ----- MenuState Implementation ----- //
+/**
+ * @brief Constructs the main menu state and initializes its UI and input handlers.
+ *
+ * Initializes the title text, menu buttons, and state-specific event bindings.
+ *
+ * @param appContext Reference to the application's shared context (window, registry, resources, and state manager) used by the state.
+ */
 MenuState::MenuState(AppContext& appContext)
     : State(appContext)
 {
@@ -37,6 +43,12 @@ MenuState::MenuState(AppContext& appContext)
     logger::Info("MenuState initialized.");
 }
 
+/**
+ * @brief Destroys all menu UI entities created by this state.
+ *
+ * Removes every entity with the MenuUITag from the application's ECS registry to
+ * ensure menu UI resources are cleaned up when the MenuState is destroyed.
+ */
 MenuState::~MenuState()
 {
     // clean up EnTT entities on leaving MenuState
@@ -45,12 +57,26 @@ MenuState::~MenuState()
     registry.destroy(view.begin(), view.end());
 }
 
+/**
+ * @brief Updates UI interaction state for the menu each frame.
+ *
+ * Runs the UI hover handling for menu UI elements. The provided `deltaTime`
+ * parameter is accepted for interface compatibility but is not used.
+ *
+ * @param deltaTime Frame time elapsed since the last update (ignored).
+ */
 void MenuState::update([[maybe_unused]] sf::Time deltaTime)
 {
     // Call the UI hover system here
     UISystems::uiHoverSystem(*m_AppContext.m_Registry, *m_AppContext.m_MainWindow);
 }
 
+/**
+ * @brief Render the state's UI elements and title text to the main window.
+ *
+ * Runs the UI render system for the state's registry and window, then draws
+ * the stored title text if one exists.
+ */
 void MenuState::render()
 {
     UISystems::uiRenderSystem(*m_AppContext.m_Registry, *m_AppContext.m_MainWindow);
@@ -60,6 +86,13 @@ void MenuState::render()
     }
 }
 
+/**
+ * @brief Initializes the menu title text and positions it centered near the top of the window.
+ *
+ * Creates the title text using the ScoreFont with the string "Game Template", centers its origin,
+ * positions it at the window center offset upward, sets a near-white fill color, and applies italic style.
+ * If the ScoreFont resource is not available, the function does nothing.
+ */
 void MenuState::initTitleText()
 {
     sf::Vector2f center = getWindowCenter();
@@ -78,6 +111,15 @@ void MenuState::initTitleText()
     m_TitleText->setStyle(sf::Text::Style::Italic);
 }
 
+/**
+ * @brief Creates the main menu buttons ("Play" and "Settings") and wires their actions.
+ *
+ * Loads the main UI font and, if available, creates a centered "Play" button and a "Settings"
+ * button 150 pixels below it. The "Play" button replaces the current state with a new
+ * PlayState; the "Settings" button replaces the current state with a new SettingsMenuState.
+ *
+ * If the main font cannot be loaded, logs an error and does not create the buttons.
+ */
 void MenuState::initMenuButtons()
 {
     sf::Vector2f center = getWindowCenter();
@@ -105,6 +147,12 @@ void MenuState::initMenuButtons()
     );
 }
 
+/**
+ * @brief Register input event handlers used by the menu state.
+ *
+ * Sets the state's mouse-button handler to invoke the UI click system and
+ * sets the key-press handler to close the main window when the Escape key is pressed.
+ */
 void MenuState::assignStateEvents()
 {
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event) {
@@ -119,7 +167,13 @@ void MenuState::assignStateEvents()
     };
 }
 
-//$ ----- Settings Menu State ----- //
+/**
+ * @brief Constructs the settings menu state and prepares its UI and input handlers.
+ *
+ * Initializes settings-related UI controls, positions elements, and wires state input events.
+ *
+ * @param fromPlayState When true, the settings menu was opened from the running game and the Back action will resume play; when false, Back returns to the main menu.
+ */
 
 SettingsMenuState::SettingsMenuState(AppContext& context, bool fromPlayState)
     : State(context), m_FromPlayState(fromPlayState)
@@ -130,6 +184,12 @@ SettingsMenuState::SettingsMenuState(AppContext& context, bool fromPlayState)
     logger::Info("SettingsMenuState initialized.");
 }
 
+/**
+ * @brief Destroys all entities that belong to the settings UI.
+ *
+ * Removes every entity with the `SettingsUITag` from the application's ECS registry
+ * to clean up settings-related UI resources when the state is torn down.
+ */
 SettingsMenuState::~SettingsMenuState()
 {
     // Clean up Menu UI entities
@@ -138,6 +198,12 @@ SettingsMenuState::~SettingsMenuState()
     registry.destroy(view.begin(), view.end());
 }
 
+/**
+ * @brief Updates UI interactions and synchronizes displayed audio volume values.
+ *
+ * Runs the UI hover and settings check systems, then refreshes the on-screen
+ * music and SFX volume text to match the current application settings.
+ */
 void SettingsMenuState::update([[maybe_unused]] sf::Time deltaTime)
 {
     UISystems::uiHoverSystem(*m_AppContext.m_Registry, *m_AppContext.m_MainWindow);
@@ -156,6 +222,12 @@ void SettingsMenuState::update([[maybe_unused]] sf::Time deltaTime)
     }
 }
 
+/**
+ * @brief Render the settings menu UI to the main window.
+ *
+ * Draws the settings background, invokes the UI render system, and draws the current
+ * music and SFX volume texts if they exist.
+ */
 void SettingsMenuState::render()
 {
     m_AppContext.m_MainWindow->draw(m_Background);
@@ -172,6 +244,15 @@ void SettingsMenuState::render()
     }
 }
 
+/**
+ * @brief Create and configure the Settings menu UI elements.
+ *
+ * Initializes the settings menu background, volume display texts, increment/decrement
+ * controls for music and SFX volumes, mute toggles, and the Back button; wires each
+ * control to update application settings, music playback where applicable, and UI toggle
+ * conditions in the registry. If required resources (fonts, textures, or main music)
+ * are missing, logs an error and aborts initialization.
+ */
 void SettingsMenuState::initMenuButtons()
 {
     sf::Vector2f windowSize = { m_AppContext.m_AppSettings.targetWidth,
@@ -320,6 +401,12 @@ void SettingsMenuState::initMenuButtons()
     );
 }
 
+/**
+ * @brief Configure input event handlers for the settings menu state.
+ *
+ * Sets the mouse-button-press handler to process UI click interactions and
+ * sets the key-press handler to close the main window when the Escape key is pressed.
+ */
 void SettingsMenuState::assignStateEvents()
 {
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event) {
@@ -334,7 +421,14 @@ void SettingsMenuState::assignStateEvents()
     };
 }
 
-//$ ----- PlayState Implementation ----- //
+/**
+ * @brief Initializes the gameplay state: spawns the player, configures background music, and wires keyboard controls.
+ *
+ * Creates the player entity, attempts to load and play the main background music (respecting the app's mute setting),
+ * and installs key handlers: Escape closes the main window, 'P' pushes the pause state, and F12 toggles debug mode.
+ *
+ * @param appContext Reference to the application context used for resources, window access, settings, and state management.
+ */
 
 PlayState::PlayState(AppContext& appContext)
     : State(appContext)
@@ -386,6 +480,11 @@ PlayState::PlayState(AppContext& appContext)
     logger::Info("PlayState initialized.");
 }
 
+/**
+ * @brief Cleans up player entities when the play state is destroyed.
+ *
+ * Removes all entities tagged as players from the application's ECS registry.
+ */
 PlayState::~PlayState()
 {
     // Clean up all player entities
@@ -397,6 +496,13 @@ PlayState::~PlayState()
     // (e.g., registry.clear<EnemyTag, BulletTag>();)
 }
 
+/**
+ * @brief Advances the play state's game world by processing core gameplay systems.
+ *
+ * Processes player input and updates entity facing, animations, and movement using the provided time step.
+ *
+ * @param deltaTime Time elapsed since the last update; used to advance time-dependent systems.
+ */
 void PlayState::update(sf::Time deltaTime)
 {
     // Call game logic systems
@@ -406,6 +512,12 @@ void PlayState::update(sf::Time deltaTime)
     CoreSystems::movementSystem(*m_AppContext.m_Registry, deltaTime, *m_AppContext.m_MainWindow);
 }
 
+/**
+ * @brief Renders the current game scene to the main window.
+ *
+ * Draws world entities, UI, and other visual elements managed by the rendering system.
+ * When debug mode is enabled, additional debug overlays (e.g., collision bounds and entity info) are drawn.
+ */
 void PlayState::render()
 {
     CoreSystems::renderSystem(
@@ -416,7 +528,15 @@ void PlayState::render()
 }
 
 
-//$ ----- PauseState Implementation -----
+/**
+ * @brief Constructs the pause state, displays pause UI, and installs input handlers.
+ *
+ * Creates a centered "Paused" label and a Settings button, pauses any currently playing main song,
+ * and sets event handlers so mouse clicks dispatch UI clicks, Escape closes the main window,
+ * and the 'P' key resumes the game (and resumes music if applicable) by popping the pause state.
+ *
+ * @param context Reference to the application context used for resources, window, registry, and state management.
+ */
 PauseState::PauseState(AppContext& context)
     : State(context)
 {
@@ -481,6 +601,11 @@ PauseState::PauseState(AppContext& context)
     logger::Info("Game paused.");
 }
 
+/**
+ * @brief Removes all entities associated with the pause state's UI from the ECS registry.
+ *
+ * Destroys every entity carrying the PauseUITag so UI resources created for the pause state are cleaned up.
+ */
 PauseState::~PauseState()
 {
     auto& registry = *m_AppContext.m_Registry;
@@ -488,11 +613,23 @@ PauseState::~PauseState()
     registry.destroy(view.begin(), view.end());
 }
 
+/**
+ * @brief Update hover states of the pause menu UI elements.
+ *
+ * Invokes the UI hover system to refresh which pause-menu widgets are hovered
+ * based on the current registry and window state.
+ */
 void PauseState::update([[maybe_unused]] sf::Time deltaTime)
 {
     UISystems::uiHoverSystem(*m_AppContext.m_Registry, *m_AppContext.m_MainWindow);
 }
 
+/**
+ * @brief Renders the pause state's UI and the centered "Paused" text when present.
+ *
+ * Invokes the UI render system using the application's registry and main window, then draws
+ * the pause text entity to the main window if it has been created.
+ */
 void PauseState::render()
 {
     UISystems::uiRenderSystem(*m_AppContext.m_Registry, *m_AppContext.m_MainWindow);
@@ -504,11 +641,15 @@ void PauseState::render()
 
 //$ ----- Game Transition State ----- //
 
-/*
-    This is currently unused in the template but is here for use.
-    This state, as written, is intended for transitioning between level wins, losses, etc.
-    Look at the Breakdown example game for an example of how it can be implemented.
-*/
+/**
+ * @brief Initialize a state used to present level transition screens (win, loss, game complete).
+ *
+ * This constructs the transition UI (title and buttons), wires state event handlers, and stops
+ * any currently playing main background music so the transition screen can control audio.
+ *
+ * @param context Reference to the application context providing access to resources, window, registry, and state stack.
+ * @param type Specifies the kind of transition to display (e.g., LevelWin, LevelLoss, GameWin) which determines text, colors, and button behavior.
+ */
 
 GameTransitionState::GameTransitionState(AppContext& context, TransitionType type)
     : State(context)
@@ -529,6 +670,11 @@ GameTransitionState::GameTransitionState(AppContext& context, TransitionType typ
     logger::Info("Game transition state initialized.");
 }
 
+/**
+ * @brief Cleans up transition UI entities created for this state.
+ *
+ * Destroys all entities in the ECS registry that are tagged with `TransUITag`.
+ */
 GameTransitionState::~GameTransitionState()
 {
     auto& registry = *m_AppContext.m_Registry;
@@ -536,11 +682,22 @@ GameTransitionState::~GameTransitionState()
     registry.destroy(view.begin(), view.end());
 }
 
+/**
+ * @brief Processes hover interactions for this state's UI elements.
+ *
+ * Updates hover state for interactive UI components using the application's registry and main window.
+ */
 void GameTransitionState::update([[maybe_unused]] sf::Time deltaTime)
 {
     UISystems::uiHoverSystem(*m_AppContext.m_Registry, *m_AppContext.m_MainWindow);
 }
 
+/**
+ * @brief Renders the transition state's UI elements.
+ *
+ * Draws all UI buttons using the UI render system and, if a transition text is set,
+ * draws that text to the main window.
+ */
 void GameTransitionState::render()
 {
     // Render buttons
@@ -552,6 +709,21 @@ void GameTransitionState::render()
     }
 }
 
+/**
+ * @brief Creates and positions the transition title text for the given transition type.
+ *
+ * Initializes m_TransitionText with a message and color determined by the provided TransitionType,
+ * centers its origin, sets its character size to 100, and positions it at the window center shifted
+ * 200 pixels upward.
+ *
+ * @param type Specifies which transition message and color to display:
+ *             - TransitionType::LevelLoss → "Oops! Level lost." (red)
+ *             - TransitionType::LevelWin  → "Level Complete!" (green)
+ *             - TransitionType::GameWin   → "You beat the game! Woo!" (yellow)
+ *
+ * If the main font cannot be loaded or an invalid transition type is supplied, an error is logged
+ * and the method returns without creating or modifying the transition text.
+ */
 void GameTransitionState::initTitleText(TransitionType type)
 {
     auto* font = m_AppContext.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
@@ -591,6 +763,22 @@ void GameTransitionState::initTitleText(TransitionType type)
     m_TransitionText->setPosition(textPosition);
 }
 
+/**
+ * @brief Creates and places the transition state's menu buttons.
+ *
+ * Initializes three vertically arranged buttons (top, "Main Menu", "Quit") centered in the window.
+ * The top button's label and action depend on the provided TransitionType:
+ * - LevelLoss: "Try Again" — restarts the current level.
+ * - LevelWin: "Next Level" — advances to the next level if available, then starts play.
+ * - GameWin: "Restart" — resets application progress and restarts play.
+ *
+ * The "Main Menu" button resets application progress and switches to the main menu state.
+ * The "Quit" button closes the main window.
+ *
+ * If the required MainFont resource cannot be loaded, the function logs an error and returns without creating any buttons.
+ *
+ * @param type The transition kind that determines the top button's label and action.
+ */
 void GameTransitionState::initMenuButtons(TransitionType type)
 {
     auto* font = m_AppContext.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
@@ -700,6 +888,11 @@ void GameTransitionState::initMenuButtons(TransitionType type)
     );
 }
 
+/**
+ * @brief Assigns input event handlers used while the transition state is active.
+ *
+ * Sets the mouse-button-press handler to invoke the UI click system and the key-press handler to close the main window when Escape is pressed.
+ */
 void GameTransitionState::assignStateEvents()
 {
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event) {

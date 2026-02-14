@@ -44,6 +44,21 @@ private:
 };
 
 template<typename T>
+/**
+ * @brief Loads a resource of type `T` from the specified file and stores it under the given identifier.
+ *
+ * Attempts to load the file at `filepath` as a resource of type `T` and inserts or replaces the managed
+ * resource in the internal storage using `id` as the key. Supported types for `T` are `sf::Font`,
+ * `sf::Texture`, `sf::SoundBuffer`, and `sf::Music`.
+ *
+ * On successful load the function records an informational log entry; on failure it records an error
+ * log entry and does not throw. If `T` is not one of the supported types, an error is logged and no
+ * resource is stored.
+ *
+ * @tparam T Resource type to load (`sf::Font`, `sf::Texture`, `sf::SoundBuffer`, or `sf::Music`).
+ * @param id Key under which the loaded resource will be stored.
+ * @param filepath Filesystem path to the resource to load.
+ */
 void ResourceManager::loadResource(std::string_view id, std::string_view filepath)
 {
     if constexpr (std::is_same_v<T, sf::Font>) 

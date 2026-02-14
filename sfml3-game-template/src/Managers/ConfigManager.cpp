@@ -9,6 +9,16 @@
 #include <string>
 #include <vector>
 
+/**
+ * @brief Load a TOML configuration file and store its root table under the given config ID.
+ *
+ * Attempts to parse the TOML file at \p filepath and, on success, inserts or replaces the
+ * stored configuration table for \p configID with the parsed root table. If parsing fails,
+ * the stored configurations are not modified and an error is reported.
+ *
+ * @param configID Identifier used as the key for storing the parsed root table.
+ * @param filepath Filesystem path to the TOML configuration file to load.
+ */
 void ConfigManager::loadConfig(std::string_view configID, std::string_view filepath)
 {
     toml::parse_result configFile = toml::parse_file(filepath);
@@ -26,6 +36,12 @@ void ConfigManager::loadConfig(std::string_view configID, std::string_view filep
     logger::Info(std::format("Config ID \"{}\" loaded from: {}", configID, filepath));
 }
 
+/**
+ * @brief Retrieve the TOML table associated with a configuration ID.
+ *
+ * @param configID Identifier of the loaded configuration.
+ * @return const toml::table* Pointer to the table for the given `configID`, or `nullptr` if the configuration ID is not found.
+ */
 const toml::table* ConfigManager::getConfigTable(std::string_view configID) const
 {
     auto it = m_ConfigFiles.find(configID);
@@ -38,6 +54,19 @@ const toml::table* ConfigManager::getConfigTable(std::string_view configID) cons
     return &it->second;
 }
 
+/**
+ * @brief Retrieves an array of strings from the TOML config at [section][key] for the given config ID.
+ *
+ * Returns the string elements found in the array located at the specified section and key of the TOML table
+ * identified by `configID`. If the config ID, section, or key is missing, or the target is not an array, an
+ * empty vector is returned. Non-string array elements are skipped and generate a warning.
+ *
+ * @param configID Identifier of the loaded configuration table.
+ * @param section Section name inside the TOML table.
+ * @param key Key name whose value is expected to be an array of strings.
+ * @param loc Source location used for diagnostic logging when the config ID is missing.
+ * @return std::vector<std::string> Vector containing the string elements from the array; empty on error or if no string elements are present.
+ */
 std::vector<std::string> ConfigManager::getStringArray(
     std::string_view configID, std::string_view section, std::string_view key,
     const std::source_location& loc) const

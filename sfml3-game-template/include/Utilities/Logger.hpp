@@ -53,7 +53,14 @@ namespace logger
         std::source_location location;
         LogLevel level;
     };
-    // format file path to just the filename instead of printing the absolute path
+    /**
+     * @brief Extracts the filename component from a filesystem path.
+     *
+     * Finds the last path separator ('/' or '\') and returns the substring after it.
+     *
+     * @param path Path string to extract the filename from.
+     * @return std::string_view Filename portion of `path` (text after the last '/' or '\'), or the original `path` if no separator is present.
+     */
     constexpr std::string_view formatPath(std::string_view path)
     {
         auto lastSlash = path.find_last_of("/\\");
@@ -71,6 +78,15 @@ namespace logger
         class LogWorker
         {
         public:
+            /**
+             * @brief Initializes and starts the asynchronous log worker.
+             *
+             * Constructs the LogWorker, launching its background thread to run processLogs().
+             * When LOG_TO_FILE is enabled, attempts to create a "logs" directory, generates a
+             * timestamped log filename, and opens the file in append mode. If directory creation
+             * fails, an error is printed to stderr and a timestamped file is created in the
+             * process root instead.
+             */
             LogWorker() : logWorker(&LogWorker::processLogs, this) {
                 #if LOG_TO_FILE
                 std::error_code errorCode;
@@ -98,6 +114,12 @@ namespace logger
                 logFile.open(fileName, std::ios::app);
                 #endif
             }
+            /**
+             * @brief Stops the log worker, waits for the background thread to finish, and releases resources.
+             *
+             * Signals the worker to stop, notifies the processing thread so it can exit, joins the worker thread,
+             * and when file logging is enabled flushes and closes the log file.
+             */
             ~LogWorker() {
                 stopFlag = true;
                 logC_V.notify_all();
@@ -108,6 +130,15 @@ namespace logger
                 #endif
             }
 
+            /**
+             * @brief Enqueues a log entry for asynchronous processing by the background log worker.
+             *
+             * This call is thread-safe and notifies the worker thread to process the entry.
+             *
+             * @param entry LogEntry to enqueue; ownership is transferred into the worker.
+             *
+             * @note If the worker is stopping, the entry will be discarded and not processed.
+             */
             void push(LogEntry entry) {
                 if (stopFlag.load(std::memory_order_acquire))
                 {
@@ -121,6 +152,15 @@ namespace logger
             }
 
         private:
+            /**
+             * @brief Processes queued log entries in the worker thread and emits them to console and optional file.
+             *
+             * Continuously consumes LogEntry items from the internal queue until the worker is signaled to stop
+             * and the queue is empty. Each entry is formatted with level, source file (filename only), line,
+             * column, and message; console output is colorized and sent to stderr for errors or stdout for other levels.
+             * When file logging is enabled and the file is open, a non-colored log line is written to the file.
+             * The log file is flushed for error entries and once more when the processing loop exits.
+             */
             void processLogs() {
                 while (true)
                 {
@@ -213,6 +253,14 @@ namespace logger
             std::jthread logWorker;
         };
 
+        /**
+         * @brief Provides access to the shared log worker used for asynchronous logging.
+         *
+         * This function returns the single, long-lived LogWorker instance used by the logger to
+         * enqueue and process log entries in the background.
+         *
+         * @return LogWorker& Reference to the shared LogWorker instance (lives for the program's lifetime).
+         */
         inline LogWorker& getWorker()
         {
             static LogWorker worker;
@@ -231,16 +279,38 @@ namespace logger
         inline std::atomic<LogLevel> currentLevel = LogLevel::Info;
     #endif
 
+    /**
+     * @brief Sets the current minimum log level used to filter emitted messages.
+     *
+     * Adjusts which log messages are allowed to be enqueued and processed: messages
+     * with a level lower than `level` will be suppressed.
+     *
+     * @param level The minimum LogLevel to allow (messages with lower severity are ignored).
+     */
     inline void setLevel(LogLevel level)
     {
         currentLevel.store(level, std::memory_order_relaxed);
     }
 
+    /**
+     * @brief Set the logger to verbose mode by enabling the Info log level.
+     *
+     * Updates the global log level so that messages at `LogLevel::Info` and above are emitted.
+     */
     inline void forceVerbose()
     {
         currentLevel.store(LogLevel::Info, std::memory_order_relaxed);
     }
 
+    /**
+     * @brief Enqueues a log entry for background processing if it meets the current log level.
+     *
+     * If `level` is lower than the configured current log level, the call has no effect.
+     *
+     * @param level Log severity level for the message.
+     * @param message The textual message to log.
+     * @param loc Source location associated with the message (file/line/column); defaults to the caller's location when provided by the caller.
+     */
     inline void Print(LogLevel level, std::string_view message, const std::source_location& loc)
     {
         // Only print current level and above
@@ -258,6 +328,12 @@ namespace logger
         detail::getWorker().push(std::move(entry));
     }
 
+    /**
+     * @brief Emit an informational log entry.
+     *
+     * @param message The text of the message to log.
+     * @param loc Source location to associate with the log entry; defaults to the call site.
+     */
     inline void Info(std::string_view message,
         const std::source_location& loc = std::source_location::current())
     {
@@ -270,6 +346,12 @@ namespace logger
         Print(LogLevel::Warning, message, loc);
     }
 
+    /**
+     * @brief Log a message at the Error level including source location information.
+     *
+     * @param message The text to record in the log.
+     * @param loc Source location to associate with the message; defaults to the caller's location.
+     */
     inline void Error(std::string_view message,
         const std::source_location& loc = std::source_location::current())
     {

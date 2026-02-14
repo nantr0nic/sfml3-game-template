@@ -20,7 +20,16 @@
 
 namespace CoreSystems
 {
-    //$ "Core" / game systems (maybe rename...)
+    /**
+     * @brief Processes player keyboard input and updates movement, facing, and animation components.
+     *
+     * Operates on all entities that have PlayerTag, Velocity, MovementSpeed, AnimatorComponent,
+     * SpriteComponent, and Facing. Reads W/A/S/D keyboard state to set each entity's Velocity
+     * and Facing.direction, and switches the AnimatorComponent between "walk" and "idle" when
+     * movement starts or stops (resetting frame and elapsed time when the animation changes).
+     *
+     * @param m_AppContext Reference to the application context containing the Entt registry and main window.
+     */
     void handlePlayerInput(AppContext& m_AppContext)
     {
         auto &registry = *m_AppContext.m_Registry;
@@ -86,6 +95,17 @@ namespace CoreSystems
         }
     }
 
+    /**
+     * @brief Moves sprites according to their Velocity and constrains entities marked ConfineToWindow to the window view.
+     *
+     * Advances each SpriteComponent by its Velocity scaled by deltaTime. If an entity has ConfineToWindow, its global
+     * bounds are clamped to the render window's view size using the component's padding; horizontal padding is swapped
+     * when the sprite's X scale is negative (flipped).
+     *
+     * @param registry The ECS registry containing entities and components.
+     * @param deltaTime Time elapsed since the last update; used to scale movement.
+     * @param window Render window whose view size defines the confinement area.
+     */
     void movementSystem(entt::registry& registry, sf::Time deltaTime, sf::RenderWindow& window)
     {
         // cache window size
@@ -254,7 +274,16 @@ namespace CoreSystems
 
 namespace UISystems
 {
-    //$ --- UI Systems Implementation ---
+    /**
+     * @brief Updates UI hover state for entities based on the current mouse position.
+     *
+     * For each entity that has a UIBounds component, adds a UIHover component when the
+     * window-mapped mouse coordinate lies inside the bounds' rect, and removes UIHover
+     * when the mouse is outside and the entity currently has UIHover.
+     *
+     * @param registry The entity registry containing UI entities and components.
+     * @param window The render window used to map pixel mouse coordinates to world coordinates.
+     */
 
     void uiHoverSystem(entt::registry& registry, sf::RenderWindow& window)
     {
@@ -275,6 +304,17 @@ namespace UISystems
         }
     }
 
+    /**
+     * @brief Renders UI elements to the provided window, applying hover-based visual states.
+     *
+     * Iterates UI entities in the registry and draws their shapes, text, button sprites, and
+     * optional red-X overlays. Shape fill and text color are adjusted when a UIHover component
+     * is present; text color adjustment is applied only for interactive text (entities with
+     * UIAction or UIBounds).
+     *
+     * @param registry The entity registry containing UI components.
+     * @param window The render window to draw UI elements into.
+     */
     void uiRenderSystem(entt::registry& registry, sf::RenderWindow& window)
     {
         // Render shapes
@@ -335,6 +375,15 @@ namespace UISystems
         }
     }
 
+    /**
+     * @brief Invoke UI actions for hovered UI elements when the left mouse button is pressed.
+     *
+     * When a left-button press is received, iterates entities that have both `UIHover` and `UIAction`
+     * and invokes each entity's action callback if it is set. Other mouse buttons are ignored.
+     *
+     * @param registry The entity registry containing UI components.
+     * @param event The mouse button pressed event to handle.
+     */
     void uiClickSystem(entt::registry& registry, const sf::Event::MouseButtonPressed& event)
     {
         if (event.button == sf::Mouse::Button::Left)
@@ -355,6 +404,13 @@ namespace UISystems
         }
     }
     
+    /**
+     * @brief Updates UI buttons to add or remove a centered red "X" overlay when their toggle condition is satisfied.
+     *
+     * If the ButtonRedX texture is not available from the resource manager, the function returns without modifying the registry.
+     *
+     * @param context Application context providing the resource manager and entity registry used to query GUISprite/UIToggleCond and to attach or remove GUIRedX components.
+     */
     void uiSettingsChecks(AppContext& context)
     {
         auto* buttonRedX = context.m_ResourceManager->getResource<sf::Texture>(

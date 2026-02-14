@@ -12,6 +12,14 @@
 #include <memory>
 #include <string>
 
+/**
+ * @brief Create a WindowManager bound to a configuration source.
+ *
+ * Initializes the manager with no active main window and retains a reference
+ * to the provided ConfigManager for later window creation and configuration lookups.
+ *
+ * @param configManager Reference to the ConfigManager used for retrieving window settings.
+ */
 WindowManager::WindowManager(ConfigManager& configManager)
     : m_MainWindow(nullptr)
     , m_ConfigManager(configManager)
@@ -24,6 +32,13 @@ WindowManager::~WindowManager()
     // space reserved for future stuff
 }
 
+/**
+ * @brief Creates the application's main SFML render window using configuration values.
+ *
+ * Reads width, height, and title from the configuration (falling back to 800x600 and "Error parsing title" if missing) and constructs the main window.
+ *
+ * @return `true` if the created main window is open, `false` if creation failed or a main window already exists (an error is logged when a window already exists).
+ */
 bool WindowManager::createMainWindow()
 {
     if (m_MainWindow)
@@ -52,6 +67,16 @@ bool WindowManager::createMainWindow()
     return m_MainWindow->isOpen();
 }
 
+/**
+ * @brief Creates the main application window with the specified size and title.
+ *
+ * Constructs and stores the primary sf::RenderWindow using the provided dimensions and title.
+ *
+ * @param width Window width in pixels.
+ * @param height Window height in pixels.
+ * @param title Window title text.
+ * @return true if the window was created and is open, false if a main window already exists or creation failed.
+ */
 bool WindowManager::createMainWindow(unsigned int width, unsigned int height, const std::string& title)
 {
     // Check if main window already exists, return false if it does
@@ -76,6 +101,13 @@ bool WindowManager::createMainWindow(unsigned int width, unsigned int height, co
     return m_MainWindow->isOpen();
 }
 
+/**
+ * @brief Accesses the main SFML render window.
+ *
+ * If the main window has not been created, the function terminates the process using std::abort().
+ *
+ * @return sf::RenderWindow& Reference to the main render window.
+ */
 sf::RenderWindow& WindowManager::getMainWindow()
 {
     // Check if mainWindow is valid
@@ -87,6 +119,13 @@ sf::RenderWindow& WindowManager::getMainWindow()
     return *m_MainWindow;
 }
 
+/**
+ * @brief Returns a const reference to the application's main SFML render window.
+ *
+ * If the main window has not been created (internal pointer is null), logs a fatal error and aborts the process.
+ *
+ * @return const sf::RenderWindow& Reference to the main render window.
+ */
 const sf::RenderWindow& WindowManager::getMainWindow() const
 {
     // Check if mainWindow is valid

@@ -12,6 +12,17 @@
 #include <string_view>
 #include <format>
 
+/**
+ * @brief Loads fonts, textures, sound buffers, and musics defined in a TOML manifest.
+ *
+ * Parses the TOML file at the given path, reads the "fonts", "textures",
+ * "soundbuffers", and "musics" arrays, and loads each entry that provides both
+ * an `id` and `path`. If parsing the manifest fails, an error is logged and the
+ * function returns without loading any assets; on success an informational
+ * message is logged.
+ *
+ * @param filepath Path to the TOML manifest file describing assets.
+ */
 void ResourceManager::loadAssetsFromManifest(std::string_view filepath)
 {
     toml::parse_result manifestFile = toml::parse_file(filepath);
