@@ -8,8 +8,9 @@
 #include "Utilities/Logger.hpp"
 #include "AssetKeys.hpp"
 
+#include <cstdlib>
 #include <memory>
-#include <stdexcept>
+#include <string>
 
 WindowManager::WindowManager(ConfigManager& configManager)
     : m_MainWindow(nullptr)
@@ -80,9 +81,8 @@ sf::RenderWindow& WindowManager::getMainWindow()
     // Check if mainWindow is valid
     if (!m_MainWindow)
     {
-        throw std::runtime_error(
-            "<WindowManager> getMainWindow() failed: Main window has not been created yet."
-        );
+        logger::Error("FATAL: getMainWindow failed! m_MainWindow is null! Terminating...");
+        std::abort();
     }
     return *m_MainWindow;
 }
@@ -92,9 +92,8 @@ const sf::RenderWindow& WindowManager::getMainWindow() const
     // Check if mainWindow is valid
     if (!m_MainWindow)
     {
-        throw std::runtime_error(
-            "<WindowManager> getMainWindow() failed: Main window has not been created yet."
-        );
+        logger::Error("FATAL: getMainWindow failed! m_MainWindow is null! Terminating...");
+        std::abort();
     }
     return *m_MainWindow;
 }

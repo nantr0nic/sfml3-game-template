@@ -90,10 +90,18 @@ add_custom_target(
 )
 
 # -------------------- #
+#       options        #
+# -------------------- #
+option(LOG_TO_FILE "Enable logging to file" OFF)
+
+# -------------------- #
 #  compile definitions #
 # -------------------- #
-
 target_compile_definitions(sfml3-game-template PRIVATE TOML_EXCEPTIONS=0)
+
+if(LOG_TO_FILE)
+    target_compile_definitions(sfml3-game-template PRIVATE LOG_TO_FILE)
+endif()
 
 # ------------------ #
 # Configure include  #
@@ -138,7 +146,6 @@ target_precompile_headers(sfml3-game-template PRIVATE
     <utility>
     <limits>
     <algorithm>
-    <stdexcept> # goal is to get rid of this
     <atomic>
     <queue>
     <mutex>
@@ -150,6 +157,7 @@ target_precompile_headers(sfml3-game-template PRIVATE
     # C STD
     <cstdint>
     <cstdio>
+    <cstdlib>
     <cmath>
 
     # Third party libraries

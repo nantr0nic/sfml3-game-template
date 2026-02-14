@@ -1,7 +1,10 @@
 #pragma once
 
 #ifndef LOG_TO_FILE
-    #define LOG_TO_FILE 0 // default to off
+/* The line below can be uncommented to enable logging to file. This will override
+the CMakeLists.txt option */
+
+    // #define LOG_TO_FILE 1
 #endif
 
 #include <print>
