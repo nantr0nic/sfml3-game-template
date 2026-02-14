@@ -70,10 +70,10 @@ add_executable(sfml3-game-template
 # This will copy the resources to the build directory
 add_custom_target(CopyAssets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_CURRENT_SOURCE_DIR}/sfml3-game-template/resources"
+            "${CMAKE_CURRENT_LIST_DIR}/sfml3-game-template/resources"
             "$<TARGET_FILE_DIR:sfml3-game-template>/resources"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_CURRENT_SOURCE_DIR}/sfml3-game-template/config"
+            "${CMAKE_CURRENT_LIST_DIR}/sfml3-game-template/config"
             "$<TARGET_FILE_DIR:sfml3-game-template>/config"
     COMMENT "Syncing resources and config files..."
 )
@@ -110,9 +110,9 @@ target_include_directories(sfml3-game-template PRIVATE
 # ------------------ #
 
 target_link_libraries(sfml3-game-template PRIVATE
+    SFML::Audio
     SFML::Graphics
     SFML::Window
-    SFML::Audio
     EnTT::EnTT
     tomlplusplus::tomlplusplus
     Threads::Threads

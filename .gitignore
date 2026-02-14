@@ -61,3 +61,4 @@ settings.json
 
 # Zed
 .zed/
+__cmake_systeminformation/CMakeFiles/4.2.3/CompilerIdCXX/CMakeCXXCompilerId.cpp
