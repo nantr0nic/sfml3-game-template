@@ -96,7 +96,7 @@ struct RenderableCircle
 
 struct RenderableRect
 {
-    RenderableRect(sf::Vector2f size, sf::Color& color, sf::Vector2f position)
+    RenderableRect(sf::Vector2f size, const sf::Color& color, sf::Vector2f position)
         : shape()
     {
         shape.setSize(size);
@@ -113,10 +113,8 @@ struct RenderableRect
 enum class UITags { None, Menu, Settings, Transition, Pause };
 
 // Tag to identify UI/HUD entities
-struct MenuUITag {};
-struct SettingsUITag {};
-struct TransUITag {};
-struct PauseUITag {};
+struct UITagID { UITags id; };
+
 struct GUIButtonTag {};
 
 struct UIHover {};
@@ -134,5 +132,3 @@ struct UIToggleCond { std::function<bool()> shouldShowOverlay; };
 struct GUISprite { sf::Sprite sprite; };
 
 struct GUIRedX { sf::Sprite sprite; };
-
-struct GUITexture { sf::Texture texture; };

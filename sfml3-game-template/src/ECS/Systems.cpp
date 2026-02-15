@@ -5,10 +5,10 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <SFML/Graphics/Rect.hpp>   
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SFML/Window/Event.hpp>      
+#include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <entt/entt.hpp>
@@ -26,10 +26,10 @@ namespace CoreSystems
         auto &registry = *m_AppContext.m_Registry;
         auto &window = *m_AppContext.m_MainWindow;
 
-        auto view = registry.view<PlayerTag, 
-                                Velocity, 
+        auto view = registry.view<PlayerTag,
+                                Velocity,
                                 MovementSpeed,
-                                AnimatorComponent, 
+                                AnimatorComponent,
                                 SpriteComponent,
                                 Facing>();
 
@@ -109,7 +109,7 @@ namespace CoreSystems
                 sprite sheet and we flip the sprite with a negative scale to make it face left.
                 So if you/we have both right and left facing sprites in our sheet and use those
                 this check will not be necessary (it won't run anyway is scale is > 0). */
-                
+
                 // Check sprite/entity orientation
                 // if scale.x is negative, the sprite is flipped horizontally
                 bool isFlipped = spriteComp.sprite.getScale().x < 0;
@@ -123,25 +123,25 @@ namespace CoreSystems
                 float padBottom = bounds->padBottom;
 
                 // West Wall
-                if (spriteBounds.position.x + currentPadLeft < 0.0f) 
+                if (spriteBounds.position.x + currentPadLeft < 0.0f)
                 {
                     float overlap = (spriteBounds.position.x + currentPadLeft) - 0.0f;
                     spriteComp.sprite.move({ -overlap, 0.0f });
                 }
                 // East Wall
-                if (spriteBounds.position.x + spriteBounds.size.x - currentPadRight > windowSize.x) 
+                if (spriteBounds.position.x + spriteBounds.size.x - currentPadRight > windowSize.x)
                 {
                     float overlap = (spriteBounds.position.x + spriteBounds.size.x - currentPadRight) - windowSize.x;
                     spriteComp.sprite.move({ -overlap, 0.0f });
                 }
                 // North Wall
-                if (spriteBounds.position.y + padTop < 0.0f) 
+                if (spriteBounds.position.y + padTop < 0.0f)
                 {
                     float overlap = (spriteBounds.position.y + padTop) - 0.0f;
                     spriteComp.sprite.move({ 0.0f, -overlap });
                 }
                 // South Wall
-                if (spriteBounds.position.y + spriteBounds.size.y - padBottom > windowSize.y) 
+                if (spriteBounds.position.y + spriteBounds.size.y - padBottom > windowSize.y)
                 {
                     float overlap = (spriteBounds.position.y + spriteBounds.size.y - padBottom) - windowSize.y;
                     spriteComp.sprite.move({ 0.0f, -overlap });
@@ -180,7 +180,7 @@ namespace CoreSystems
         {
             const auto& spriteComp = view.get<SpriteComponent>(entity);
             window.draw(spriteComp.sprite);
-            
+
             if (showDebug)
             {
                 auto bounds = spriteComp.sprite.getGlobalBounds();
@@ -197,13 +197,13 @@ namespace CoreSystems
                 {
                     // Draw a Green box representing the "Solid" body (inner bounds)
                     sf::RectangleShape solidBox;
-                    solidBox.setPosition({ 
-                        bounds.position.x + confine->padLeft, 
-                        bounds.position.y + confine->padTop 
+                    solidBox.setPosition({
+                        bounds.position.x + confine->padLeft,
+                        bounds.position.y + confine->padTop
                     });
-                    solidBox.setSize({ 
-                        bounds.size.x - (confine->padLeft + confine->padRight), 
-                        bounds.size.y - (confine->padTop + confine->padBottom) 
+                    solidBox.setSize({
+                        bounds.size.x - (confine->padLeft + confine->padRight),
+                        bounds.size.y - (confine->padTop + confine->padBottom)
                     });
                     solidBox.setFillColor(sf::Color::Transparent);
                     solidBox.setOutlineColor(sf::Color::Green);
@@ -244,7 +244,7 @@ namespace CoreSystems
                 newRect.position.y = currentAnim.row * animator.frameSize.y;
                 newRect.size.x = animator.frameSize.x;
                 newRect.size.y = animator.frameSize.y;
-                
+
                 // Set the sprite's texture rect
                 spriteComp.sprite.setTextureRect(newRect);
             }
@@ -303,7 +303,7 @@ namespace UISystems
             auto& uiText = textView.get<UIText>(textEntity);
 
             // Change text color on hover for interactive UI
-            if (registry.any_of<UIAction, UIBounds>(textEntity))
+            if (registry.all_of<UIAction, UIBounds>(textEntity))
             {
                 if (registry.all_of<UIHover>(textEntity))
                 {
@@ -354,7 +354,7 @@ namespace UISystems
             // empty
         }
     }
-    
+
     void uiSettingsChecks(AppContext& context)
     {
         auto* buttonRedX = context.m_ResourceManager->getResource<sf::Texture>(
@@ -368,7 +368,7 @@ namespace UISystems
         utils::centerOrigin(redXSprite);
 
         auto& registry = context.m_Registry;
-        
+
         auto buttonView = registry->view<GUISprite, UIToggleCond>();
         for (auto buttonEntity : buttonView)
         {
@@ -383,7 +383,7 @@ namespace UISystems
                     registry->emplace<GUIRedX>(buttonEntity, redXSprite);
                 }
             }
-            else 
+            else
             {
                 if (registry->all_of<GUIRedX>(buttonEntity))
                 {

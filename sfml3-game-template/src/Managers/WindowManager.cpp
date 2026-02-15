@@ -8,7 +8,6 @@
 #include "Utilities/Logger.hpp"
 #include "AssetKeys.hpp"
 
-#include <cstdlib>
 #include <memory>
 #include <string>
 
@@ -78,22 +77,18 @@ bool WindowManager::createMainWindow(unsigned int width, unsigned int height, co
 
 sf::RenderWindow& WindowManager::getMainWindow()
 {
-    // Check if mainWindow is valid
     if (!m_MainWindow)
     {
-        logger::Error("FATAL: getMainWindow failed! m_MainWindow is null! Terminating...");
-        std::abort();
+        logger::Fatal("getMainWindow failed! m_MainWindow is null! Terminating...");
     }
     return *m_MainWindow;
 }
 
 const sf::RenderWindow& WindowManager::getMainWindow() const
 {
-    // Check if mainWindow is valid
     if (!m_MainWindow)
     {
-        logger::Error("FATAL: getMainWindow failed! m_MainWindow is null! Terminating...");
-        std::abort();
+        logger::Fatal("getMainWindow failed! m_MainWindow is null! Terminating...");
     }
     return *m_MainWindow;
 }

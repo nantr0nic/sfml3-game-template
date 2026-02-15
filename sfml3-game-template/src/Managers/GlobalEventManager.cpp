@@ -1,6 +1,5 @@
 #include "Managers/GlobalEventManager.hpp"
 
-#include <SFML/Audio/Music.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 

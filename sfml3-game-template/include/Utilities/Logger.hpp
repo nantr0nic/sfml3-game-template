@@ -119,6 +119,33 @@ namespace logger
                 }
                 logC_V.notify_one();
             }
+            
+            // Internal function to handle fatal error logging -- will terminate the program!
+            [[noreturn]] void fatal(std::string_view message, const std::source_location& loc) {
+                stopFlag.store(true, std::memory_order_release);
+            
+                std::println(stderr, "[[{}{}{}]] {}({}:{}) --> {}{}{}",
+                    Color::Red, "FATAL", Color::Reset,
+                    formatPath(loc.file_name()), loc.line(), loc.column(),
+                    Color::Red, message, Color::Reset
+                );
+            
+                #if LOG_TO_FILE
+                {
+                    std::scoped_lock lock(logMutex); 
+                    if (logFile.is_open()) 
+                    {
+                        std::println(logFile, "[[FATAL]] {}({}:{}) -> {}",
+                            formatPath(loc.file_name()), loc.line(), loc.column(),
+                            message);
+
+                        logFile.flush(); 
+                    }
+                }
+                #endif
+
+                std::abort();
+            }
 
         private:
             void processLogs() {
@@ -210,7 +237,7 @@ namespace logger
             #endif
             std::mutex logMutex;
             std::condition_variable logC_V;
-            std::jthread logWorker;
+            std::jthread logWorker; // this MUST be last! don't move it.
         };
 
         inline LogWorker& getWorker()
@@ -274,6 +301,13 @@ namespace logger
         const std::source_location& loc = std::source_location::current())
     {
         Print(LogLevel::Error, message, loc);
+    }
+    
+    // Logging a "fatal" error message will terminate the program!
+    [[noreturn]] inline void Fatal(std::string_view message,
+        const std::source_location& loc = std::source_location::current())
+    {
+        detail::getWorker().fatal(message, loc);
     }
 }
 

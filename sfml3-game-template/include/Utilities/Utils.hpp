@@ -1,6 +1,9 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/View.hpp>
 
 #include "Managers/ConfigManager.hpp"
 
@@ -16,7 +19,7 @@ struct SpritePadding
 
 namespace utils
 {
-    void boxView(sf::View& view, int windowWidth, int windowHeight);
+    void boxView(sf::View& view, unsigned int windowWidth, unsigned int windowHeight);
     
     [[nodiscard]] sf::Color loadColorFromConfig(const ConfigManager& configManager,
                                 std::string_view configID, std::string_view section, 

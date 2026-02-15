@@ -39,7 +39,7 @@ public:
 
 protected:
     AppContext& m_AppContext;
-    StateEvents m_StateEvents; 
+    StateEvents m_StateEvents;
     
     sf::Vector2f getWindowCenter() const noexcept
     {
@@ -52,7 +52,7 @@ protected:
 class MenuState : public State
 {
 public:
-    MenuState(AppContext& appContext);
+    explicit MenuState(AppContext& appContext);
     virtual ~MenuState() override;
 
     virtual void update(sf::Time deltaTime) override;
@@ -90,7 +90,7 @@ private:
 class PlayState : public State
 {
 public:
-    PlayState(AppContext& appContext);
+    explicit PlayState(AppContext& appContext);
     virtual ~PlayState() override;
 
     virtual void update(sf::Time deltaTime) override;
@@ -104,7 +104,7 @@ private:
 class PauseState : public State
 {
 public:
-    PauseState(AppContext& appContext);
+    explicit PauseState(AppContext& appContext);
     virtual ~PauseState() override;
 
     virtual void update(sf::Time deltaTime) override;

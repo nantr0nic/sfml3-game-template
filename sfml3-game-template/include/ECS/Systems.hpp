@@ -5,7 +5,7 @@
 #include <SFML/Window/Event.hpp>
 #include <entt/entt.hpp>
 
-#include "AppContext.hpp"
+struct AppContext; // forward declaration
 
 namespace CoreSystems
 {

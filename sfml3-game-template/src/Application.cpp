@@ -66,7 +66,13 @@ void Application::run()
         return;
     }
 
-    sf::Clock mainClock = *m_AppContext.m_MainClock;
+    if (!m_AppContext.m_MainClock)
+    {
+        logger::Error("No main clock; aborting run().");
+        return;
+    }
+
+    auto& mainClock = *m_AppContext.m_MainClock;
 
     while (m_AppContext.m_MainWindow->isOpen())
     {
@@ -81,7 +87,14 @@ void Application::run()
 void Application::processEvents()
 {
     auto& globalEvents = m_AppContext.m_GlobalEventManager->getEventHandles();
-    auto& stateEvents = m_StateManager.getCurrentState()->getEventHandlers();
+    auto* currentState = m_StateManager.getCurrentState();
+    if (!currentState)
+    {
+        logger::Error("No current state; aborting processEvents().");
+        m_AppContext.m_MainWindow->handleEvents([](const sf::Event::Closed&) {});
+        return;
+    }
+    auto& stateEvents = currentState->getEventHandlers();
 
     auto onKeyPressMerged = [&](const sf::Event::KeyPressed& event) {
         // run global logic first

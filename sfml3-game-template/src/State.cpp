@@ -39,10 +39,21 @@ MenuState::MenuState(AppContext& appContext)
 
 MenuState::~MenuState()
 {
-    // clean up EnTT entities on leaving MenuState
     auto& registry = *m_AppContext.m_Registry;
-    auto view = registry.view<MenuUITag>();
-    registry.destroy(view.begin(), view.end());
+    // Clean up MenuState UI entities
+    std::vector<entt::entity> entitiesToRemove;
+    auto view = registry.view<UITagID>();
+    for (auto [entity, tag] : view.each())
+    {
+        if (tag.id == UITags::Menu)
+        {
+            entitiesToRemove.push_back(entity);
+        }
+    }
+    for (auto entity : entitiesToRemove)
+    {
+        registry.destroy(entity);
+    }
 }
 
 void MenuState::update([[maybe_unused]] sf::Time deltaTime)
@@ -132,10 +143,21 @@ SettingsMenuState::SettingsMenuState(AppContext& context, bool fromPlayState)
 
 SettingsMenuState::~SettingsMenuState()
 {
-    // Clean up Menu UI entities
     auto& registry = *m_AppContext.m_Registry;
-    auto view = registry.view<SettingsUITag>();
-    registry.destroy(view.begin(), view.end());
+    // Clean up SettingsMenu UI entities
+    std::vector<entt::entity> entitiesToRemove;
+    auto view = registry.view<UITagID>();
+    for (auto [entity, tag] : view.each())
+    {
+        if (tag.id == UITags::Settings)
+        {
+            entitiesToRemove.push_back(entity);
+        }
+    }
+    for (auto entity : entitiesToRemove)
+    {
+        registry.destroy(entity);
+    }
 }
 
 void SettingsMenuState::update([[maybe_unused]] sf::Time deltaTime)
@@ -200,14 +222,9 @@ void SettingsMenuState::initMenuButtons()
         logger::Error("Couldn't load ScoreFont. Can't draw Settings buttons.");
         return;
     }
-    if (!buttonBackground || !leftArrowButton)
+    if (!buttonBackground || !leftArrowButton || !rightArrowButton)
     {
-        logger::Error("Couldn't load ButtonBackground. Can't draw Settings buttons.");
-        return;
-    }
-    if (!music)
-    {
-        logger::Error("No MainSong. Can't adjust music settings.");
+        logger::Error("Couldn't load a button texture. Can't draw Settings buttons.");
         return;
     }
 
@@ -223,6 +240,7 @@ void SettingsMenuState::initMenuButtons()
 
     sf::Vector2f muteSfxPos = { center.x, center.y };
     sf::Vector2f muteMusicPos = { center.x, center.y + 100.0f };
+
     sf::Vector2f backButtonPos = { center.x, windowSize.y - 75.0f };
 
     // Current sfx volume text
@@ -236,13 +254,13 @@ void SettingsMenuState::initMenuButtons()
     // Adjust sfx volume buttons
     auto decreaseSfxVolume = [this]() {
         float currentVolume = m_AppContext.m_AppSettings.sfxVolume;
-        m_AppContext.m_AppSettings.setSfxVolume(currentVolume - 10.0f);
-        m_SfxVolumeText->setString(std::to_string(static_cast<int>(m_AppContext.m_AppSettings.sfxVolume)));
+        float stepAmount = 10.0f;
+        m_AppContext.m_AppSettings.setSfxVolume(currentVolume - stepAmount);
     };
     auto increaseSfxVolume = [this]() {
         float currentVolume = m_AppContext.m_AppSettings.sfxVolume;
-        m_AppContext.m_AppSettings.setSfxVolume(currentVolume + 10.0f);
-        m_SfxVolumeText->setString(std::to_string(static_cast<int>(m_AppContext.m_AppSettings.sfxVolume)));
+        float stepAmount = 10.0f;
+        m_AppContext.m_AppSettings.setSfxVolume(currentVolume + stepAmount);
     };
 
     auto leftSfxArrow = EntityFactory::createLabeledButton(m_AppContext, *leftArrowButton,
@@ -252,44 +270,6 @@ void SettingsMenuState::initMenuButtons()
                                             rightSfxArrowPos, increaseSfxVolume,
                                             UITags::Settings);
 
-    // Current music volume text
-    std::string musicVolumeText = std::to_string(
-                                  static_cast<int>(m_AppContext.m_AppSettings.musicVolume));
-    m_MusicVolumeText.emplace(*font, musicVolumeText, 48);
-    utils::centerOrigin(*m_MusicVolumeText);
-    m_MusicVolumeText->setPosition(musicVolumeTextPos);
-    m_MusicVolumeText->setFillColor(sf::Color(250, 250, 250));
-
-    // Adjust Music Volume buttons
-    auto decreaseMusicVolume = [this, music]() {
-        float currentVolume = m_AppContext.m_AppSettings.musicVolume;
-        float decAmount = 10.0f;
-        m_AppContext.m_AppSettings.setMusicVolume((currentVolume - decAmount), *music);
-        };
-    auto increaseMusicVolume = [this, music]() {
-        float currentVolume = m_AppContext.m_AppSettings.musicVolume;
-        float decAmount = 10.0f;
-        m_AppContext.m_AppSettings.setMusicVolume((currentVolume + decAmount), *music);
-        };
-    // Adjust music arrows
-    auto leftMusicArrow = EntityFactory::createLabeledButton(m_AppContext, *leftArrowButton,
-                                            leftMusicArrowPos, decreaseMusicVolume, *font,
-                                            UITags::Settings, "Music Volume: ", 36);
-    auto rightMusicArrow = EntityFactory::createGUIButton(m_AppContext, *rightArrowButton,
-                                            rightMusicArrowPos, increaseMusicVolume,
-                                            UITags::Settings);
-
-
-
-    // Mute music button
-    auto toggleMusicMute = [this]() { m_AppContext.m_AppSettings.toggleMusicMute(); };
-    auto muteMusicButton = EntityFactory::createLabeledButton(m_AppContext, *buttonBackground,
-                            muteMusicPos, toggleMusicMute, *font, UITags::Settings, "Mute Music",
-                            36, sf::Color::White);
-    m_AppContext.m_Registry->emplace<UIToggleCond>(muteMusicButton, [this]() {
-        return m_AppContext.m_AppSettings.musicMuted;
-    });
-
     // Mute SFX button
     auto toggleSfxMute = [this]() { m_AppContext.m_AppSettings.toggleSfxMute(); };
     auto muteSfxButton = EntityFactory::createLabeledButton(m_AppContext, *buttonBackground,
@@ -298,6 +278,50 @@ void SettingsMenuState::initMenuButtons()
     m_AppContext.m_Registry->emplace<UIToggleCond>(muteSfxButton, [this]() {
         return m_AppContext.m_AppSettings.sfxMuted;
     });
+
+    if (music)
+    {
+        // Current music volume text
+        std::string musicVolumeText = std::to_string(
+                                    static_cast<int>(m_AppContext.m_AppSettings.musicVolume));
+        m_MusicVolumeText.emplace(*font, musicVolumeText, 48);
+        utils::centerOrigin(*m_MusicVolumeText);
+        m_MusicVolumeText->setPosition(musicVolumeTextPos);
+        m_MusicVolumeText->setFillColor(sf::Color(250, 250, 250));
+
+        // Adjust Music Volume button functions
+        auto decreaseMusicVolume = [this, music]() {
+            float currentVolume = m_AppContext.m_AppSettings.musicVolume;
+            float stepAmount = 10.0f;
+            m_AppContext.m_AppSettings.setMusicVolume((currentVolume - stepAmount), *music);
+            };
+        auto increaseMusicVolume = [this, music]() {
+            float currentVolume = m_AppContext.m_AppSettings.musicVolume;
+            float stepAmount = 10.0f;
+            m_AppContext.m_AppSettings.setMusicVolume((currentVolume + stepAmount), *music);
+            };
+
+        // Adjust music arrow buttons
+        auto leftMusicArrow = EntityFactory::createLabeledButton(m_AppContext, *leftArrowButton,
+                                                leftMusicArrowPos, decreaseMusicVolume, *font,
+                                                UITags::Settings, "Music Volume: ", 36);
+        auto rightMusicArrow = EntityFactory::createGUIButton(m_AppContext, *rightArrowButton,
+                                                rightMusicArrowPos, increaseMusicVolume,
+                                                UITags::Settings);
+
+        // Mute music button
+        auto toggleMusicMute = [this]() { m_AppContext.m_AppSettings.toggleMusicMute(); };
+        auto muteMusicButton = EntityFactory::createLabeledButton(m_AppContext, *buttonBackground,
+                                muteMusicPos, toggleMusicMute, *font, UITags::Settings, "Mute Music",
+                                36, sf::Color::White);
+        m_AppContext.m_Registry->emplace<UIToggleCond>(muteMusicButton, [this]() {
+            return m_AppContext.m_AppSettings.musicMuted;
+        });
+    }
+    else
+    {
+        logger::Warn("Settings UI: Music resource not found. Skipping music controls.");
+    }
 
     // Back button
     sf::Vector2f backButtonSize = { 150.0f, 50.0f };
@@ -393,7 +417,7 @@ PlayState::~PlayState()
     auto view = registry.view<PlayerTag>();
     registry.destroy(view.begin(), view.end());
 
-    // Here you would also clean up enemies, bullets, etc.
+    // Here you would also clean up enemies, bullets, HUD entities, etc.
     // (e.g., registry.clear<EnemyTag, BulletTag>();)
 }
 
@@ -420,11 +444,25 @@ void PlayState::render()
 PauseState::PauseState(AppContext& context)
     : State(context)
 {
-    sf::Font* font = context.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
+    sf::Vector2f windowSize = { m_AppContext.m_AppSettings.targetWidth,
+                                m_AppContext.m_AppSettings.targetHeight };
+    sf::Vector2f center = getWindowCenter();
 
-    if (!font)
+    sf::Font* font = context.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
+    sf::Font* backFont = context.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::ScoreFont);
+    
+    // Handle music
+    sf::Music* music = context.m_ResourceManager->getResource<sf::Music>(Assets::Musics::MainSong);
+    if (music && music->getStatus() == sf::Music::Status::Playing)
     {
-        logger::Error("MainFont not found! Can't make pause text.");
+        music->pause();
+    }
+    bool musicShouldResume = (music && !m_AppContext.m_AppSettings.musicMuted
+                               && music->getStatus() == sf::Music::Status::Paused);
+
+    if (!font || !backFont)
+    {
+        logger::Error("MainFont or ScoreFont not found! Can't render certain text.");
     }
     else
     {
@@ -432,7 +470,6 @@ PauseState::PauseState(AppContext& context)
         m_PauseText.emplace(*font, "Paused", 100);
         m_PauseText->setFillColor(sf::Color::Red);
         utils::centerOrigin(*m_PauseText);
-        sf::Vector2f center = getWindowCenter();
         m_PauseText->setPosition(center);
 
         // Settings button
@@ -446,30 +483,37 @@ PauseState::PauseState(AppContext& context)
             UITags::Pause,
             buttonSize
         );
-    }
-
-    // Handle music
-    auto* music = context.m_ResourceManager->getResource<sf::Music>(Assets::Musics::MainSong);
-
-    if (music && music->getStatus() == sf::Music::Status::Playing)
-    {
-        music->pause();
+        
+        // Back button
+        sf::Vector2f backButtonPos = { center.x, windowSize.y - 75.0f };
+        sf::Vector2f backButtonSize = { 150.0f, 50.0f };
+        auto backButton = EntityFactory::createButton(m_AppContext, *backFont, "Back",
+            backButtonPos,
+            [this, music, musicShouldResume]() {
+                if (musicShouldResume)
+                {
+                    music->play();
+                }
+                m_AppContext.m_StateManager->popState();
+                logger::Info("Game unpaused.");
+            },
+            UITags::Pause,
+            backButtonSize
+        );
     }
 
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event) {
             UISystems::uiClickSystem(*m_AppContext.m_Registry, event);
         };
 
-    m_StateEvents.onKeyPress = [this, music](const sf::Event::KeyPressed& event) {
+    m_StateEvents.onKeyPress = [this, music, musicShouldResume](const sf::Event::KeyPressed& event) {
         if (event.scancode == sf::Keyboard::Scancode::Escape)
         {
             m_AppContext.m_MainWindow->close();
         }
         else if (event.scancode == sf::Keyboard::Scancode::P)
         {
-            bool shouldResume = (music && !m_AppContext.m_AppSettings.musicMuted
-                                       && music->getStatus() == sf::Music::Status::Paused);
-            if (shouldResume && music)
+            if (musicShouldResume)
             {
                 music->play();
             }
@@ -484,8 +528,15 @@ PauseState::PauseState(AppContext& context)
 PauseState::~PauseState()
 {
     auto& registry = *m_AppContext.m_Registry;
-    auto view = registry.view<PauseUITag>();
-    registry.destroy(view.begin(), view.end());
+    // Clean up PauseState UI entities
+    auto view = registry.view<UITagID>();
+    for (auto [entity, tag] : view.each())
+    {
+        if (tag.id == UITags::Pause)
+        {
+            registry.destroy(entity);
+        }
+    }
 }
 
 void PauseState::update([[maybe_unused]] sf::Time deltaTime)
@@ -532,8 +583,20 @@ GameTransitionState::GameTransitionState(AppContext& context, TransitionType typ
 GameTransitionState::~GameTransitionState()
 {
     auto& registry = *m_AppContext.m_Registry;
-    auto view = registry.view<TransUITag>();
-    registry.destroy(view.begin(), view.end());
+    // Clean up GameTransitionState UI elements
+    std::vector<entt::entity> entitiesToRemove;
+    auto view = registry.view<UITagID>();
+    for (auto [entity, tag] : view.each())
+    {
+        if (tag.id == UITags::Transition)
+        {
+            entitiesToRemove.push_back(entity);
+        }
+    }
+    for (auto entity : entitiesToRemove)
+    {
+        registry.destroy(entity);
+    }
 }
 
 void GameTransitionState::update([[maybe_unused]] sf::Time deltaTime)
@@ -596,7 +659,7 @@ void GameTransitionState::initMenuButtons(TransitionType type)
     auto* font = m_AppContext.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
     if (!font)
     {
-        logger::Error("Couldn't load font. Can't make transition state title text.");
+        logger::Error("Couldn't load font. Can't make transition buttons text.");
         return;
     }
 
@@ -607,8 +670,7 @@ void GameTransitionState::initMenuButtons(TransitionType type)
     sf::Vector2f middleButtonPos = { center.x, center.y + 50} ;
     sf::Vector2f bottomButtonPos = { center.x, center.y + 200.0f };
 
-    bool nextLevelExists = (m_AppContext.m_AppData.levelNumber < m_AppContext.m_AppData.totalLevels
-                            ? true : false);
+    bool nextLevelExists = (m_AppContext.m_AppData.levelNumber < m_AppContext.m_AppData.totalLevels);
 
     std::string topButtonText{};
     // Set button tag to TransUITag
