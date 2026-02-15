@@ -19,7 +19,12 @@
 class ResourceManager
 {
 public:
-    ResourceManager() = default;
+    /**
+ * @brief Constructs an empty ResourceManager.
+ *
+ * Initializes the manager with no loaded resources; all internal resource maps start empty.
+ */
+ResourceManager() = default;
     ResourceManager(const ResourceManager&) = delete;
     ResourceManager& operator=(const ResourceManager&) = delete;
     ~ResourceManager() = default;
@@ -44,6 +49,19 @@ private:
 };
 
 template<typename T>
+/**
+ * @brief Loads a resource of the specified type and stores it under the given ID.
+ *
+ * Attempts to load a resource of template type `T` from `filepath` and inserts or replaces
+ * the stored resource using `id` as the key. Supported types are `sf::Font`, `sf::Texture`,
+ * `sf::SoundBuffer`, and `sf::Music`. On load failure the function logs an error and returns
+ * without modifying the resource store; if `T` is unsupported an error is logged and no action
+ * is taken.
+ *
+ * @tparam T Resource type to load (`sf::Font`, `sf::Texture`, `sf::SoundBuffer`, or `sf::Music`).
+ * @param id Key under which the loaded resource will be stored.
+ * @param filepath Filesystem path to the resource to load.
+ */
 void ResourceManager::loadResource(std::string_view id, std::string_view filepath)
 {
     if constexpr (std::is_same_v<T, sf::Font>)
@@ -100,6 +118,15 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
 }
 
 template<typename T>
+/**
+ * Retrieve a mutable pointer to a loaded resource by its ID.
+ *
+ * Supports the following resource types for `T`: `sf::Font`, `sf::Texture`, `sf::SoundBuffer`, and `sf::Music`.
+ *
+ * @tparam T Resource type to retrieve.
+ * @param id Identifier used when the resource was loaded.
+ * @return T* Pointer to the requested resource if found, `nullptr` otherwise.
+ */
 T* ResourceManager::getResource(std::string_view id)
 {
     if constexpr (std::is_same_v<T, sf::Font>)
@@ -132,6 +159,13 @@ T* ResourceManager::getResource(std::string_view id)
 }
 
 template<typename T>
+/**
+ * @brief Retrieves a const pointer to a loaded resource by its string identifier.
+ *
+ * @tparam T Resource type (`sf::Font`, `sf::Texture`, `sf::SoundBuffer`, or `sf::Music`).
+ * @param id Identifier of the requested resource.
+ * @return const T* Pointer to the resource if found, `nullptr` otherwise.
+ */
 const T* ResourceManager::getResource(std::string_view id) const
 {
     if constexpr (std::is_same_v<T, sf::Font>)

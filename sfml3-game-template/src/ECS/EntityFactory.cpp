@@ -87,6 +87,12 @@ namespace EntityFactory
         return playerEntity;
     }
 
+    /**
+     * @brief Creates an entity configured to render a colored rectangle.
+     *
+     * @return entt::entity The newly created entity; it has a `RenderableRect` component
+     *         initialized with the provided size, color, and position.
+     */
     entt::entity createRectangle(AppContext& context, 
                                 sf::Vector2f size,
                                 const sf::Color& color,
@@ -102,7 +108,15 @@ namespace EntityFactory
     }
 
     //$ ----- G/UI ----- //
-    //$ --- GUI Helpers --- //
+    /**
+     * @brief Positions a text label to the left of a rectangular UI element and aligns its origin to the label's right-center.
+     *
+     * Positions `text` so it sits to the left of `buttonRect` with `padding` pixels between the label and the rectangle, and sets the text origin to its right-center to enable correct alignment.
+     *
+     * @param text Text object to position; its origin will be modified.
+     * @param buttonRect Bounds of the target rectangle (position and size) used as the reference for positioning.
+     * @param padding Distance in pixels to place between the right edge of the label and the left edge of the rectangle. Default is 10.0f.
+     */
     void positionLabelLeftOf(sf::Text& text, const sf::FloatRect& buttonRect, float padding = 10.0f)
     {
         sf::FloatRect textBounds = text.getLocalBounds();
@@ -120,7 +134,21 @@ namespace EntityFactory
         text.setPosition(position);
     }
     
-    //$ --- GUI Entities --- //
+    /**
+     * @brief Creates a clickable rectangular UI button entity with a centered text label.
+     *
+     * Creates an entity tagged with the provided UITag, attaches a rectangle shape (filled blue)
+     * positioned and origin-centered at `position`, a centered text label rendered with `font`,
+     * bounds for hit testing, and an action invoked when the button is activated.
+     *
+     * @param font Font used to render the button label.
+     * @param text String displayed on the button.
+     * @param position Center position for the button shape and label.
+     * @param action Callback invoked when the button is clicked.
+     * @param tag Logical UI tag assigned to the created entity.
+     * @param size Size of the button shape (width, height).
+     * @return entt::entity The created entity handle.
+     */
     entt::entity createButton(AppContext& context, sf::Font& font,
                             const std::string& text, sf::Vector2f position,
                             std::function<void()> action,
@@ -158,6 +186,20 @@ namespace EntityFactory
         return buttonEntity;
     }
 
+    /**
+     * @brief Create an interactive GUI button entity with a textured sprite and click action.
+     *
+     * The new entity is tagged with `UITagID` and `GUIButtonTag`, and receives `GUISprite`,
+     * `UIBounds`, and `UIAction` components configured from the provided texture, position,
+     * and callback.
+     *
+     * @param context Application context providing access to the ECS registry and resources.
+     * @param texture Texture used to construct the button's sprite.
+     * @param position Position at which the button sprite will be placed.
+     * @param action Callback invoked when the button is activated (clicked).
+     * @param tag Logical UI tag to assign to the button entity.
+     * @return entt::entity The created entity identifier.
+     */
     entt::entity createGUIButton(AppContext& context, sf::Texture& texture,
                                 sf::Vector2f position,
                                 std::function<void()> action, UITags tag)
@@ -183,6 +225,21 @@ namespace EntityFactory
         return buttonEntity;
     }
 
+    /**
+     * @brief Create a UI text label positioned to the left of an existing button and tag it.
+     *
+     * Creates an entity with a UIText component rendered with the given font, string,
+     * size, and color, positions that text to the left of the provided button's bounds,
+     * and attaches a UITagID carrying the specified tag.
+     *
+     * @param buttonEntity The button entity whose bounds are used to position the label.
+     * @param font Font used to render the label text.
+     * @param text String to display in the label.
+     * @param size Character size for the label text.
+     * @param color Fill color for the label text.
+     * @param tag UITags value stored in the label's UITagID component.
+     * @return entt::entity The created label entity.
+     */
     entt::entity createButtonLabel(AppContext& context, const entt::entity buttonEntity,
                                 sf::Font& font, const std::string& text,
                                 unsigned int size, const sf::Color& color, UITags tag)
@@ -206,6 +263,20 @@ namespace EntityFactory
         return labelEntity;
     }
 
+    /**
+     * @brief Create a GUI button entity composed of a sprite and a left-aligned text label.
+     *
+     * @param context Application context providing the entity registry and resources.
+     * @param texture Texture used to construct the button sprite.
+     * @param position World position where the button sprite will be placed.
+     * @param action Callback invoked when the button is activated.
+     * @param font Font used for the label text.
+     * @param tag Logical UI tag assigned to the created entity.
+     * @param text String content of the label displayed to the left of the button.
+     * @param size Character size for the label text.
+     * @param color Fill color for the label text.
+     * @return entt::entity The created entity representing the labeled GUI button.
+     */
     entt::entity createLabeledButton(AppContext &context, sf::Texture &texture,
                                 sf::Vector2f position, std::function<void ()> action,
                                 sf::Font& font, UITags tag, const std::string& text,

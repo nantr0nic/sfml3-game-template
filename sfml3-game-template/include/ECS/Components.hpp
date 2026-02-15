@@ -96,6 +96,15 @@ struct RenderableCircle
 
 struct RenderableRect
 {
+    /**
+     * @brief Constructs a renderable rectangle shape with given size, fill color, and position.
+     *
+     * The rectangle's origin is set to its center so transforms are relative to the shape's center.
+     *
+     * @param size Dimensions of the rectangle (width, height).
+     * @param color Fill color for the rectangle.
+     * @param position World position at which to place the rectangle's origin.
+     */
     RenderableRect(sf::Vector2f size, const sf::Color& color, sf::Vector2f position)
         : shape()
     {

@@ -51,24 +51,50 @@ struct AppSettings
         logger::Info(std::format("Music muted: {}", musicMuted ? "true" : "false"));
     }
     
+    /**
+     * @brief Toggle the SFX mute state.
+     *
+     * Flips the stored SFX mute flag and logs the new state.
+     */
     void toggleSfxMute()
     {
         sfxMuted = !sfxMuted;
         logger::Info(std::format("SFX muted: {}", sfxMuted ? "true" : "false"));
     }
     
+    /**
+     * @brief Retrieve the stored music volume level.
+     *
+     * Also logs the current music volume via logger::Info.
+     *
+     * @return float Current music volume in the range 0 to 100.
+     */
     float getMusicVolume() const
     {
         logger::Info(std::format("Music volume: {}", musicVolume));
         return musicVolume;
     }
     
+    /**
+     * @brief Gets the current sound-effect (SFX) volume.
+     *
+     * @return float Current SFX volume as a float in the range 0 to 100.
+     */
     float getSfxVolume() const
     {
         logger::Info(std::format("SFX volume: {}", sfxVolume));
         return sfxVolume;
     }
     
+    /**
+     * @brief Set and apply the music volume, clamping the value to the range 0–100.
+     *
+     * Stores the clamped volume in the settings, applies it to the provided SFML
+     * Music object via setVolume, and logs the new value.
+     *
+     * @param volume Desired volume level in percent; values outside 0–100 are clamped.
+     * @param music SFML Music instance whose volume will be updated.
+     */
     void setMusicVolume(float volume, sf::Music& music)
     {
         musicVolume = std::clamp(volume, 0.0f, 100.0f);
@@ -77,6 +103,13 @@ struct AppSettings
         logger::Info(std::format("Music volume set to: {}", musicVolume));
     }
     
+    /**
+     * @brief Set the sound effects (SFX) volume.
+     *
+     * Stores the provided volume clamped to the range 0 to 100 and logs the new value.
+     *
+     * @param volume Desired volume level; values outside [0, 100] will be clamped.
+     */
     void setSfxVolume(float volume)
     {
         // SFX volume is stored but not applied to active sounds (cuz they're short-lived)

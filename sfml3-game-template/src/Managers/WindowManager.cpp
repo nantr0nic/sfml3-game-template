@@ -75,6 +75,13 @@ bool WindowManager::createMainWindow(unsigned int width, unsigned int height, co
     return m_MainWindow->isOpen();
 }
 
+/**
+ * @brief Accesses the application's main render window.
+ *
+ * If the main window has not been created, emits a fatal log entry and terminates the process.
+ *
+ * @return sf::RenderWindow& Reference to the main sf::RenderWindow instance.
+ */
 sf::RenderWindow& WindowManager::getMainWindow()
 {
     if (!m_MainWindow)
@@ -84,6 +91,13 @@ sf::RenderWindow& WindowManager::getMainWindow()
     return *m_MainWindow;
 }
 
+/**
+ * @brief Return a const reference to the application's main render window.
+ *
+ * If the main window has not been created, logs a fatal error and terminates execution.
+ *
+ * @return const sf::RenderWindow& Reference to the main sf::RenderWindow instance.
+ */
 const sf::RenderWindow& WindowManager::getMainWindow() const
 {
     if (!m_MainWindow)

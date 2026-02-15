@@ -11,6 +11,17 @@
 #include <cstdint>
 #include <string_view>
 
+/**
+ * @brief Adjusts the view's viewport to preserve the view's aspect ratio within the given window dimensions.
+ *
+ * If the window is wider than the view, adds pillarbox bars (reduces viewport width and centers horizontally).
+ * If the window is taller, adds letterbox bars (reduces viewport height and centers vertically).
+ * If windowWidth <= 0, windowHeight <= 0, or the view's height is <= 0, logs a warning and leaves the view unchanged.
+ *
+ * @param view The sf::View to modify.
+ * @param windowWidth Window width in pixels.
+ * @param windowHeight Window height in pixels.
+ */
 void utils::boxView(sf::View &view, unsigned int windowWidth, unsigned int windowHeight)
 {
     if (windowWidth <= 0 || windowHeight <= 0 || view.getSize().y <= 0.0f)
@@ -45,6 +56,17 @@ void utils::boxView(sf::View &view, unsigned int windowWidth, unsigned int windo
     view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
 }
 
+/**
+ * @brief Loads an RGB color from a configuration table.
+ *
+ * Retrieves a 3-element array at [section][colorKey] in the config identified by configID and constructs an sf::Color from those components.
+ *
+ * @param configManager Configuration manager used to access config tables.
+ * @param configID Identifier of the configuration table to read.
+ * @param section Section name within the configuration table.
+ * @param colorKey Key within the section that should contain a 3-element RGB array.
+ * @return sf::Color Color constructed from the array's [r, g, b] values (each clamped to 0–255). Returns `sf::Color::Magenta` if the config ID is invalid, the value is missing or not a 3-element array, or parsing fails. Default component fallbacks are r=255, g=0, b=255 when individual elements are absent or null.
+ */
 sf::Color utils::loadColorFromConfig(const ConfigManager& configManager, std::string_view configID,
                                      std::string_view section, std::string_view colorKey)
 {

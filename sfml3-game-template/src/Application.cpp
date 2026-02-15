@@ -58,6 +58,14 @@ void Application::initResources()
     m_AppContext.m_ResourceManager->loadAssetsFromManifest("config/AssetsManifest.toml");
 }
 
+/**
+ * @brief Runs the application's main loop until the main window is closed.
+ *
+ * @details Iterates while the main window is open: computes the per-frame elapsed time
+ * from the application's main clock, processes pending state changes, handles input
+ * and window events, updates application state using the elapsed time, and renders
+ * the current frame. If no main window is available, the method logs an error and returns without running.
+ */
 void Application::run()
 {
     if (!m_AppContext.m_MainWindow)
@@ -78,6 +86,16 @@ void Application::run()
     }
 }
 
+/**
+ * @brief Polls and dispatches window events to global and state-specific handlers.
+ *
+ * Retrieves global and current-state event handlers, merges global and state key-press handling
+ * so global handlers run first, and forwards mouse and close events to the appropriate handlers.
+ * On window resize, computes a boxed view that matches the configured target dimensions and
+ * applies it to the main window.
+ *
+ * If no current state is available, the function logs an error and returns without processing events.
+ */
 void Application::processEvents()
 {
     auto& globalEvents = m_AppContext.m_GlobalEventManager->getEventHandles();
