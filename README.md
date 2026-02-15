@@ -1,71 +1,74 @@
-![Preview of what we have so far](screenshots/mainwindow.png)
+![Preview of what we have so far](screenshots/current.gif)
 
 # SFML 3 Game Template
-This is a template I've created for myself to practice C++ game development. It in no way is intended as
-a 2D 'engine' for general use -- but it does contain things similar to 'engines' like various managers,
-an ECS framework, various utilities, and it relies on state-management for 'game scenes'. I will be using this as a template for prototyping game ideas and you are welcome to as well! Things I hope to incorporate 
-in the future (in some order):
-* LDtk
-* ImGUI
-* Box2D
+A modern, data-oriented C++23 starter template for game development using SFML 3.
 
-Hopefully the code is self-documenting enough to make up for a lack of docstrings; but, if you do have questions or suggestions, please feel free to reach out!
-
-## Purpose
-
-The purpose of this repo is practicing C++ game development concepts using [SFML 3](https://github.com/SFML/SFML), CMake, and libraries like [EnTT](https://github.com/skypjack/entt), and [toml++](https://github.com/marzer/tomlplusplus). In my last project, working to add features later led to the nightmare of refactoring patchy code that didn't anticipate scaling to other use cases. This practice project is a direct
-consequence of that experience wherein my goal is to build a solid foundation based on common design patterns.
-
-I've also learned some fun acronyms like "YAGNI" so I am also trying to balance the above goal with the practice of not over-engineering solutions to problems I don't have yet. Granted, the purpose of this project is to learn architectural patterns SO there might/will probably be some "overkill" stuff.
+This is a work-in-progress template I've created to practice C++ game development. While not a robust 2D 'game engine', it does provide things similar to simple engines: an ECS framework, a state machine for managing game scenes, various managers,  and a few utilities (e.g., async logger, random machine, etc.). The goal is to provide a foundation to help speed up prototyping and developing games using SFML 3.
 
 ### Examples
 Projects made with this template:
 
-* [Breakdown](https://github.com/nantr0nic/breakdown) - A breakout game where the bricks begin to descend. 
+* [Breakdown](https://github.com/nantr0nic/breakdown) - A breakout game where the bricks begin to descend.
 
 ## Features
 ### Architecture
+One goal is to implement a robust and scalable architecture from the start. The current
+implementation focuses on the following architectural patterns:
 
-The main goal is to implement a robust and scalable architecture from the start. The current implementation focuses on two primary architectural patterns:
-
-*   **Entity-Component-System (ECS):** Using the [EnTT](https://github.com/skypjack/entt) library, this project adopts the ECS pattern to decouple game entities from their data and logic. This allows for a more flexible and data-oriented design. (This is to avoid complicated/confusing inheritance hierarchies in games with a variety of types of entities.)
-*   **State Machine:** A finite state machine is used to manage the different states of the application (e.g., Main Menu, Playing, Paused). This keeps the logic for each state contained and easy to manage.
-
-### Managers
-
-To handle common game-related tasks and resources, several manager classes have been implemented. These are bundled into a single `AppContext` struct that is passed to different parts of the application, like game states, to provide access to shared resources without using globals.
-
-*   **`StateManager`**: Manages the 'stack' (a vector) of game states (e.g., `MainMenu`, `Playing`).
-*   **`WindowManager`**: A wrapper for the `sf::RenderWindow` to handle window creation and events.
-*   **`ResourceManager`**: A generic manager for loading and storing shared resources like textures and fonts to prevent redundant loading from disk.
-*   **`ConfigManager`**: Manages loading and accessing configuration data from files (e.g., using [toml++](https://github.com/marzer/tomlplusplus)).
-*   **`GlobalEventManager`**: A simple event manager for broadcasting events across different systems.
+*   **Entity-Component-System (ECS):** Using the [EnTT](https://github.com/skypjack/entt) library, this project adopts the ECS pattern to decouple game entities from their data and logic. This allows for a more flexible and data-oriented design. This avoids the (often confusing) deep inheritance hierarchies common in traditional object-oriented game design. The ECS system is also used to create and manage GUI elements.
+*   **State Machine:** A stack-based finite state machine is used to manage the different states of the application (e.g. Main Menu, Play State, Settings Menu, etc.). This keeps the logic for each state contained, easy to manage, and allows for easy overlays.
+*   **Service Locator Pattern:** ```AppContext``` serves as a centralized hub for all major engine components, including Managers, the ECS Registry, and global AppData.
+*   **Data-oriented Configuration:** Rather than hard-coding values into source files, this template uses TOML files for manifest loading resources and handling game configuration externally. This allows you to tweak game constants or swap textures without recompiling the entire C++ codebase.
+*   **Cross-platform:** This template uses the CMake build system and compiles on Windows and Linux systems.
 
 ### ECS (Entity-Component-System)
 
-The project uses the **EnTT** library to implement an ECS architecture. This pattern separates data from logic, leading to a "data-oriented design". I'm practicing using it for game entities as well as UI elements. The core parts of the ECS implementation are:
+The project uses the **EnTT** library to implement an ECS architecture. The core parts of the ECS implementation are:
 
-*   **`Components.hpp`**: This header-only file defines all the components. Components are simple data structures (structs) that hold information but no logic (e.g., `Position`, `Velocity`, `Renderable`).
-*   **`EntityFactory`**: A factory class responsible for constructing pre-defined game entities (prefabs). It simplifies entity creation by assembling a specific set of components and assigning them to a new entity (e.g., creating a "Player" entity with `Position`, `Velocity`, and `Input` components).
-*   **`Systems.cpp`**: This file contains the game's logic. Systems are functions or classes that iterate over entities with specific sets of components and perform updates/operations/etc.
+*   **`Components.hpp`**:  Components are simple data structures (structs) that hold information but no logic (e.g., `Position`, `Velocity`, `Renderable`). These are used to define entities within the EnTT registry.
+*   **`EntityFactory`**: A factory class responsible for constructing pre-defined game entities (prefabs). It simplifies game entity creation by assembling a specific set of components and assigning them to a new entity (e.g., creating a "Player" entity with `Position`, `Velocity`, and `Input` components). Also used for creating GUI elements.
+*   **`Systems.cpp`**: This file contains the game's logic. Systems are functions or classes that iterate over entities with specific sets of components and perform updates/operations/etc. It is separated into CoreSystems (game mechanics) and UISystems.
+
+### Managers
+
+To handle common game-related tasks and resources, several manager classes have been implemented. Following the Service Locator pattern, these are bundled into a single `AppContext` struct that is passed by reference to game states and systems, providing a centralized, non-global hub. The managers include:
+
+*   **`StateManager`**: Manages the 'stack' (a vector) of game states (e.g., `MainMenu`, `Playing`).
+*   **`ResourceManager`**: A centralized, exception-free asset manager. Supports ```sf::Texture```, ```sf::Font```, ```sf::SoundBuffer```, and ```sf::Music``` with automatic manifest-based loading. 
+> An ```AssetsManifest.toml``` file is provided to help manage resources and enable swapping asset files without needing to re-compile. An ```AssetKeys.cpp``` file is provided to help centralize resource names to help prevent typo/copy-paste errors.
+*   **`ConfigManager`**: Manages loading and accessing configuration data from files using [toml++](https://github.com/marzer/tomlplusplus).
+*   **`WindowManager`**: A wrapper for the `sf::RenderWindow` to handle window creation and events.
+*   **`GlobalEventManager`**: A simple event manager for broadcasting events across different systems.
 
 ### Utilities
 
-*   **`Logger.hpp`**: Simple logger that makes use of std::print and std::source_location. Prints Info/Warning/Error to console with ANSI colors. Flags are set to only print Error for release builds.
-*   **`RandomMachine`**: A utility class for generating random numbers.
+*   **Logger**: An asynchronous logger that makes use of std::print and std::source_location. It can print Info/Warning/Error to console with ANSI colors, log to file, or both.
+> **CMake Integration:** Logging to file can be set in CMakeLists.txt, or ```-DLOG_TO_FILE=ON``` can be used during builds.
+*   **RandomMachine**: A thread-safe utility class for generating random numbers.
+*   **Utils:** Includes helper functions for letterboxing (```boxView```), parsing colors from file with safety clamping, and automated sprite padding calculations.
 
 ## Build & Dependencies
+* This project requires a **C++23** compatible compiler (GCC 13+, Clang 16+, MSVC 19.35+).
 
-The project is built using CMake with a single `CMakeLists.txt` in the root directory. I've built it in both Windows and (Arch) Linux with no problems. 
+The project is built using CMake with a single `CMakeLists.txt` in the root directory. CMake will fetch the following dependencies:
 
 *   [**SFML 3.0.2**](https://github.com/SFML/SFML): Used for graphics, windowing, and audio.
 *   [**EnTT**](https://github.com/skypjack/entt): For the ECS architecture.
 *   [**toml++**](https://github.com/marzer/tomlplusplus): For parsing TOML configuration files.
 
+To build this project, run the following commands within the ```sfml3-game-template``` folder:
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
 ## Keymap
 
 * **WASD**: Moves the character around
 * **P**: Pause/Unpause the game
-* **M**: Mute/Unmute the music
 * **F12**: Enable/disable debug (Currently just toggles the sprite boundary boxes.)
 * **Escape**: Quit the game
+
+## Next Steps
+
+* **Actual documentation!** I aim to provide thorough documentation of template features and examples to demonstrate their use.
