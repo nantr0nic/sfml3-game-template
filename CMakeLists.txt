@@ -87,14 +87,16 @@ add_custom_target(CopyAssets ALL
 add_dependencies(sfml3-game-template CopyAssets)
 
 # This is to copy compile_commands.json to out directory for clangd
-add_custom_target(
-    copy-compile-commands ALL
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-            "${CMAKE_BINARY_DIR}/compile_commands.json"
-            "${CMAKE_SOURCE_DIR}/out/compile_commands.json"
-    DEPENDS "${CMAKE_BINARY_DIR}/compile_commands.json"
-    COMMENT "Copying compile_commands.json to out directory"
-)
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+    add_custom_target(
+        copy-compile-commands ALL
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                "${CMAKE_BINARY_DIR}/compile_commands.json"
+                "${CMAKE_SOURCE_DIR}/out/compile_commands.json"
+        DEPENDS "${CMAKE_BINARY_DIR}/compile_commands.json"
+        COMMENT "Copying compile_commands.json to out directory"
+    )
+endif()
 
 # -------------------- #
 #       options        #

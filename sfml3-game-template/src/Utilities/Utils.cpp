@@ -13,7 +13,7 @@
 
 void utils::boxView(sf::View &view, unsigned int windowWidth, unsigned int windowHeight)
 {
-    if (windowHeight <= 0 || view.getSize().y <= 0.0f)
+    if (windowWidth <= 0 || windowHeight <= 0 || view.getSize().y <= 0.0f)
     {
         logger::Warn("Invalid window or view dimensions! boxView() failed.");
         return;

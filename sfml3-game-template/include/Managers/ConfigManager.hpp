@@ -20,7 +20,7 @@ public:
     ConfigManager& operator=(const ConfigManager&) = delete;
     ~ConfigManager() noexcept = default;
 
-    const std::map<std::string, toml::table, std::less<>> getConfigFiles() const { return m_ConfigFiles; }
+    const std::map<std::string, toml::table, std::less<>>& getConfigFiles() const { return m_ConfigFiles; }
 
     void loadConfig(std::string_view configID, std::string_view filepath);
 
