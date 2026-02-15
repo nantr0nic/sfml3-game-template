@@ -230,6 +230,7 @@ void SettingsMenuState::initMenuButtons()
 
     sf::Vector2f muteSfxPos = { center.x, center.y };
     sf::Vector2f muteMusicPos = { center.x, center.y + 100.0f };
+
     sf::Vector2f backButtonPos = { center.x, windowSize.y - 75.0f };
 
     // Current sfx volume text
@@ -243,13 +244,13 @@ void SettingsMenuState::initMenuButtons()
     // Adjust sfx volume buttons
     auto decreaseSfxVolume = [this]() {
         float currentVolume = m_AppContext.m_AppSettings.sfxVolume;
-        m_AppContext.m_AppSettings.setSfxVolume(currentVolume - 10.0f);
-        //m_SfxVolumeText->setString(std::to_string(static_cast<int>(m_AppContext.m_AppSettings.sfxVolume)));
+        float stepAmount = 10.0f;
+        m_AppContext.m_AppSettings.setSfxVolume(currentVolume - stepAmount);
     };
     auto increaseSfxVolume = [this]() {
         float currentVolume = m_AppContext.m_AppSettings.sfxVolume;
-        m_AppContext.m_AppSettings.setSfxVolume(currentVolume + 10.0f);
-        //m_SfxVolumeText->setString(std::to_string(static_cast<int>(m_AppContext.m_AppSettings.sfxVolume)));
+        float stepAmount = 10.0f;
+        m_AppContext.m_AppSettings.setSfxVolume(currentVolume + stepAmount);
     };
 
     auto leftSfxArrow = EntityFactory::createLabeledButton(m_AppContext, *leftArrowButton,
@@ -281,13 +282,13 @@ void SettingsMenuState::initMenuButtons()
         // Adjust Music Volume button functions
         auto decreaseMusicVolume = [this, music]() {
             float currentVolume = m_AppContext.m_AppSettings.musicVolume;
-            float decAmount = 10.0f;
-            m_AppContext.m_AppSettings.setMusicVolume((currentVolume - decAmount), *music);
+            float stepAmount = 10.0f;
+            m_AppContext.m_AppSettings.setMusicVolume((currentVolume - stepAmount), *music);
             };
         auto increaseMusicVolume = [this, music]() {
             float currentVolume = m_AppContext.m_AppSettings.musicVolume;
-            float decAmount = 10.0f;
-            m_AppContext.m_AppSettings.setMusicVolume((currentVolume + decAmount), *music);
+            float stepAmount = 10.0f;
+            m_AppContext.m_AppSettings.setMusicVolume((currentVolume + stepAmount), *music);
             };
 
         // Adjust music arrow buttons
@@ -433,11 +434,16 @@ void PlayState::render()
 PauseState::PauseState(AppContext& context)
     : State(context)
 {
-    sf::Font* font = context.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
+    sf::Vector2f windowSize = { m_AppContext.m_AppSettings.targetWidth,
+                                m_AppContext.m_AppSettings.targetHeight };
+    sf::Vector2f center = getWindowCenter();
 
-    if (!font)
+    sf::Font* font = context.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
+    sf::Font* backFont = context.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::ScoreFont);
+
+    if (!font || !backFont)
     {
-        logger::Error("MainFont not found! Can't make pause text.");
+        logger::Error("MainFont or ScoreFont not found! Can't render certain text.");
     }
     else
     {
@@ -445,7 +451,6 @@ PauseState::PauseState(AppContext& context)
         m_PauseText.emplace(*font, "Paused", 100);
         m_PauseText->setFillColor(sf::Color::Red);
         utils::centerOrigin(*m_PauseText);
-        sf::Vector2f center = getWindowCenter();
         m_PauseText->setPosition(center);
 
         // Settings button
@@ -458,6 +463,19 @@ PauseState::PauseState(AppContext& context)
             },
             UITags::Pause,
             buttonSize
+        );
+        
+        // Back button
+        sf::Vector2f backButtonPos = { center.x, windowSize.y - 75.0f };
+        sf::Vector2f backButtonSize = { 150.0f, 50.0f };
+        auto backButton = EntityFactory::createButton(m_AppContext, *backFont, "Back",
+            backButtonPos,
+            [this]() {
+                m_AppContext.m_StateManager->popState();
+                logger::Info("Game unpaused.");
+            },
+            UITags::Pause,
+            backButtonSize
         );
     }
 
@@ -482,7 +500,7 @@ PauseState::PauseState(AppContext& context)
         {
             bool shouldResume = (music && !m_AppContext.m_AppSettings.musicMuted
                                        && music->getStatus() == sf::Music::Status::Paused);
-            if (shouldResume && music)
+            if (shouldResume)
             {
                 music->play();
             }
@@ -634,8 +652,7 @@ void GameTransitionState::initMenuButtons(TransitionType type)
     sf::Vector2f middleButtonPos = { center.x, center.y + 50} ;
     sf::Vector2f bottomButtonPos = { center.x, center.y + 200.0f };
 
-    bool nextLevelExists = (m_AppContext.m_AppData.levelNumber < m_AppContext.m_AppData.totalLevels
-                            ? true : false);
+    bool nextLevelExists = (m_AppContext.m_AppData.levelNumber < m_AppContext.m_AppData.totalLevels);
 
     std::string topButtonText{};
     // Set button tag to TransUITag

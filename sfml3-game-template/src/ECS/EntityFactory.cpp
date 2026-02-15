@@ -102,6 +102,23 @@ namespace EntityFactory
     }
 
     //$ ----- G/UI ----- //
+    //$ --- GUI Helpers --- //
+    void positionLabelLeftOf(sf::Text& text, const sf::FloatRect& buttonRect, float padding = 10.0f)
+    {
+        sf::FloatRect textBounds = text.getLocalBounds();
+
+        // set origin to RIGHT-CENTER of the text
+        sf::Vector2f origin;
+        origin.x = textBounds.position.x + textBounds.size.x; // far right edge
+        origin.y = textBounds.position.y + (textBounds.size.y / 2.0f);
+        text.setOrigin(origin);
+
+        sf::Vector2f position;
+        position.x = buttonRect.position.x - padding; // left of the button
+        position.y = buttonRect.position.y + (buttonRect.size.y / 2.0f);
+
+        text.setPosition(position);
+    }
     
     //$ --- GUI Entities --- //
     entt::entity createButton(AppContext& context, sf::Font& font,
@@ -174,31 +191,18 @@ namespace EntityFactory
         auto labelEntity = registry.create();
         
         // Tag component
-        registry.emplace<UITagID>(buttonEntity, tag);
-
-        // We'll assume the label goes to the left (for now)
+        registry.emplace<UITagID>(labelEntity, tag); 
+    
+        // Get the button's bounds
         auto& buttonBounds = registry.get<UIBounds>(buttonEntity);
-        sf::FloatRect buttonRect = buttonBounds.rect;
-
+        
+        // Create and style the text
         auto& labelText = registry.emplace<UIText>(labelEntity, sf::Text(font, text, size));
         labelText.text.setFillColor(color);
-
-        sf::FloatRect textBounds = labelText.text.getLocalBounds();
-
-        // set origin to RIGHT-CENTER of the text
-        sf::Vector2f origin;
-        origin.x = textBounds.position.x + textBounds.size.x; // far right edge
-        origin.y = textBounds.position.y + (textBounds.size.y / 2.0f);
-        labelText.text.setOrigin(origin);
-
-        float labelPadding = 10.0f;
-
-        sf::Vector2f position;
-        position.x = buttonRect.position.x - labelPadding; // left of the button
-        position.y = buttonRect.position.y + (buttonRect.size.y / 2.0f);
-
-        labelText.text.setPosition(position);
-
+    
+        // Position the label
+        positionLabelLeftOf(labelText.text, buttonBounds.rect);
+    
         return labelEntity;
     }
 
@@ -209,42 +213,28 @@ namespace EntityFactory
     {
         auto& registry = *context.m_Registry;
         auto buttonEntity = registry.create();
-
+    
         // Tag components
         registry.emplace<UITagID>(buttonEntity, tag);
         registry.emplace<GUIButtonTag>(buttonEntity);
-
+    
+        // Sprite component
         sf::Sprite buttonSprite(texture);
         buttonSprite.setPosition(position);
         sf::FloatRect bounds = buttonSprite.getGlobalBounds();
         registry.emplace<GUISprite>(buttonEntity, std::move(buttonSprite));
-
-        // Bounds component
+    
+        // Button bounds component
         auto& buttonBounds = registry.emplace<UIBounds>(buttonEntity, bounds);
-        sf::FloatRect buttonRect = buttonBounds.rect;
-
-        // Clickable component
         registry.emplace<UIAction>(buttonEntity, std::move(action));
-
+    
         // Label text
         auto& labelText = registry.emplace<UIText>(buttonEntity, sf::Text(font, text, size));
         labelText.text.setFillColor(color);
-
-        sf::FloatRect textBounds = labelText.text.getLocalBounds();
-
-        sf::Vector2f origin;
-        origin.x = textBounds.position.x + textBounds.size.x; // far right edge
-        origin.y = textBounds.position.y + (textBounds.size.y / 2.0f);
-        labelText.text.setOrigin(origin);
-
-        float labelPadding = 10.0f;
-
-        sf::Vector2f labelPosition;
-        labelPosition.x = buttonRect.position.x - labelPadding; // left of the button
-        labelPosition.y = buttonRect.position.y + (buttonRect.size.y / 2.0f);
-
-        labelText.text.setPosition(labelPosition);
-
+    
+        // Position the label
+        positionLabelLeftOf(labelText.text, buttonBounds.rect);
+    
         return buttonEntity;
     }
 }

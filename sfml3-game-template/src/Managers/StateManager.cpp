@@ -29,7 +29,9 @@ void StateManager::replaceState(std::unique_ptr<State> state)
 
 void StateManager::processPending()
 {
-    for (auto& change : m_PendingChanges)
+    auto pending = std::move(m_PendingChanges);
+    m_PendingChanges.clear();
+    for (auto& change : pending)
     {
         switch (change.action)
         {
@@ -53,7 +55,6 @@ void StateManager::processPending()
                 break;
         }
     }
-    m_PendingChanges.clear();
 }
 
 State* StateManager::getCurrentState() noexcept
