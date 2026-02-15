@@ -108,6 +108,15 @@ namespace logger
                 #endif
             }
 
+            /**
+             * @brief Enqueues a log entry for asynchronous processing by the internal worker.
+             *
+             * If shutdown has been initiated, the call is a no-op. Otherwise the function
+             * transfers ownership of `entry` into the internal queue and notifies the worker
+             * to process queued entries.
+             *
+             * @param entry Log entry to enqueue; ownership is transferred into the worker.
+             */
             void push(LogEntry entry) {
                 if (stopFlag.load(std::memory_order_acquire))
                 {
@@ -120,7 +129,17 @@ namespace logger
                 logC_V.notify_one();
             }
             
-            // Internal function to handle fatal error logging -- will terminate the program!
+            /**
+             * @brief Logs a fatal error message with source location and then terminates the process.
+             *
+             * Logs a colored fatal message to stderr (and to the configured log file if file logging is enabled),
+             * signals shutdown for the logger, flushes file output when applicable, and calls std::abort().
+             *
+             * @param message The fatal error message to record.
+             * @param loc Source location associated with the message (file, line, column).
+             *
+             * @note This function does not return; it unconditionally terminates the program.
+             */
             [[noreturn]] void fatal(std::string_view message, const std::source_location& loc) {
                 stopFlag.store(true, std::memory_order_release);
             
@@ -148,6 +167,14 @@ namespace logger
             }
 
         private:
+            /**
+             * @brief Continuously processes queued log entries and outputs them to the console (and optionally to a log file).
+             *
+             * Processes log messages produced by other threads until shutdown is requested. For each entry it selects
+             * an output stream (stderr for errors, stdout for others), formats a colored, human-readable log line
+             * that includes location and message, and prints it to the console. When file logging is enabled, it
+             * also writes a plain-formatted line to the log file and flushes the file on error entries and on shutdown.
+             */
             void processLogs() {
                 while (true)
                 {
@@ -240,6 +267,14 @@ namespace logger
             std::jthread logWorker; // this MUST be last! don't move it.
         };
 
+        /**
+         * @brief Accesses the single shared LogWorker instance used by the logger.
+         *
+         * Returns a reference to the internally created, lazily-initialized LogWorker
+         * that performs asynchronous log processing and optional file output.
+         *
+         * @return LogWorker& Reference to the singleton LogWorker.
+         */
         inline LogWorker& getWorker()
         {
             static LogWorker worker;
@@ -297,13 +332,26 @@ namespace logger
         Print(LogLevel::Warning, message, loc);
     }
 
+    /**
+     * @brief Logs a message at the error level.
+     *
+     * @param message The text to log.
+     * @param loc Source location associated with the message; defaults to the call site.
+     */
     inline void Error(std::string_view message,
         const std::source_location& loc = std::source_location::current())
     {
         Print(LogLevel::Error, message, loc);
     }
     
-    // Logging a "fatal" error message will terminate the program!
+    /**
+     * @brief Log a fatal error message and terminate the program immediately.
+     *
+     * @param message The message to log for the fatal error.
+     * @param loc The source location associated with the call site (defaults to the caller).
+     *
+     * @note This function does not return; it aborts the process after logging.
+     */
     [[noreturn]] inline void Fatal(std::string_view message,
         const std::source_location& loc = std::source_location::current())
     {

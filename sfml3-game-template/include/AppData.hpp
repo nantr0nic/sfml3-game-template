@@ -51,24 +51,45 @@ struct AppSettings
         logger::Info(std::format("Music muted: {}", musicMuted ? "true" : "false"));
     }
     
+    /**
+     * @brief Toggle the sound effects mute state.
+     *
+     * Flips the AppSettings::sfxMuted flag between true and false and logs the new state.
+     */
     void toggleSfxMute()
     {
         sfxMuted = !sfxMuted;
         logger::Info(std::format("SFX muted: {}", sfxMuted ? "true" : "false"));
     }
     
+    /**
+     * @brief Retrieves the current music volume level.
+     *
+     * @return float Current music volume, in the range 0 to 100.
+     */
     float getMusicVolume() const
     {
         logger::Info(std::format("Music volume: {}", musicVolume));
         return musicVolume;
     }
     
+    /**
+     * @brief Retrieves the current sound-effect (SFX) volume level.
+     *
+     * @return float Current SFX volume in the range 0–100.
+     */
     float getSfxVolume() const
     {
         logger::Info(std::format("SFX volume: {}", sfxVolume));
         return sfxVolume;
     }
     
+    /**
+     * @brief Set the music volume, clamping the value to the range [0, 100] and applying it to the given music instance.
+     *
+     * @param volume Desired volume level (will be clamped to 0–100).
+     * @param music Reference to the sf::Music instance whose volume will be updated.
+     */
     void setMusicVolume(float volume, sf::Music& music)
     {
         musicVolume = std::clamp(volume, 0.0f, 100.0f);
@@ -77,6 +98,11 @@ struct AppSettings
         logger::Info(std::format("Music volume set to: {}", musicVolume));
     }
     
+    /**
+     * @brief Sets the SFX volume, clamping the value to the range 0–100.
+     *
+     * @param volume Desired volume level; values less than 0 are treated as 0 and values greater than 100 are treated as 100.
+     */
     void setSfxVolume(float volume)
     {
         // SFX volume is stored but not applied to active sounds (cuz they're short-lived)

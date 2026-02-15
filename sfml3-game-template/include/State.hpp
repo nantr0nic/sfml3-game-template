@@ -41,6 +41,11 @@ protected:
     AppContext& m_AppContext;
     StateEvents m_StateEvents;
     
+    /**
+     * @brief Compute the center point of the application window using configured target dimensions.
+     *
+     * @return sf::Vector2f The window center in pixels where x == targetWidth / 2 and y == targetHeight / 2 (from AppContext settings).
+     */
     sf::Vector2f getWindowCenter() const noexcept
     {
         sf::Vector2f windowSize = { m_AppContext.m_AppSettings.targetWidth,

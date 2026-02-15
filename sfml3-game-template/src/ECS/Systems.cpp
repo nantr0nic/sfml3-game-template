@@ -20,7 +20,16 @@
 
 namespace CoreSystems
 {
-    //$ "Core" / game systems (maybe rename...)
+    /**
+     * @brief Processes player keyboard input and updates player movement, facing, and animation state.
+     *
+     * For every entity with PlayerTag, Velocity, MovementSpeed, AnimatorComponent, SpriteComponent, and Facing,
+     * this system sets the entity's velocity according to W/S/A/D keys, updates the facing direction for A/D,
+     * and switches the animator between "walk" and "idle", resetting the animation frame and elapsed time when the
+     * animation name changes.
+     *
+     * @param m_AppContext Application context containing the registry and main window used for input and entity access.
+     */
     void handlePlayerInput(AppContext& m_AppContext)
     {
         auto &registry = *m_AppContext.m_Registry;
@@ -86,6 +95,14 @@ namespace CoreSystems
         }
     }
 
+    /**
+     * @brief Moves entities with Velocity by their velocity scaled by the frame time and constrains them inside the render window when requested.
+     *
+     * Moves each entity that has a SpriteComponent and Velocity by velocity * deltaTime. If an entity has a ConfineToWindow component, its sprite position is adjusted so its padded bounds remain inside the given window; horizontal padding is applied taking horizontal sprite flipping into account.
+     *
+     * @param deltaTime Time elapsed since the last update used to scale movement.
+     * @param window Render window whose view size is used as the confinement rectangle.
+     */
     void movementSystem(entt::registry& registry, sf::Time deltaTime, sf::RenderWindow& window)
     {
         // cache window size
@@ -172,6 +189,16 @@ namespace CoreSystems
         }
     }
 
+    /**
+     * @brief Renders all entities that have a SpriteComponent and optionally overlays debug visuals.
+     *
+     * When debug is enabled, draws each sprite's global bounding box in red and, for entities with a
+     * ConfineToWindow component, draws the inner "solid" body rectangle in green.
+     *
+     * @param registry EnTT registry containing the entities and their components.
+     * @param window Render target used to draw sprites and debug shapes.
+     * @param showDebug If true, render bounding boxes and confine-area overlays for each sprite.
+     */
     void renderSystem(entt::registry& registry, sf::RenderWindow& window, bool showDebug)
     {
         // now renders anything with a sprite
@@ -214,6 +241,16 @@ namespace CoreSystems
         }
     }
 
+    /**
+     * @brief Advances sprite animations for entities that have AnimatorComponent and SpriteComponent.
+     *
+     * Advances each animator's elapsed time by deltaTime, steps the current frame when enough time
+     * has accumulated (wrapping to the first frame after the last), and updates the sprite's texture
+     * rectangle to the new frame position.
+     *
+     * @param registry The EnTT registry containing entities with SpriteComponent and AnimatorComponent.
+     * @param deltaTime Time elapsed since the last update frame; used to advance animation timers.
+     */
     void animationSystem(entt::registry& registry, sf::Time deltaTime)
     {
         auto view = registry.view<SpriteComponent, AnimatorComponent>();
@@ -275,6 +312,14 @@ namespace UISystems
         }
     }
 
+    /**
+     * @brief Render UI elements and adjust their visuals based on hover state.
+     *
+     * Renders UI shapes, text, GUI sprites (buttons), and Red X overlays to the provided window.
+     * Shapes change fill color when hovered. Text color is adjusted on hover only for interactive
+     * UI entries that have both `UIAction` and `UIBounds`. All GUI sprites and any `GUIRedX`
+     * overlays are drawn unconditionally.
+     */
     void uiRenderSystem(entt::registry& registry, sf::RenderWindow& window)
     {
         // Render shapes
@@ -335,6 +380,15 @@ namespace UISystems
         }
     }
 
+    /**
+     * @brief Invoke click actions for hovered UI elements when the left mouse button is pressed.
+     *
+     * Calls the callable stored in `UIAction::action` for every entity that currently has both
+     * `UIHover` and `UIAction` if the provided mouse event indicates the left button was pressed.
+     *
+     * @param registry The entity registry containing UI components.
+     * @param event The mouse button press event; only `sf::Mouse::Button::Left` triggers actions.
+     */
     void uiClickSystem(entt::registry& registry, const sf::Event::MouseButtonPressed& event)
     {
         if (event.button == sf::Mouse::Button::Left)
@@ -355,6 +409,16 @@ namespace UISystems
         }
     }
 
+    /**
+     * @brief Ensure red‑X overlay components are present or removed for GUI buttons based on their toggle condition.
+     *
+     * If the ButtonRedX texture is unavailable the function returns immediately. For each entity with a GUISprite and
+     * UIToggleCond, the function will emplace a GUIRedX component containing a red‑X sprite positioned at the button's
+     * center when UIToggleCond::shouldShowOverlay() returns true, and remove an existing GUIRedX component when it
+     * returns false.
+     *
+     * @param context Application context used to access the resource manager and the ECS registry.
+     */
     void uiSettingsChecks(AppContext& context)
     {
         auto* buttonRedX = context.m_ResourceManager->getResource<sf::Texture>(

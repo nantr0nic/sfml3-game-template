@@ -19,7 +19,12 @@
 class ResourceManager
 {
 public:
-    ResourceManager() = default;
+    /**
+ * @brief Constructs a ResourceManager with no loaded resources.
+ *
+ * Initializes internal storage for fonts, textures, sound buffers, and music to their default empty states.
+ */
+ResourceManager() = default;
     ResourceManager(const ResourceManager&) = delete;
     ResourceManager& operator=(const ResourceManager&) = delete;
     ~ResourceManager() = default;
@@ -44,6 +49,15 @@ private:
 };
 
 template<typename T>
+/**
+ * @brief Load a resource of type `T` from a file and associate it with the specified ID.
+ *
+ * Supported `T` values: `sf::Font`, `sf::Texture`, `sf::SoundBuffer`, and `sf::Music`.
+ *
+ * @tparam T Resource type to load.
+ * @param id Identifier under which the loaded resource will be stored.
+ * @param filepath Filesystem path to the resource file to load.
+ */
 void ResourceManager::loadResource(std::string_view id, std::string_view filepath)
 {
     if constexpr (std::is_same_v<T, sf::Font>)
@@ -100,6 +114,15 @@ void ResourceManager::loadResource(std::string_view id, std::string_view filepat
 }
 
 template<typename T>
+/**
+ * @brief Retrieve a loaded resource by its string identifier.
+ *
+ * Supported template types: `sf::Font`, `sf::Texture`, `sf::SoundBuffer`, and `sf::Music`.
+ *
+ * @tparam T Resource type to retrieve.
+ * @param id The resource identifier used when the resource was loaded.
+ * @return T* Pointer to the resource associated with `id` if found, `nullptr` otherwise.
+ */
 T* ResourceManager::getResource(std::string_view id)
 {
     if constexpr (std::is_same_v<T, sf::Font>)
@@ -132,6 +155,13 @@ T* ResourceManager::getResource(std::string_view id)
 }
 
 template<typename T>
+/**
+ * @brief Retrieve a const pointer to a loaded SFML resource by its string identifier.
+ *
+ * @tparam T Resource type to retrieve. Supported types: `sf::Font`, `sf::Texture`, `sf::SoundBuffer`, `sf::Music`.
+ * @param id String identifier previously used when loading the resource.
+ * @return const T* Pointer to the resource associated with `id` if found, `nullptr` otherwise.
+ */
 const T* ResourceManager::getResource(std::string_view id) const
 {
     if constexpr (std::is_same_v<T, sf::Font>)

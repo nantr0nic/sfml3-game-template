@@ -58,6 +58,13 @@ void Application::initResources()
     m_AppContext.m_ResourceManager->loadAssetsFromManifest("config/AssetsManifest.toml");
 }
 
+/**
+ * @brief Run the application's main loop until the main window closes.
+ *
+ * Verifies that a main window and main clock are available (logs an error and returns if either is missing),
+ * then repeatedly: measures frame delta time, processes pending state changes, handles input/events,
+ * updates the active state with the elapsed time, and renders the current state while the main window remains open.
+ */
 void Application::run()
 {
     if (!m_AppContext.m_MainWindow)
@@ -84,6 +91,23 @@ void Application::run()
     }
 }
 
+/**
+ * @brief Polls and dispatches window events to global and current-state handlers.
+ *
+ * Processes incoming SFML events from the main window and routes them to the
+ * appropriate callbacks: global close, a merged key-press handler that invokes
+ * global key-press logic followed by state-specific key-press logic,
+ * state mouse-button-press handler, and a resized handler that updates the
+ * main window view to match the application's target resolution while preserving
+ * aspect behavior.
+ *
+ * If there is no current state, logs an error and invokes the main window's
+ * close handler with a no-op closed event to avoid dereferencing a null state.
+ *
+ * Side effects:
+ * - May call user-provided event handler callbacks.
+ * - Updates the main window view on resize events.
+ */
 void Application::processEvents()
 {
     auto& globalEvents = m_AppContext.m_GlobalEventManager->getEventHandles();

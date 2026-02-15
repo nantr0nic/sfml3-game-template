@@ -17,10 +17,25 @@ class ConfigManager
 public:
     ConfigManager() noexcept = default;
     ConfigManager(const ConfigManager&) = delete;
-    ConfigManager& operator=(const ConfigManager&) = delete;
-    ~ConfigManager() noexcept = default;
+    /**
+ * @brief Disable copy-assignment to prevent copying of ConfigManager instances.
+ *
+ * Copy assignment is deleted to enforce unique ownership of internal configuration state.
+ */
+ConfigManager& operator=(const ConfigManager&) = delete;
+    /**
+ * @brief Destroys the ConfigManager.
+ */
+~ConfigManager() noexcept = default;
 
-    const std::map<std::string, toml::table, std::less<>>& getConfigFiles() const { return m_ConfigFiles; }
+    /**
+ * @brief Access the internal mapping of loaded configuration files.
+ *
+ * Provides read-only access to the manager's map from configuration identifier to its parsed TOML table.
+ *
+ * @return const std::map<std::string, toml::table, std::less<>>& Const reference to the map of config ID -> TOML table.
+ */
+const std::map<std::string, toml::table, std::less<>>& getConfigFiles() const { return m_ConfigFiles; }
 
     void loadConfig(std::string_view configID, std::string_view filepath);
 
