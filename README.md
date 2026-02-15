@@ -1,4 +1,4 @@
-![Preview of what we have so far](screenshots/mainwindow.png)
+![Preview of what we have so far](screenshots/current.gif)
 
 # SFML 3 Game Template
 A modern, data-oriented C++23 starter template for game development using SFML 3.
@@ -72,4 +72,3 @@ cmake --build build
 ## Next Steps
 
 * **Actual documentation!** I aim to provide thorough documentation of template features and examples to demonstrate their use.
-
