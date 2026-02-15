@@ -41,13 +41,18 @@ MenuState::~MenuState()
 {
     auto& registry = *m_AppContext.m_Registry;
     // Clean up MenuState UI entities
+    std::vector<entt::entity> entitiesToRemove;
     auto view = registry.view<UITagID>();
     for (auto [entity, tag] : view.each())
     {
         if (tag.id == UITags::Menu)
         {
-            registry.destroy(entity);
+            entitiesToRemove.push_back(entity);
         }
+    }
+    for (auto entity : entitiesToRemove)
+    {
+        registry.destroy(entity);
     }
 }
 
@@ -140,13 +145,18 @@ SettingsMenuState::~SettingsMenuState()
 {
     auto& registry = *m_AppContext.m_Registry;
     // Clean up SettingsMenu UI entities
+    std::vector<entt::entity> entitiesToRemove;
     auto view = registry.view<UITagID>();
     for (auto [entity, tag] : view.each())
     {
         if (tag.id == UITags::Settings)
         {
-            registry.destroy(entity);
+            entitiesToRemove.push_back(entity);
         }
+    }
+    for (auto entity : entitiesToRemove)
+    {
+        registry.destroy(entity);
     }
 }
 
@@ -440,6 +450,15 @@ PauseState::PauseState(AppContext& context)
 
     sf::Font* font = context.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
     sf::Font* backFont = context.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::ScoreFont);
+    
+    // Handle music
+    sf::Music* music = context.m_ResourceManager->getResource<sf::Music>(Assets::Musics::MainSong);
+    if (music && music->getStatus() == sf::Music::Status::Playing)
+    {
+        music->pause();
+    }
+    bool musicShouldResume = (music && !m_AppContext.m_AppSettings.musicMuted
+                               && music->getStatus() == sf::Music::Status::Paused);
 
     if (!font || !backFont)
     {
@@ -470,7 +489,11 @@ PauseState::PauseState(AppContext& context)
         sf::Vector2f backButtonSize = { 150.0f, 50.0f };
         auto backButton = EntityFactory::createButton(m_AppContext, *backFont, "Back",
             backButtonPos,
-            [this]() {
+            [this, music, musicShouldResume]() {
+                if (musicShouldResume)
+                {
+                    music->play();
+                }
                 m_AppContext.m_StateManager->popState();
                 logger::Info("Game unpaused.");
             },
@@ -479,28 +502,18 @@ PauseState::PauseState(AppContext& context)
         );
     }
 
-    // Handle music
-    auto* music = context.m_ResourceManager->getResource<sf::Music>(Assets::Musics::MainSong);
-
-    if (music && music->getStatus() == sf::Music::Status::Playing)
-    {
-        music->pause();
-    }
-
     m_StateEvents.onMouseButtonPress = [this](const sf::Event::MouseButtonPressed& event) {
             UISystems::uiClickSystem(*m_AppContext.m_Registry, event);
         };
 
-    m_StateEvents.onKeyPress = [this, music](const sf::Event::KeyPressed& event) {
+    m_StateEvents.onKeyPress = [this, music, musicShouldResume](const sf::Event::KeyPressed& event) {
         if (event.scancode == sf::Keyboard::Scancode::Escape)
         {
             m_AppContext.m_MainWindow->close();
         }
         else if (event.scancode == sf::Keyboard::Scancode::P)
         {
-            bool shouldResume = (music && !m_AppContext.m_AppSettings.musicMuted
-                                       && music->getStatus() == sf::Music::Status::Paused);
-            if (shouldResume)
+            if (musicShouldResume)
             {
                 music->play();
             }
@@ -571,13 +584,18 @@ GameTransitionState::~GameTransitionState()
 {
     auto& registry = *m_AppContext.m_Registry;
     // Clean up GameTransitionState UI elements
+    std::vector<entt::entity> entitiesToRemove;
     auto view = registry.view<UITagID>();
     for (auto [entity, tag] : view.each())
     {
         if (tag.id == UITags::Transition)
         {
-            registry.destroy(entity);
+            entitiesToRemove.push_back(entity);
         }
+    }
+    for (auto entity : entitiesToRemove)
+    {
+        registry.destroy(entity);
     }
 }
 

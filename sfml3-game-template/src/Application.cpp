@@ -66,6 +66,12 @@ void Application::run()
         return;
     }
 
+    if (!m_AppContext.m_MainClock)
+    {
+        logger::Error("No main clock; aborting run().");
+        return;
+    }
+
     auto& mainClock = *m_AppContext.m_MainClock;
 
     while (m_AppContext.m_MainWindow->isOpen())

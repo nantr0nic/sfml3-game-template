@@ -39,7 +39,7 @@ public:
 
 protected:
     AppContext& m_AppContext;
-    StateEvents m_StateEvents; 
+    StateEvents m_StateEvents;
     
     sf::Vector2f getWindowCenter() const noexcept
     {
