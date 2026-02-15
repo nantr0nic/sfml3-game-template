@@ -39,10 +39,16 @@ MenuState::MenuState(AppContext& appContext)
 
 MenuState::~MenuState()
 {
-    // clean up EnTT entities on leaving MenuState
     auto& registry = *m_AppContext.m_Registry;
-    auto view = registry.view<MenuUITag>();
-    registry.destroy(view.begin(), view.end());
+    // Clean up MenuState UI entities
+    auto view = registry.view<UITagID>();
+    for (auto [entity, tag] : view.each())
+    {
+        if (tag.id == UITags::Menu)
+        {
+            registry.destroy(entity);
+        }
+    }
 }
 
 void MenuState::update([[maybe_unused]] sf::Time deltaTime)
@@ -132,10 +138,16 @@ SettingsMenuState::SettingsMenuState(AppContext& context, bool fromPlayState)
 
 SettingsMenuState::~SettingsMenuState()
 {
-    // Clean up Menu UI entities
     auto& registry = *m_AppContext.m_Registry;
-    auto view = registry.view<SettingsUITag>();
-    registry.destroy(view.begin(), view.end());
+    // Clean up SettingsMenu UI entities
+    auto view = registry.view<UITagID>();
+    for (auto [entity, tag] : view.each())
+    {
+        if (tag.id == UITags::Settings)
+        {
+            registry.destroy(entity);
+        }
+    }
 }
 
 void SettingsMenuState::update([[maybe_unused]] sf::Time deltaTime)
@@ -394,7 +406,7 @@ PlayState::~PlayState()
     auto view = registry.view<PlayerTag>();
     registry.destroy(view.begin(), view.end());
 
-    // Here you would also clean up enemies, bullets, etc.
+    // Here you would also clean up enemies, bullets, HUD entities, etc.
     // (e.g., registry.clear<EnemyTag, BulletTag>();)
 }
 
@@ -485,8 +497,15 @@ PauseState::PauseState(AppContext& context)
 PauseState::~PauseState()
 {
     auto& registry = *m_AppContext.m_Registry;
-    auto view = registry.view<PauseUITag>();
-    registry.destroy(view.begin(), view.end());
+    // Clean up PauseState UI entities
+    auto view = registry.view<UITagID>();
+    for (auto [entity, tag] : view.each())
+    {
+        if (tag.id == UITags::Pause)
+        {
+            registry.destroy(entity);
+        }
+    }
 }
 
 void PauseState::update([[maybe_unused]] sf::Time deltaTime)
@@ -533,8 +552,15 @@ GameTransitionState::GameTransitionState(AppContext& context, TransitionType typ
 GameTransitionState::~GameTransitionState()
 {
     auto& registry = *m_AppContext.m_Registry;
-    auto view = registry.view<TransUITag>();
-    registry.destroy(view.begin(), view.end());
+    // Clean up GameTransitionState UI elements
+    auto view = registry.view<UITagID>();
+    for (auto [entity, tag] : view.each())
+    {
+        if (tag.id == UITags::Transition)
+        {
+            registry.destroy(entity);
+        }
+    }
 }
 
 void GameTransitionState::update([[maybe_unused]] sf::Time deltaTime)

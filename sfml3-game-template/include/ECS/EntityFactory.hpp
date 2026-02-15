@@ -18,8 +18,6 @@ namespace EntityFactory
                                 sf::Vector2f size,
                                 const sf::Color& color,
                                 sf::Vector2f position);
-    //$ --- GUI Helpers --- //
-    void emplaceUITag(entt::registry& registry, entt::entity entity, UITags tag);
     
     //$ --- G/UI Entities --- //
     entt::entity createButton(AppContext& context,

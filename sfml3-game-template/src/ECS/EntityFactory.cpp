@@ -103,28 +103,6 @@ namespace EntityFactory
 
     //$ ----- G/UI ----- //
     
-    //$ --- GUI Helpers --- //
-    void emplaceUITag(entt::registry& registry, entt::entity entity, UITags tag)
-    {
-        switch (tag)
-        {
-            case UITags::Menu:
-                registry.emplace<MenuUITag>(entity);
-                break;
-            case UITags::Settings:
-                registry.emplace<SettingsUITag>(entity);
-                break;
-            case UITags::Transition:
-                registry.emplace<TransUITag>(entity);
-                break;
-            case UITags::Pause:
-                registry.emplace<PauseUITag>(entity);
-                break;
-            default:
-                break;
-        }
-    }
-    
     //$ --- GUI Entities --- //
     entt::entity createButton(AppContext& context, sf::Font& font,
                             const std::string& text, sf::Vector2f position,
@@ -135,7 +113,8 @@ namespace EntityFactory
 
         auto buttonEntity = registry.create();
 
-        emplaceUITag(registry, buttonEntity, tag);
+        // Tag component
+        registry.emplace<UITagID>(buttonEntity, tag);
 
         // Shape component
         auto& buttonShape = registry.emplace<UIShape>(buttonEntity);
@@ -169,8 +148,8 @@ namespace EntityFactory
         auto& registry = *context.m_Registry;
         auto buttonEntity = registry.create();
 
-        emplaceUITag(registry, buttonEntity, tag);
-
+        // Tag Components
+        registry.emplace<UITagID>(buttonEntity, tag);
         registry.emplace<GUIButtonTag>(buttonEntity);
 
         sf::Sprite buttonSprite(texture);
@@ -194,7 +173,8 @@ namespace EntityFactory
         auto& registry = *context.m_Registry;
         auto labelEntity = registry.create();
         
-        emplaceUITag(registry, buttonEntity, tag);
+        // Tag component
+        registry.emplace<UITagID>(buttonEntity, tag);
 
         // We'll assume the label goes to the left (for now)
         auto& buttonBounds = registry.get<UIBounds>(buttonEntity);
@@ -230,8 +210,8 @@ namespace EntityFactory
         auto& registry = *context.m_Registry;
         auto buttonEntity = registry.create();
 
-        emplaceUITag(registry, buttonEntity, tag);
-
+        // Tag components
+        registry.emplace<UITagID>(buttonEntity, tag);
         registry.emplace<GUIButtonTag>(buttonEntity);
 
         sf::Sprite buttonSprite(texture);

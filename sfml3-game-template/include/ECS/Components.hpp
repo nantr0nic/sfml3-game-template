@@ -113,10 +113,8 @@ struct RenderableRect
 enum class UITags { None, Menu, Settings, Transition, Pause };
 
 // Tag to identify UI/HUD entities
-struct MenuUITag {};
-struct SettingsUITag {};
-struct TransUITag {};
-struct PauseUITag {};
+struct UITagID { UITags id; };
+
 struct GUIButtonTag {};
 
 struct UIHover {};
