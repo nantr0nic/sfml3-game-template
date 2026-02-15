@@ -91,6 +91,7 @@ void Application::processEvents()
     if (!currentState)
     {
         logger::Error("No current state; aborting processEvents().");
+        m_AppContext.m_MainWindow->handleEvents([](const sf::Event::Closed&) {});
         return;
     }
     auto& stateEvents = currentState->getEventHandlers();
