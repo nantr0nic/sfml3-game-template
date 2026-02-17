@@ -66,7 +66,7 @@ To handle common game-related tasks and resources, several manager classes have 
 If you create a new repository using the "Use this template" feature, an automated GitHub Action will trigger to handle renaming and cleaning up the template for you.
 1. **Create your Repo**: Click the "Use this template" button in the top-right of this page and select "Create a new repository".
 2. **Name your project**: Give your project a name (e.g., my-new-game).
-3. **Wait for automation**: After the repository is created, the Template Cleanup GitHub Action will automatically run. It renames the project folders, updates the ```CMakeLists.txt``` targets, and set the window title in ```WindowConfig.toml``` to match your new repo name. It will also replace this README with a generic starter version and remove template-specific assets like the ```screenshots/``` folder.
+3. **Wait for automation**: After the repository is created, the Template Cleanup GitHub Action will automatically run. It renames the project folders, updates the ```CMakeLists.txt``` targets, and sets the window title in ```WindowConfig.toml``` to match your new repo name. It will also replace this README with a generic starter version and remove template-specific assets like the ```screenshots/``` folder.
 4. **That's it!** Ready to go. You can clone to your local machine and start building.
 
 ### If you don't want to use the template feature or host your repo on GitHub
