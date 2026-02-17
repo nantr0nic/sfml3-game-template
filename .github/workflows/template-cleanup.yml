@@ -20,10 +20,10 @@ jobs:
           REPO_NAME=${{ github.event.repository.name }}
 
           # 1. Update "SFML3 Game Template" (for window title in WindowConfig.toml)
-          find . -type f -exec sed -i "s/SFML3 Game Template/$REPO_NAME/g" {} +
+          find . -not -path '*/.git/*' -type f -exec sed -i "s/SFML3 Game Template/$REPO_NAME/g" {} +
 
           # 2. Update "sfml3-game-template" (for CMake stuff and paths)
-          find . -type f -exec sed -i "s/sfml3-game-template/$REPO_NAME/g" {} +
+          find . -not -path '*/.git/*' -type f -exec sed -i "s/sfml3-game-template/$REPO_NAME/g" {} +
 
           # 3. Remove screenshots and current.gif
           rm -rf screenshots
@@ -36,7 +36,7 @@ jobs:
           EOF
 
           # 5. Rename all directories (innermost first)
-          find . -depth -type d -name "sfml3-game-template" -execdir mv {} "$REPO_NAME" \;
+          find . -not -path '*/.git/*' -depth -type d -name "sfml3-game-template" -execdir mv {} "$REPO_NAME" \;
 
       - name: Remove Cleanup Workflow
         run: rm .github/workflows/template-cleanup.yml
@@ -46,5 +46,10 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "Initialize project: renamed template and cleaned up assets"
-          git push
+          # Check if there are actually changes to avoid exit code 1 if nothing changed
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Initialize project: renamed template and cleaned up assets"
+            git push origin HEAD
+          else
+            echo "No changes to commit"
+          fi
