@@ -50,7 +50,8 @@ out/
 sfml3-game-template.code-workspace
 
 # github stuff
-.github/
+# leaving in .github for template copy github action
+# .github/
 
 # VSCode files
 launch.json
