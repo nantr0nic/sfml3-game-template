@@ -16,7 +16,7 @@ include(FetchContent)
 FetchContent_Declare(
     sfml_dependency
     GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG        3.0.2
+    GIT_TAG        3.1.0
 )
 
 # Configure SFML options
