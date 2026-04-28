@@ -77,7 +77,7 @@ You *can* clone the repo or download the source code as usual, however, that wil
 
 The project is built using CMake with a single `CMakeLists.txt` in the root directory. CMake will fetch the following dependencies:
 
-*   [**SFML 3.0.2**](https://github.com/SFML/SFML): Used for graphics, windowing, and audio.
+*   [**SFML 3.1.0**](https://github.com/SFML/SFML): Used for graphics, windowing, and audio.
 *   [**EnTT**](https://github.com/skypjack/entt): For the ECS architecture.
 *   [**toml++**](https://github.com/marzer/tomlplusplus): For parsing TOML configuration files.
 
