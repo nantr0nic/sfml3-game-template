@@ -31,7 +31,7 @@ set(SFML_BUILD_NETWORK OFF CACHE BOOL "Do not build the Network module")
 FetchContent_Declare(
     entt
     GIT_REPOSITORY https://github.com/skypjack/entt.git
-    GIT_TAG        v3.15.0
+    GIT_TAG        v3.16.0
 )
 
 # ----- toml++ ----- #
