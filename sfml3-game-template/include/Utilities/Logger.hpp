@@ -119,27 +119,27 @@ namespace logger
                 }
                 logC_V.notify_one();
             }
-            
+
             // Internal function to handle fatal error logging -- will terminate the program!
             [[noreturn]] void fatal(std::string_view message, const std::source_location& loc) {
                 stopFlag.store(true, std::memory_order_release);
-            
+
                 std::println(stderr, "[[{}{}{}]] {}({}:{}) --> {}{}{}",
                     Color::Red, "FATAL", Color::Reset,
                     formatPath(loc.file_name()), loc.line(), loc.column(),
                     Color::Red, message, Color::Reset
                 );
-            
+
                 #if LOG_TO_FILE
                 {
-                    std::scoped_lock lock(logMutex); 
-                    if (logFile.is_open()) 
+                    std::scoped_lock lock(logMutex);
+                    if (logFile.is_open())
                     {
                         std::println(logFile, "[[FATAL]] {}({}:{}) -> {}",
                             formatPath(loc.file_name()), loc.line(), loc.column(),
                             message);
 
-                        logFile.flush(); 
+                        logFile.flush();
                     }
                 }
                 #endif
@@ -302,7 +302,7 @@ namespace logger
     {
         Print(LogLevel::Error, message, loc);
     }
-    
+
     // Logging a "fatal" error message will terminate the program!
     [[noreturn]] inline void Fatal(std::string_view message,
         const std::source_location& loc = std::source_location::current())
@@ -314,20 +314,10 @@ namespace logger
 
     // -------------------------------------------------------------------- //
 
-    //$ This is a more 'elegant' solution where std::format() is not required in logging
-    //$ messages if including parameters in the message, but it is difficult for me to
-    //$ understand so I'm going to use the simpler non-variadic-template functions and
-    //$ just be okay with using std::format() when needed for now :)
-
-    //$ For example: if you want to print the Info message "Player health: 80" then the
-    //$ above functions require logger::Info(std::format("Player health: {}", player.health));
-    //$ Or, logger::Error(std::format("{}", e.what());
-
-    //$ Whereas, these variadic templates enable a simpler interface:
-    //$ logger::Info("Player health: {}", player.health);
-    //$ logger::Error("{}", e.what());
-
-    //! The variadic templates beneath haven't been tested with the asynchronous logger
+    //$ Here are variadic-template versions of the logging functions that accept `std::format_string`
+    //$ These are commented out because they haven't been tested with the async queue
+    //$ or `std::source_location` default arguments. You can test them yourself and if they work
+    //$ as expected then you won't need to use std::format() inside of your logging calls.
 
     /*
     // Public Helpers (Templates)
