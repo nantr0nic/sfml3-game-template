@@ -17,9 +17,10 @@ Projects made with this template:
 	3. [Managers](#managers)
 	4. [Utilities](#utilities)
 2. [Getting Started](#getting-started)
+  1. [Documentation](#documentation)
+  2. [Using the Template](#using-as-a-github-template)
 3. [Build & Dependencies](#build--dependencies)
 4. [Keymap](#keymap)
-5. [Next Steps](#next-steps)
 
 ---
 
@@ -63,7 +64,8 @@ To handle common game-related tasks and resources, several manager classes have 
 
 ## Getting Started
 ### Documentation
-Documentation is available in the [docs](docs/) directory.
+Documentation is available in the [docs](https://github.com/nantr0nic/sfml3-game-template/tree/develop/sfml3-game-template/docs) directory. This covers 
+the features described above in detail, the API, and recommended practices for using the template. 
 
 ### Using as a GitHub Template
 If you create a new repository using the "Use this template" feature, an automated GitHub Action will trigger to handle renaming and cleaning up the template for you.
