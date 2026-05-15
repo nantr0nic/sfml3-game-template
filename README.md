@@ -17,8 +17,8 @@ Projects made with this template:
 	3. [Managers](#managers)
 	4. [Utilities](#utilities)
 2. [Getting Started](#getting-started)
-  1. [Documentation](#documentation)
-  2. [Using the Template](#using-as-a-github-template)
+	1. [Documentation](#documentation)
+	2. [Using the Template](#using-as-a-github-template)
 3. [Build & Dependencies](#build--dependencies)
 4. [Keymap](#keymap)
 
