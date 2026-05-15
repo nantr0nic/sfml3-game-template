@@ -6,10 +6,11 @@ This document covers the utility classes and functions provided by the template:
 
 1. [Logger](#logger)
    1. [Log Levels](#log-levels)
-   2. [Output Format](#output-format)
-   3. [File Logging](#file-logging)
-   4. [Log Level Control](#log-level-control)
-   5. [Architecture](#architecture)
+   2. [Why `std::format()` Is Required](#why-stdformat-is-required)
+   3. [Output Format](#output-format)
+   4. [File Logging](#file-logging)
+   5. [Log Level Control](#log-level-control)
+   6. [Architecture](#architecture)
 2. [RandomMachine](#randommachine)
    1. [Construction](#construction)
    2. [Integer Methods](#integer-methods)
@@ -48,6 +49,22 @@ logger::Warn(std::format("Key [{}] not found.", key));
 logger::Error(std::format("Failed to load font: {}", filepath));
 logger::Fatal("getMainWindow failed! m_MainWindow is null!");
 ```
+
+### Why `std::format()` Is Required
+
+The logger functions (`Info`, `Warn`, `Error`, `Fatal`) accept a `std::string_view` — a plain, pre-formed string. They do **not** accept `printf`-style format arguments or `std::format`-style placeholders directly. To include runtime values in a log message, you must compose the string yourself **before** passing it:
+
+```cpp
+// Correct — format first, then log:
+logger::Info(std::format("Player health: {}", player.health));
+logger::Error(std::format("{}: {}", e.what(), extraDetail));
+
+// Wrong — the logger won't interpret the placeholder:
+logger::Info("Player health: {}");         // prints literal "{}"
+logger::Info("Player health: " + health);   // won't compile (string_view + int)
+```
+
+> There's a commented-out variadic-template version of the logger that accepts `std::format_string` directly (e.g. `logger::Info("health: {}", health)`). I haven't tested it with the async queue or `std::source_location` default arguments, so you can try using it but be aware of potential issues.
 
 ### Output Format
 

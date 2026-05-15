@@ -11,7 +11,7 @@ This template uses the [EnTT](https://github.com/skypjack/entt) library for its 
    1. [Creating & Destroying Entities](#creating--destroying-entities)
    2. [Adding, Reading & Removing Components](#adding-reading--removing-components)
    3. [Iterating with Views](#iterating-with-views)
-   4. [Full Example — Putting It Together](#full-example--putting-it-together)
+   4. [Full Examples](#full-examples)
 4. [Components](#components)
    1. [Game Components](#game-components)
    2. [UI Components](#ui-components)
@@ -103,7 +103,7 @@ Below are the EnTT operations used most frequently in this codebase, grouped by 
 
 > **Performance tip:** When iterating with a view, always use `view.get<C>(entity)` rather than `registry.get<C>(entity)`. The view already has the component storage cached, so the lookup is faster.
 
-### Full Example — Putting It Together
+### Full Examples
 
 This annotated snippet from `CoreSystems::movementSystem()` shows several EnTT calls working together:
 
@@ -127,6 +127,64 @@ void CoreSystems::movementSystem(entt::registry& registry, sf::Time deltaTime, s
             // ...
         }
     }
+}
+```
+
+Here is another example of a movement system using EnTT from [Breakdown](https://github.com/nantr0nic/breakdown/blob/ae81e9aabe4c7c673d7d5dcc2e4fa0ed106d0b4f/breakdown/src/ECS/Systems.cpp#L67):
+
+```cpp
+void movementSystem(AppContext& context, sf::Time deltaTime)
+{
+    auto& registry = context.m_Registry;
+    bool levelStarted = context.m_AppData.levelStarted;
+
+    auto paddleView = registry->view<Paddle, Velocity>();
+    for (auto paddleEntity : paddleView)
+    {
+        auto& paddleComp = paddleView.get<Paddle>(paddleEntity);
+        const auto& velocity = paddleView.get<Velocity>(paddleEntity);
+
+        paddleComp.shape.move(velocity.value * deltaTime.asSeconds());
+    }
+
+    if (levelStarted)
+    {
+        auto ballView = registry->view<Ball, Velocity>();
+        for (auto ballEntity : ballView)
+        {
+            auto& ballShape = ballView.get<Ball>(ballEntity);
+            const auto& velocity = ballView.get<Velocity>(ballEntity);
+
+            ballShape.shape.move(velocity.value * deltaTime.asSeconds());
+        }
+    }
+    else
+    {
+        auto paddleOnlyView = registry->view<Paddle>();
+        sf::Vector2f paddlePosition{};
+        sf::Vector2f paddleSize{};
+
+        for (auto paddleEntity : paddleOnlyView)
+        {
+            auto& paddleComp = paddleOnlyView.get<Paddle>(paddleEntity);
+            paddlePosition = paddleComp.shape.getPosition();
+            paddleSize = paddleComp.shape.getSize();
+            break;
+        }
+
+        auto ballView = registry->view<Ball>();
+        for (auto ballEntity : ballView)
+        {
+            auto& ballComp = ballView.get<Ball>(ballEntity);
+            float ballRadius = ballComp.shape.getRadius();
+
+            float x = paddlePosition.x;
+            float y = paddlePosition.y - paddleSize.y / 2.0f - ballRadius;
+
+            ballComp.shape.setPosition({ x, y });
+        }
+    }
+
 }
 ```
 
@@ -158,7 +216,15 @@ Components are plain structs defined in [`Components.hpp`](../include/ECS/Compon
 | Component | Data | Purpose |
 |-----------|------|---------|
 | `UITagID` | `UITags id` | Tags a UI entity with a group (Menu, Settings, Pause, Transition). |
-
+| `UIShape` | `sf::RectangleShape shape` | Button background shape. |
+| `UIText` | `sf::Text text` | Button label text. |
+| `UIBounds` | `sf::FloatRect rect` | Click/hover boundary for the UI element. |
+| `UIAction` | `std::function<void()> action` | Callback invoked on click. |
+| `UIHover` | (empty tag) | Added at runtime when the mouse hovers over a UI element. |
+| `GUIButtonTag` | (empty tag) | Marks an entity as a GUI sprite button. |
+| `GUISprite` | `sf::Sprite sprite` | Texture-based GUI element. |
+| `GUIRedX` | `sf::Sprite sprite` | Red X overlay used for mute toggle indicators. |
+| `UIToggleCond` | `std::function<bool()> shouldShowOverlay` | Condition for showing the red X overlay. |
 > **Alternative approach — per-state tag components** (used in [Breakdown](https://github.com/nantr0nic/breakdown)):
 > Instead of a single `UITagID` with an enum, you can define separate tag components per UI state:
 > ```cpp
@@ -175,15 +241,6 @@ Components are plain structs defined in [`Components.hpp`](../include/ECS/Compon
 > ```
 > See [State.cpp](https://github.com/nantr0nic/breakdown/blob/main/breakdown/src/State.cpp) for the cleanup in action.
 > No need to loop and check an enum value. Both approaches are valid — use whichever feels cleaner for your project.
-| `UIShape` | `sf::RectangleShape shape` | Button background shape. |
-| `UIText` | `sf::Text text` | Button label text. |
-| `UIBounds` | `sf::FloatRect rect` | Click/hover boundary for the UI element. |
-| `UIAction` | `std::function<void()> action` | Callback invoked on click. |
-| `UIHover` | (empty tag) | Added at runtime when the mouse hovers over a UI element. |
-| `GUIButtonTag` | (empty tag) | Marks an entity as a GUI sprite button. |
-| `GUISprite` | `sf::Sprite sprite` | Texture-based GUI element. |
-| `GUIRedX` | `sf::Sprite sprite` | Red X overlay used for mute toggle indicators. |
-| `UIToggleCond` | `std::function<bool()> shouldShowOverlay` | Condition for showing the red X overlay. |
 
 ### Adding a New Component
 

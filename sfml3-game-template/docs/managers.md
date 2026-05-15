@@ -11,11 +11,11 @@ This document covers the five manager classes that form the template's service l
    3. [Example: Pausing](#example-pausing)
 3. [WindowManager](#windowmanager)
 4. [ConfigManager](#configmanager)
-   1. [Loading](#loading)
-   2. [Access](#access)
+   1. [API](#api-1)
+   2. [Data Members](#data-members)
 5. [ResourceManager](#resourcemanager)
-   1. [Loading](#loading-1)
-   2. [Access](#access-1)
+   1. [API](#api-2)
+   2. [Data Members](#data-members-1)
 6. [GlobalEventManager](#globaleventmanager)
 7. [See Also](#see-also)
 
@@ -109,15 +109,22 @@ If `createMainWindow()` is called when a window already exists, it logs an error
 
 Manages TOML configuration files using [toml++](https://github.com/marzer/tomlplusplus).
 
-### Loading
+Each config file is identified by a string ID (e.g., `"WindowConfig"`) and the parsed `toml::table` is stored in an internal map.
 
-```cpp
-m_ConfigManager->loadConfig(Assets::Configs::Window, "config/WindowConfig.toml");
-```
+### API
 
-Each config file is identified by a string ID (e.g., `"WindowConfig"`) and stored as a `toml::table`.
+| Method | Description |
+|--------|-------------|
+| `loadConfig(configID, filepath)` | Parses a TOML file and stores it under the given string ID. Logs an error and returns early if parsing fails. |
+| `getConfigTable(configID)` | Returns a `const toml::table*` for direct TOML access, or `nullptr` if the ID is not found. |
+| `getConfigValue<T>(configID, key)` | Looks up a top-level key in the config table. Returns `std::optional<T>` — empty if the key is missing or the type doesn't match. |
+| `getConfigValue<T>(configID, section, key)` | Looks up a nested `section → key` in the config table. Returns `std::optional<T>` — empty if the section, key, or type is wrong. |
+| `getStringArray(configID, section, key)` | Reads a TOML array of strings from `section → key`. Returns `std::vector<std::string>` (empty if the section, key, or array is missing). |
+| `getConfigFiles()` | Returns `const` reference to the internal map of all loaded config tables (`std::map<std::string, toml::table>`). |
 
-### Access
+All lookup methods log a warning (with the caller's `std::source_location`) on failure, making it easy to find which code path is missing a config value.
+
+#### Usage Examples
 
 ```cpp
 // Simple key lookup:
@@ -129,7 +136,23 @@ auto speed = m_ConfigManager->getConfigValue<float>(
     "player", "player", "movementSpeed").value_or(350.0f);
 ```
 
-The `getStringArray()` method handles TOML arrays of strings. Every failed lookup logs a warning with the caller's source location (using `std::source_location`), making it easy to find which code path is missing a config value.
+> **Config IDs are up to you.** Using `Assets::Configs::*` constants (like `Assets::Configs::Window`) is recommended for safety against typos, but **entirely optional**. You can pass raw string IDs and direct filepaths to `loadConfig()` instead.
+>
+> For example, `EntityFactory::createPlayer()` loads its config with a plain string ID and filepath ([`EntityFactory.cpp`](../src/ECS/EntityFactory.cpp:67)):
+>
+> ```cpp
+> context.m_ConfigManager->loadConfig("player", "config/Player.toml");
+> float moveSpeed = context.m_ConfigManager->getConfigValue<float>(
+>     "player", "player", "movementSpeed").value_or(350.0f);
+> ```
+>
+> This also means you can load config files at any point — not just during startup — making it easy to keep config data close to where it's used.
+
+### Data Members
+
+| Member | Type | Description |
+|--------|------|-------------|
+| `m_ConfigFiles` | `std::map<std::string, toml::table, std::less<>>` | The underlying storage. Keys are config ID strings (e.g. `"WindowConfig"`), values are the parsed TOML tables. `std::less<>` enables heterogeneous lookup with `std::string_view` keys. |
 
 ---
 
@@ -138,19 +161,42 @@ The `getStringArray()` method handles TOML arrays of strings. Every failed looku
 **Header:** [`ResourceManager.hpp`](../include/Managers/ResourceManager.hpp)  
 **Source:** [`ResourceManager.cpp`](../src/Managers/ResourceManager.cpp)
 
-A typed, exception-free asset manager. It stores resources in separate `std::map`s keyed by string IDs:
+A typed, exception-free asset manager. It stores resources in per-type `std::map`s keyed by string IDs. Supports `sf::Font`, `sf::Texture`, `sf::SoundBuffer`, and `sf::Music`.
 
-- `sf::Font`
-- `sf::Texture`
-- `sf::SoundBuffer`
-- `sf::Music`
+### API
 
-### Loading
+| Method | Description |
+|--------|-------------|
+| `loadAssetsFromManifest(filepath)` | Parses a TOML manifest file and loads all assets declared in its `[[fonts]]`, `[[textures]]`, `[[soundbuffers]]`, and `[[musics]]` arrays. |
+| `loadResource<T>(id, filepath)` | Loads a single resource of type `T` from disk. Logs an error and returns early if the file can't be loaded. |
+| `getResource<T>(id)` | Returns `T*` to the cached resource, or `nullptr` if the ID is not found (non-const overload). |
+| `getResource<T>(id) const` | Returns `const T*` to the cached resource, or `nullptr` if the ID is not found (const overload). |
 
-Assets are loaded from a TOML manifest:
+If a resource cannot be loaded, the function logs an error and returns `nullptr` — no exceptions are thrown. **Always check the return value** before using a resource.
+
+Resource IDs are centralized in [`AssetKeys.hpp`](../include/AssetKeys.hpp) as compile-time string constants. Always use these constants rather than raw strings to avoid typo bugs:
 
 ```cpp
+namespace Assets::Fonts
+{
+    constexpr std::string_view MainFont  = "MainFont";
+    constexpr std::string_view ScoreFont = "ScoreFont";
+}
+```
+
+#### Usage Examples
+
+```cpp
+// Load everything from the TOML manifest
 m_AppContext.m_ResourceManager->loadAssetsFromManifest("config/AssetsManifest.toml");
+
+// Load a single resource directly
+m_AppContext.m_ResourceManager->loadResource<sf::Font>(
+    Assets::Fonts::MainFont, "resources/fonts/CaesarDressing-Regular.ttf");
+
+// Retrieve and use a resource
+auto* font = m_AppContext.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
+if (!font) { /* handle gracefully */ }
 ```
 
 The manifest file has sections for each resource type:
@@ -169,24 +215,14 @@ id = "MainSong"
 path = "resources/music/VideoGameAm.ogg"
 ```
 
-### Access
+### Data Members
 
-```cpp
-auto* font = m_AppContext.m_ResourceManager->getResource<sf::Font>(Assets::Fonts::MainFont);
-if (!font) { /* handle gracefully */ }
-```
-
-Resource IDs are centralized in [`AssetKeys.hpp`](../include/AssetKeys.hpp) as compile-time string constants. Always use these constants rather than raw strings to avoid typo bugs:
-
-```cpp
-namespace Assets::Fonts
-{
-    constexpr std::string_view MainFont  = "MainFont";
-    constexpr std::string_view ScoreFont = "ScoreFont";
-}
-```
-
-If a resource cannot be loaded, the function logs an error and returns `nullptr` — no exceptions are thrown. Always check the return value before using a resource.
+| Member | Type | Description |
+|--------|------|-------------|
+| `m_Fonts` | `std::map<std::string, std::unique_ptr<sf::Font>>` | Stores loaded fonts keyed by string ID. |
+| `m_Textures` | `std::map<std::string, std::unique_ptr<sf::Texture>>` | Stores loaded textures keyed by string ID. |
+| `m_SoundBuffers` | `std::map<std::string, std::unique_ptr<sf::SoundBuffer>>` | Stores loaded sound buffers keyed by string ID. |
+| `m_Musics` | `std::map<std::string, std::unique_ptr<sf::Music>>` | Stores loaded music streams keyed by string ID. |
 
 ---
 

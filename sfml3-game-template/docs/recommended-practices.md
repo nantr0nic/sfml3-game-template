@@ -15,19 +15,20 @@ This document captures patterns and conventions observed in the template codebas
    2. [Systems Take What They Actually Use](#systems-take-what-they-actually-use)
    3. [EntityFactory Prefab Functions](#entityfactory-prefab-functions)
 3. [Common Practices in the Codebase](#3-common-practices-in-the-codebase)
-   1. [Deferred State Changes](#deferred-state-changes)
-   2. [Null-Check Resources](#null-check-resources)
-   3. [Centralized String Constants](#centralized-string-constants)
-   4. [RAII Entity Cleanup in State Destructors](#raii-entity-cleanup-in-state-destructors)
-   5. [Logger with std::format](#logger-with-stdformat)
-   6. [Animation State Machine](#animation-state-machine)
-   7. [Service Locator Pattern](#service-locator-pattern)
-   8. [Component Queries Use view.get()](#component-queries-use-viewget)
-   9. [Flipping Sprites via Negative Scale](#flipping-sprites-via-negative-scale)
-   10. [Group-Tag Cleanup](#group-tag-cleanup)
-   11. [Sound Playback via AppData::activeSounds](#sound-playback-via-appdataactivesounds)
-   12. [Per-Entity Config Files](#per-entity-config-files)
-   13. [ECS-Based HUD](#ecs-based-hud)
+   1. [Error Recovery Over Exceptions](#31-error-recovery-over-exceptions)
+   2. [Deferred State Changes](#32-deferred-state-changes)
+   3. [Null-Check Resources](#33-null-check-resources)
+   4. [Centralized String Constants](#34-centralized-string-constants)
+   5. [RAII Entity Cleanup in State Destructors](#35-raii-entity-cleanup-in-state-destructors)
+   6. [Logger with std::format](#36-logger-with-stdformat)
+   7. [Animation State Machine](#37-animation-state-machine)
+   8. [Service Locator Pattern](#38-service-locator-pattern)
+   9. [Component Queries Use view.get()](#39-component-queries-use-viewget)
+   10. [Flipping Sprites via Negative Scale](#310-flipping-sprites-via-negative-scale)
+   11. [Group-Tag Cleanup](#311-group-tag-cleanup)
+   12. [Sound Playback via AppData::activeSounds](#312-sound-playback-via-appdataactivesounds)
+   13. [Per-Entity Config Files](#313-per-entity-config-files)
+   14. [ECS-Based HUD](#314-ecs-based-hud)
 4. [See Also](#see-also)
 
 ---
@@ -156,6 +157,41 @@ entt::entity createButton(AppContext& context, sf::Font& font,
 ---
 
 ## 3. Common Practices in the Codebase
+
+### Error Recovery Over Exceptions
+
+This codebase **intentionally avoids `try`/`catch` blocks** in game-facing code. Instead of throwing or crashing, functions redirect failures into one of two paths:
+
+| Strategy | Examples |
+|----------|----------|
+| **Return a null/sentinel value** | `getResource<T>()` returns `nullptr`; `getConfigTable()` returns `nullptr`; `createPlayer()` returns `entt::null` |
+| **Return an `std::optional`** | `getConfigValue<T>()` returns `std::nullopt` on missing keys — the caller uses `.value_or(default)` to supply a fallback |
+| **Return a visible error value** | `loadColorFromConfig()` returns `sf::Color::Magenta` — an unmistakable "something went wrong" color that stands out immediately in the game |
+| **Return an empty result** | `getStringArray()` returns an empty `std::vector<std::string>` when the TOML array is missing |
+| **Log and return early** | `loadConfig()` logs the parse error and returns without storing anything; `loadResource<T>()` logs and returns early |
+
+The principle: **never let a config typo or missing asset crash the game.** A missing texture might show nothing (or magenta), a missing config value gets a sensible default, and the logged warning tells you exactly which file and line caused the problem. The game keeps running, and you fix the issue when you see it.
+
+```cpp
+// ❌ Avoid — exceptions crash the game and are verbose to handle everywhere:
+try {
+    auto width = m_ConfigManager->getConfigValue<unsigned int>(...);
+} catch (const std::exception& e) {
+    logger::Error(e.what());
+}
+
+// Instead — optional returns with fallback defaults:
+auto width = m_ConfigManager->getConfigValue<unsigned int>(
+    Assets::Configs::Window, "mainWindow", "X").value_or(800u);
+
+// Failed resource lookups return nullptr — check it:
+auto* tex = context.m_ResourceManager->getResource<sf::Texture>(id);
+if (!tex) return entt::null;  // fail gracefully
+
+// Failed color loads return a screaming magenta:
+sf::Color color = utils::loadColorFromConfig(cfgMgr, id, section, key);
+// If the TOML array is missing, you get Magenta — impossible to miss.
+```
 
 ### Deferred State Changes
 
